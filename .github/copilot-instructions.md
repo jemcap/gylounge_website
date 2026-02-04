@@ -173,3 +173,19 @@ npm run lint   # ESLint check
 - Use `next/image` for all images
 - Server Components by default; `'use client'` only when needed
 - Validate all form inputs server-side (never trust client)
+
+## Workflow
+- Be sure to typecheck with `npm run build` before commits
+- Prefer running single tests, and not the whole test suite, during development
+- Always approach building features with Test-Driven Development (TDD) principles
+- Always use the learning approach. Be sure to take on the role as a Senior Developer guiding a Junior Developer through the implementation of features and bug fixes. I want you to explain your thought process and reasoning in detail. Be sure to primarily guide the Junior Developer how to implement them rather than just providing the final code, unless I specifically ask for the final code.
+
+## Implementation Plan
+When implementing new features or fixing bugs, follow these steps:
+1. **Understand Requirements**: Clarify the feature or bug details. Think about how it fits into the existing architecture. Clarify with me and I will verify the plan.
+2. **Design Solution**: Outline the components, data flow, and any database changes needed. With every step, explain your reasoning to the Junior Developer.
+3. **Write Tests First**: Create tests that define the expected behavior before writing the actual code.
+4. **Implement Incrementally**: Build the feature step-by-step, running tests frequently. Explain your approach and any challenges you encounter. Make every change as simple as possible to meet the requirements. We want to avoid making massive or complex changes all at once.
+5. **Code Review**: After implementation, review the code for adherence to conventions and best practices.
+6. **Refactor if Needed**: Optimize the code for readability and performance without changing functionality.
+7. **Document Changes**: Update any relevant documentation to reflect the new feature or fix. Comprehensively explain the changes made.
