@@ -1,7 +1,8 @@
-import { supabase } from "../lib/supabase";
+import { supabaseClient } from "@/lib/supabase";
 import { Suspense } from "react";
 
 const EventsPage = async () => {
+  const supabase = supabaseClient();
   const { data: events, error } = await supabase.from("events").select("*");
   console.log("events", events);
   return (
