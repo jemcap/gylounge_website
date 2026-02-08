@@ -5,17 +5,19 @@ const mockCreate = vi.fn();
 const mockConstructEvent = vi.fn();
 
 vi.mock('stripe', () => {
+  class StripeMock {
+    checkout = {
+      sessions: {
+        create: mockCreate,
+      },
+    };
+    webhooks = {
+      constructEvent: mockConstructEvent,
+    };
+  }
+
   return {
-    default: vi.fn(() => ({
-      checkout: {
-        sessions: {
-          create: mockCreate,
-        },
-      },
-      webhooks: {
-        constructEvent: mockConstructEvent,
-      },
-    })),
+    default: StripeMock,
   };
 });
 
@@ -43,12 +45,12 @@ describe('Stripe Client', () => {
     mockCreate.mockResolvedValue({ id: 'cs_test_123', url: 'https://checkout.stripe.com/test' });
 
     const { createCheckoutSession } = await import('@/lib/stripe');
-    const session = await createCheckoutSession({
-      email: 'test@example.com',
-      priceId: 'price_123',
-      successUrl: 'http://localhost:3000/membership/success',
-      cancelUrl: 'http://localhost:3000/membership',
-    });
+    const session = await createCheckoutSession(
+      'test@example.com',
+      'price_123',
+      'http://localhost:3000/membership/success',
+      'http://localhost:3000/membership'
+    );
 
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -62,6 +64,9 @@ describe('Stripe Client', () => {
         ]),
         success_url: 'http://localhost:3000/membership/success',
         cancel_url: 'http://localhost:3000/membership',
+        metadata: {
+          email: 'test@example.com',
+        },
       })
     );
     expect(session).toEqual({ id: 'cs_test_123', url: 'https://checkout.stripe.com/test' });
@@ -72,12 +77,12 @@ describe('Stripe Client', () => {
     mockConstructEvent.mockReturnValue(mockEvent);
 
     const { verifyWebhookSignature } = await import('@/lib/stripe');
-    const event = verifyWebhookSignature('raw-body', 'sig-header');
+    const event = await verifyWebhookSignature(Buffer.from('raw-body'), 'sig-header');
 
     expect(mockConstructEvent).toHaveBeenCalledWith(
-      'raw-body',
+      expect.any(Buffer),
       'sig-header',
-      'whsec_test_123'
+      'sk_test_123'
     );
     expect(event).toEqual(mockEvent);
   });
