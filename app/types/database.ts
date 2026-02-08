@@ -130,31 +130,31 @@ export type Database = {
       }
       members: {
         Row: {
+          bank_transfer_reference: string
           created_at: string | null
           email: string
           id: string
           name: string
           phone: string | null
           status: string | null
-          stripe_customer_id: string | null
         }
         Insert: {
+          bank_transfer_reference: string
           created_at?: string | null
           email: string
           id?: string
           name: string
           phone?: string | null
           status?: string | null
-          stripe_customer_id?: string | null
         }
         Update: {
+          bank_transfer_reference?: string
           created_at?: string | null
           email?: string
           id?: string
           name?: string
           phone?: string | null
           status?: string | null
-          stripe_customer_id?: string | null
         }
         Relationships: []
       }

@@ -128,3 +128,46 @@ export const sendWelcomeEmail = async (
   ].join("\n");
   return sendEmail({ to, subject, html, text });
 };
+
+export const sendMembershipInstructions = async (
+  to: string,
+  memberName: string,
+  reference: string,
+  details: {
+    membershipFeeGhs: number;
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    instructions: string;
+  },
+): Promise<SendResult> => {
+  const subject = "Your GYLounge membership bank transfer details";
+  const html = `
+    <h1>GYLounge Membership</h1>
+    <p>Hi ${memberName},</p>
+    <p>To activate your membership, please make a bank transfer using the details below.</p>
+    <ul>
+      <li><strong>Amount:</strong> GHS ${details.membershipFeeGhs}</li>
+      <li><strong>Bank:</strong> ${details.bankName}</li>
+      <li><strong>Account name:</strong> ${details.accountName}</li>
+      <li><strong>Account number:</strong> ${details.accountNumber}</li>
+      <li><strong>Reference:</strong> ${reference}</li>
+    </ul>
+    <p><strong>Important:</strong> ${details.instructions}</p>
+    <p>Once verified, your membership will be activated and you can book events.</p>
+  `;
+  const text = [
+    "GYLounge Membership",
+    `Hi ${memberName},`,
+    "To activate your membership, please make a bank transfer using the details below.",
+    `Amount: GHS ${details.membershipFeeGhs}`,
+    `Bank: ${details.bankName}`,
+    `Account name: ${details.accountName}`,
+    `Account number: ${details.accountNumber}`,
+    `Reference: ${reference}`,
+    "",
+    `Important: ${details.instructions}`,
+    "Once verified, your membership will be activated and you can book events.",
+  ].join("\n");
+  return sendEmail({ to, subject, html, text });
+};
