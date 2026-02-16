@@ -1,6 +1,8 @@
 ## Project Overview
 GYLounge is a Ghanaian community platform helping elderly people connect through local events and activities. Built with Next.js 16, React 19, and Tailwind CSS v4, deployed on Vercel.
 
+For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
+
 ## Product Principles (Elderly-Friendly)
 - Keep steps minimal: email + basic details → book.
 - Avoid accounts, passwords, and multi-step flows.
@@ -11,13 +13,14 @@ GYLounge is a Ghanaian community platform helping elderly people connect through
 - **Membership**: One-time membership fee via bank transfer (no accounts required)
 - **Member Verification**: Email-based lookup - no passwords or logins
 - **Email Notifications**: Confirmation emails via Resend to booker and organizer
+- **Admin Console**: Protected admin pages for managing events/slots, viewing bookings, and activating members
 
 ## Tech Stack
 - **Next.js 16.1.4** - App Router (no Pages Router)
 - **React 19** - Server Components by default
 - **Tailwind CSS v4** - `@import "tailwindcss"` syntax (not v3's `@tailwind`)
 - **TypeScript 5** - strict mode
-- **Supabase** - PostgreSQL database (no Auth features used)
+- **Supabase** - PostgreSQL database; Auth used for admin portal only
 - **Bank transfer** - Manual membership payments (GHS)
 - **Resend** - Transactional emails
 - **Vercel** - deployment platform
@@ -28,6 +31,13 @@ app/
   page.tsx                # Landing page
   types/
     database.ts           # Supabase generated types
+  admin/
+    login/page.tsx        # Admin magic-link login (Supabase Auth)
+    page.tsx              # Admin dashboard
+    members/page.tsx      # Manage members (activate from pending -> active)
+    bookings/page.tsx     # View/manage bookings
+    events/page.tsx       # Manage events
+    slots/page.tsx        # Manage slots/time availability
   events/
     page.tsx              # Event listings by location
     [eventId]/
@@ -72,6 +82,19 @@ if (member?.status === 'active') {
 
 ### Membership Required (Server-Enforced)
 Membership is mandatory. The booking server action must check membership status and only proceed for `active` members. Non-members are redirected to the membership page for bank transfer instructions. Activation happens after payment is verified (manually). This is enforced server-side to prevent bypassing in the UI.
+
+### Admin Portal (Supabase Auth Only)
+Public users never log in. Admins authenticate via Supabase Auth (recommended: magic link) to access `/admin/*`.
+
+Admin capabilities (planned):
+- Activate members after verifying bank transfers (`pending` → `active`).
+- Manage events and slots.
+- View and manage bookings.
+
+Security requirements:
+- Gate all `/admin/*` routes by server-side session checks.
+- Restrict admin access by email allowlist (MVP) or an `admin_users` table (more robust).
+- Perform writes server-side using `supabaseAdminClient()` after verifying the requester is an admin.
 
 ### App Router Conventions
 - `page.tsx` = route (Server Component by default)
@@ -120,7 +143,7 @@ Even at low volume, prevent double-booking by performing “check availability �
 4. Server Action: query `members` table by email
 5. If active member → create booking → send confirmations
 6. If not member → redirect to `/membership` → bank transfer instructions
-7. Admin verifies transfer → mark member `active` → user can book
+7. Admin verifies transfer in the admin console → mark member `active` → user can book
 
 ## Feasibility Notes (Roadmap Alignment)
 - The approach is feasible with the existing stack and favors simplicity.
@@ -163,6 +186,9 @@ BANK_TRANSFER_ACCOUNT_NAME=
 BANK_TRANSFER_ACCOUNT_NUMBER=
 BANK_TRANSFER_BANK_NAME=
 BANK_TRANSFER_INSTRUCTIONS=
+
+# Admin
+ADMIN_EMAIL_ALLOWLIST=
 
 # Resend
 RESEND_API_KEY=

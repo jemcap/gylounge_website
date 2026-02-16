@@ -1,29 +1,25 @@
-# Bank Transfer Payments (One-Time Membership)
+# Bank Transfer Payments (Membership Activation Model)
 
-This project can run without any payment gateway by using manual Ghana bank transfers for the one-time membership fee.
+## Purpose
+This document defines the bank-transfer membership system used by GYLounge and how it connects to the product flows in `docs/PROJECT_OVERVIEW.md`.
 
-The simplest safe flow is:
+## Policy
+- No payment gateway integration.
+- Membership activation is manual.
+- Booking is allowed only for active members.
 
-1. Collect member details (name, email, phone)
-2. Create a `members` row with `status = 'pending'` and a unique `bank_transfer_reference`
-3. Show and email bank transfer instructions including the reference to include in the transfer narration
-4. Admin verifies the transfer (by matching the reference) and sets `status = 'active'`
+## End-to-End Process
+1. User submits membership details (name, email, phone).
+2. Server creates `members` row with:
+   - `status = 'pending'`
+   - unique `bank_transfer_reference`
+3. App shows bank transfer instructions and emails the same details.
+4. User completes transfer and includes reference in narration.
+5. Admin verifies transfer and sets member to `active`.
+6. Member can now complete bookings.
 
-## Why This Works
-
-- No gateway onboarding required
-- No webhook reliability/signature concerns
-- Works “strictly in Ghana” as long as members can transfer locally
-
-Tradeoffs:
-
-- Manual operations and delays before activation
-- Harder to prevent fraud if references are reused or omitted
-- More support requests (people forget the reference)
-
-## Environment Variables
-
-Add to `.env.local` (and to Vercel env vars in production):
+## Environment Contract
+Set in `.env.local` and production:
 
 ```bash
 MEMBERSHIP_FEE_GHS=100
@@ -33,37 +29,51 @@ BANK_TRANSFER_BANK_NAME="Your Bank Name"
 BANK_TRANSFER_INSTRUCTIONS="Use your membership reference in the transfer narration."
 ```
 
-## Reference Format
+## Reference Requirements
+Reference format must be:
+- Unique per membership intent
+- Short and copyable
+- Easy to match in bank statements
 
-Use a short, copyable reference that is:
+Current helper behavior in `lib/membership.ts`:
+- `generateBankTransferReference()` returns `GYL-MEM-<8 hex chars>`.
 
-- Unique
-- Safe to show publicly
-- Easy to search in a bank statement
+## Membership State Machine
+- `pending`: instructions issued, transfer not yet verified
+- `active`: transfer verified, booking allowed
+- `inactive` / `cancelled`: admin-controlled non-bookable states
 
-Example format:
+## Admin Verification Workflow
+Primary path:
+- Admin signs in to `/admin/*`.
+- Admin opens member management (`/admin/members`).
+- Admin searches by `bank_transfer_reference`.
+- Admin updates member status to `active` after verification.
 
-`GYL-MEM-<6-8 chars>`
+Operational rules:
+- Never activate without a verified matching reference.
+- Keep a note/audit trail of activation decisions.
+- Escalate mismatches (missing/incorrect reference) for manual review.
 
-## Membership States
+## Failure and Support Scenarios
+- Missing reference in transfer narration:
+  - Keep member `pending`.
+  - Request transfer proof and reconcile manually.
 
-Recommended:
+- Duplicate or ambiguous reference:
+  - Do not auto-activate.
+  - Require human review and documentation.
 
-- `pending`: member has instructions/reference but not verified
-- `active`: payment verified and member can book
-- `inactive` / `cancelled`: admin-controlled
+- Delayed transfer confirmation:
+  - Keep status `pending` and communicate verification SLA.
 
-The booking flow should only allow bookings for `active` members.
+## Security and Data Handling
+- Bank details are configuration, not hardcoded.
+- Service role writes must happen server-side only.
+- Public booking flows must validate `members.status` each time.
 
-## Activation (Admin)
-
-Minimal approach:
-
-- Admin checks the bank statement for the reference
-- Admin updates the member row in Supabase to `status = 'active'`
-
-Optional automation later:
-
-- An internal admin page protected by an admin password/allowlist
-- Bank statement import + reference matching
-
+## Acceptance Criteria
+- Membership submission creates pending member with unique reference.
+- User receives identical instructions on screen and by email.
+- Admin can activate member using reference verification.
+- Booking path rejects non-active members.

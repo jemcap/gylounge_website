@@ -1,284 +1,151 @@
 # GYLounge Implementation Roadmap
 
-## Phase 1: Project Setup
+## Purpose
+This roadmap converts `docs/PROJECT_OVERVIEW.md` into a build sequence with milestones, ownership boundaries, and acceptance criteria.
 
-### 1.1 Install Dependencies
-```bash
-npm install @supabase/supabase-js resend
-npm install -D supabase
-```
+## Delivery Strategy
+- Ship vertical slices in the order users experience them.
+- Keep business rules server-enforced.
+- Reuse `lib/*` modules as the stable integration boundary.
 
-### 1.2 Create Folder Structure
-```
-mkdir -p components/{ui,forms,events}
-mkdir -p utils lib types
-mkdir -p app/{events,booking,membership,my-bookings}
-```
+## Milestone 0: Foundation
+Scope:
+- Confirm environment variables and secret handling.
+- Ensure Supabase types are up to date.
+- Establish base route skeleton for planned pages.
+- Keep docs and architecture synchronized.
 
-### 1.3 Environment Variables
-Create `.env.local`:
-```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+Key outputs:
+- `.env.local` contract validated.
+- `app/types/database.ts` generated and committed.
+- Empty route stubs created for target pages.
 
-# Membership (bank transfer)
-MEMBERSHIP_FEE_GHS=100
-BANK_TRANSFER_ACCOUNT_NAME="GYLounge"
-BANK_TRANSFER_ACCOUNT_NUMBER="0123456789"
-BANK_TRANSFER_BANK_NAME="Your Bank Name"
-BANK_TRANSFER_INSTRUCTIONS="Use your membership reference in the transfer narration."
+Acceptance criteria:
+- App boots locally.
+- Core libs (`lib/supabase.ts`, `lib/membership.ts`, `lib/resend.ts`) compile and tests pass.
 
-# Resend
-RESEND_API_KEY=re_...
-```
+## Milestone 1: Event Catalog
+Scope:
+- Build `/events` with location filtering and event cards.
+- Build `/events/[eventId]` for event + slot display.
 
-Add to `.gitignore`:
-```
-.env.local
-```
+Key outputs:
+- Read-only event browsing experience.
+- Stable query patterns for `events`, `locations`, and `slots`.
 
----
+Acceptance criteria:
+- Users can browse events by location.
+- Event detail view shows slots and event metadata.
 
-## Phase 2: Database Setup (Supabase)
+## Milestone 2: Membership Flow (Bank Transfer)
+Scope:
+- Build `/membership` and `/membership/pending`.
+- Implement pending membership creation with reference generation.
+- Send membership bank-transfer instructions email.
 
-### 2.1 Create Supabase Project
-1. Go to [supabase.com](https://supabase.com) and create a new project
-2. Copy the project URL and anon key to `.env.local`
-3. Copy the service role key (Settings → API) to `.env.local`
+Key outputs:
+- Server action or route handler for membership intent creation.
+- Unique `bank_transfer_reference` persisted per member.
 
-### 2.2 Create Database Tables
-Run this SQL in Supabase SQL Editor:
+Acceptance criteria:
+- Membership intent creates member with `status = 'pending'`.
+- User sees and receives bank details + reference.
 
-```sql
--- Members table (created as pending, activated after manual verification)
-CREATE TABLE members (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
-  phone TEXT,
-  bank_transfer_reference TEXT UNIQUE NOT NULL,
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'cancelled')),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+## Milestone 3: Booking Flow
+Scope:
+- Implement booking mutation endpoint/server action.
+- Enforce active membership check by normalized email.
+- Reserve slot atomically and insert booking.
+- Send booking confirmation and organizer notification emails.
 
--- Locations table
-CREATE TABLE locations (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  address TEXT NOT NULL,
-  region TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+Key outputs:
+- `createBooking` flow with transactional guard.
+- `/booking/confirm` completion UX.
 
--- Events table
-CREATE TABLE events (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  location_id UUID REFERENCES locations(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  description TEXT,
-  date DATE NOT NULL,
-  capacity INTEGER NOT NULL,
-  image_url TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+Acceptance criteria:
+- Active member can book successfully.
+- Pending/non-member is redirected to membership flow.
+- Slot overbooking is prevented.
 
--- Time slots table
-CREATE TABLE slots (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
-  available_spots INTEGER NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+## Milestone 4: My Bookings
+Scope:
+- Build `/my-bookings` email lookup.
+- Return privacy-safe booking projection.
 
--- Bookings table
-CREATE TABLE bookings (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  member_id UUID REFERENCES members(id) ON DELETE CASCADE,
-  event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-  slot_id UUID REFERENCES slots(id) ON DELETE CASCADE,
-  status TEXT DEFAULT 'confirmed' CHECK (status IN ('confirmed', 'cancelled', 'attended')),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+Key outputs:
+- Email-based booking retrieval flow.
 
--- Indexes for common queries
-CREATE INDEX idx_members_email ON members(email);
-CREATE INDEX idx_events_location ON events(location_id);
-CREATE INDEX idx_events_date ON events(date);
-CREATE INDEX idx_bookings_member ON bookings(member_id);
-CREATE INDEX idx_slots_event ON slots(event_id);
-```
+Acceptance criteria:
+- Valid email returns that member's bookings.
+- Response excludes unnecessary PII.
 
-### 2.3 Generate TypeScript Types
-```bash
-npx supabase gen types typescript --project-id your_project_id > app/types/database.ts
-```
+## Milestone 5: Admin Console
+Scope:
+- Build `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, `/admin/slots`.
+- Enforce Supabase-authenticated admin access.
+- Implement member activation (`pending` to `active`).
+- Implement events/slots/bookings management operations.
 
----
+Key outputs:
+- Protected admin workspace.
+- Member activation path used for bank-transfer verification.
 
-## Phase 3: Core Library Setup
+Acceptance criteria:
+- Non-admin is blocked from `/admin/*`.
+- Admin can activate members and manage events/slots/bookings.
 
-### 3.1 Supabase Client (`lib/supabase.ts`)
-- Create browser client for client components
-- Create server client for Server Actions/API routes
+## Milestone 6: Hardening and Release
+Scope:
+- Add tests for server actions and core flows.
+- Apply input validation and error handling consistency.
+- Prepare deployment checks and operational runbooks.
 
-### 3.2 Membership Helpers (`lib/membership.ts`)
-- Generate a unique bank transfer reference
-- Create a pending member record
-- Send membership instructions email (Resend)
+Key outputs:
+- Extended test suite beyond `lib/*`.
+- Release checklist for Vercel deployment.
 
-### 3.3 Resend Client (`lib/resend.ts`)
-- Initialize Resend client
-- Email templates for booking confirmation
-- Email templates for welcome/membership
+Acceptance criteria:
+- Lint/test pass.
+- Critical flows are covered by automated tests.
+- Production env vars documented and verified.
 
----
+## Database Plan
+Core schema remains:
+- `members`
+- `locations`
+- `events`
+- `slots`
+- `bookings`
 
-## Phase 4: Build Core Features
+Required integrity additions before full booking launch:
+- Transaction/RPC for slot reservation.
+- Supporting indexes for common lookup paths.
 
-### 4.1 Landing Page (`app/page.tsx`)
-- Hero section explaining GYLounge
-- Featured locations
-- CTA to browse events
+## API/Application Plan
+Preferred pattern:
+- Server Actions for form-driven mutations.
+- Route Handlers for JSON consumption and admin operations.
 
-### 4.2 Events Listing (`app/events/page.tsx`)
-- Location picker/filter
-- List of upcoming events
-- Event cards with date, title, location
+Shared rule:
+- Keep business logic centralized in reusable functions; UI layers should not duplicate rules.
 
-### 4.3 Event Detail (`app/events/[eventId]/page.tsx`)
-- Event information
-- Available time slots
-- Booking form (name, email, phone, slot selection)
+## Testing Plan
+Current:
+- Unit tests for `lib/supabase.ts` and `lib/resend.ts`.
 
-### 4.4 Booking Flow
-- Server Action to process booking
-- Membership check by email
-- Redirect to membership instructions if not a member
-- Create booking and send confirmations
+Add next:
+- Membership creation tests.
+- Booking transaction tests.
+- Admin authorization tests.
+- My-bookings privacy projection tests.
 
-### 4.5 Membership Page (`app/membership/page.tsx`)
-- Membership benefits
-- Bank transfer instructions (one-time membership fee)
-- Show a unique reference for the user to include in the transfer
+## Operational Plan (Bank Transfer)
+- Use unique references for all pending memberships.
+- Verify transfer manually in admin workflow.
+- Activate member only after verification.
 
-### 4.6 Manual Activation Process (Admin)
-- Admin checks bank statement for the reference
-- Admin sets member `status = 'active'` in Supabase
-- Optional: trigger a welcome email after activation
-
-### 4.7 My Bookings (`app/my-bookings/page.tsx`)
-- Email input form
-- Display bookings for that email
-- Option: Magic link for security
-
----
-
-## Phase 5: UI Components
-
-### Base Components (`components/ui/`)
-- Button (primary, secondary, outline variants)
-- Input (text, email, phone)
-- Card (for events, bookings)
-- Select (for location picker, time slots)
-- Loading spinner
-
-### Form Components (`components/forms/`)
-- BookingForm
-- EmailLookupForm (for my-bookings)
-
-### Event Components (`components/events/`)
-- EventCard
-- EventList
-- LocationPicker
-- SlotPicker
-
----
-
-## Phase 6: Bank Transfer Setup
-
-### 6.1 Confirm Bank Details
-1. Collect the Ghana bank account details the organization wants to receive membership fees into
-2. Confirm the exact narration/reference format members must include (short, copyable)
-
-### 6.2 Decide Verification Workflow
-1. Decide verification SLA (e.g., “within 24 hours”)
-2. Decide who verifies transfers (admin/organizer)
-3. Decide where activation happens first (Supabase dashboard is simplest)
-
-### 6.3 Member Communication
-1. Ensure membership instructions appear on `/membership`
-2. Email the same instructions to the member (Resend) including the reference
-
----
-
-## Phase 7: Email Setup (Resend)
-
-### 7.1 Create Resend Account
-1. Sign up at [resend.com](https://resend.com)
-2. Verify your domain (or use their test domain initially)
-3. Get API key from Dashboard
-
-### 7.2 Email Templates to Create
-- Booking confirmation (to member)
-- Booking notification (to organizer)
-- Welcome email (after membership purchase)
-
----
-
-## Phase 8: Deployment (Vercel)
-
-### 8.1 Connect Repository
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard
-
-### 8.3 Verify Supabase Connection
-- Ensure Supabase allows connections from Vercel IPs
-- Test booking flow end-to-end
-
----
-
-## Phase 9: Testing Checklist
-
-- [ ] Can browse events by location
-- [ ] Can view event details and available slots
-- [ ] Booking form validates inputs
-- [ ] Non-member sees bank transfer instructions + reference
-- [ ] Pending member cannot book
-- [ ] Activating member enables booking
-- [ ] Member can complete booking
-- [ ] Confirmation emails are sent
-- [ ] My Bookings shows correct bookings by email
-- [ ] Works on mobile (elderly-friendly)
-- [ ] Accessibility: keyboard navigation, screen readers
-
----
-
-## Useful Commands
-
-```bash
-# Development
-npm run dev
-
-# Build for production
-npm run build
-
-# Run ESLint
-npm run lint
-
-# Generate Supabase types
-npx supabase gen types typescript --project-id PROJECT_ID > types/database.ts
-```
-
----
-
-## Resources
-
-- [Next.js App Router Docs](https://nextjs.org/docs/app)
-- [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript)
-- [Resend Next.js Guide](https://resend.com/docs/send-with-nextjs)
-- [Tailwind CSS v4](https://tailwindcss.com/docs)
+## Definition of Done (Per Milestone)
+- Feature implemented in target routes/modules.
+- Tests for critical path behavior added or updated.
+- Lint/test commands run and status recorded.
+- Architecture docs updated for any scope or flow changes.

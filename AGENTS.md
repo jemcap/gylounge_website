@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `app/` contains Next.js App Router pages, layouts, and global styles (`app/globals.css`).
-- `lib/` holds integrations and shared clients (Supabase, Stripe, Resend).
+- `lib/` holds integrations and shared clients (Supabase, Resend, membership helpers).
 - `__tests__/` includes unit tests for library modules.
 - `public/` stores static assets (SVGs, icons).
 - Root config files include `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `vitest.config.ts`, and `package.json`.
@@ -18,23 +18,23 @@
 - Use TypeScript for all app and library code.
 - Indentation: 2 spaces (match existing code style).
 - Prefer `camelCase` for variables/functions and `PascalCase` for React components.
-- Keep file names lowercase with dashes where appropriate (e.g., `stripe.ts`).
+- Keep file names lowercase with dashes where appropriate (e.g., `supabase.ts`).
 - Linting is configured via `eslint.config.mjs`; follow ESLint guidance when editing.
 
 ## Testing Guidelines
 - Tests use Vitest and live under `__tests__/`.
-- Name tests to mirror modules, e.g., `__tests__/lib/stripe.test.ts`.
+- Name tests to mirror modules, e.g., `__tests__/lib/resend.test.ts`.
 - Run `npm run test` before opening a PR when possible.
 
 ## Commit & Pull Request Guidelines
-- Recent commits use concise, imperative, sentence-case messages (e.g., “Implemented Stripe client”).
+- Recent commits use concise, imperative, sentence-case messages (e.g., “Implemented membership helpers”).
 - Keep commits focused on a single change set.
 - PRs should include a brief description of changes and testing notes (commands run).
 - Add screenshots for UI changes when relevant.
 
 ## Security & Configuration Tips
-- Environment variables are required for Supabase, Stripe, and Resend. Use `.env.local` for local development and keep secrets out of Git.
-- Ensure webhook secrets and API keys match their respective services.
+- Environment variables are required for Supabase, Resend, and membership/admin configuration. Use `.env.local` for local development and keep secrets out of Git.
+- Ensure API keys and secrets match their respective services.
 
 ## Agent-Specific Instructions
 - Prefer `rg` for search and keep changes minimal and focused.
