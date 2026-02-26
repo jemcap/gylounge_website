@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
+import { GhanaTimePill } from "@/components/hero/TimePill";
 
 export default function Home() {
   const sports = [
@@ -11,93 +13,123 @@ export default function Home() {
     "Mindful Walks",
     "Low-Impact Fitness",
   ];
-  const marqueeDurationSeconds = sports.length * 2;
+  const marqueeDurationSeconds = sports.length * 4; // Adjust duration based on number of sports
 
   return (
     <main className="min-h-screen w-full bg-[#f5f1ea] text-[#1c1b18]">
-      <section className="min-h-screen w-full bg-[radial-gradient(85%_120%_at_50%_0%,#fdf2c5_0%,#f5f1ea_55%,#ede4d9_100%)] px-6 py-16 md:px-12 lg:px-20">
-        <div className="mx-auto flex h-full max-w-5xl flex-col justify-center gap-8">
-          <p className="text-xs uppercase tracking-[0.3em] text-[#8b6b3f]">
-            GYLounge Community
-          </p>
-          <h1 className="text-4xl font-semibold leading-tight md:text-6xl">
-            A warm, steady space for connection and shared moments.
-          </h1>
-          <p className="max-w-2xl text-lg text-[#3b3127] md:text-xl">
-            Simple steps, gentle pacing, and welcoming gatherings in familiar
-            neighborhoods across Ghana.
-          </p>
+      <section className="relative min-h-screen w-full overflow-hidden px-6 py-16 md:px-12 lg:px-20">
+        <Image
+          src="/gylounge_hero.svg"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="relative z-10 mx-auto flex h-full min-h-[calc(100vh-8rem)] max-w-5xl flex-col justify-center ">
+          <Image
+            src="/gylounge_hero_logo.svg"
+            alt="GYLounge Logo"
+            width={1000}
+            height={1000}
+            className="drop-shadow-[0_20px_30px_rgba(0,0,0,1)]"
+          />
+          <div className="flex w-full justify-center">
+            <GhanaTimePill />
+          </div>
         </div>
       </section>
 
-      <section className="w-full bg-[#efe7dc] px-6 py-16 md:px-12 lg:px-20">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-3xl border border-[#dcccb8] bg-white/70 p-8 shadow-sm">
-              <h2 className="text-2xl font-semibold">Local gatherings, crafted gently</h2>
-              <p className="mt-3 max-w-2xl text-base text-[#3b3127]">
-                Events are grouped by neighborhood so it is easy to find what is
-                close, familiar, and welcoming.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-[#dcccb8] bg-white/70 p-8 shadow-sm">
-              <h2 className="text-2xl font-semibold">Simple booking, no accounts</h2>
-              <p className="mt-3 max-w-2xl text-base text-[#3b3127]">
-                Reserve a place with just a name and email. Membership is verified
-                without passwords or confusing steps.
-              </p>
-            </div>
+      <section className="w-full bg-[#efe7dc]">
+        <div className="mx-auto flex w-full flex-col">
+          <div className="w-full flex justify-center flex-col items-center text-justify bg-[#EBBF6C] text-[#261B07] pb-10">
+            <h2
+              className="text-[86px] font-light italic"
+              style={{ fontFamily: "'Instrument Serif', serif" }}
+            >
+              Enjoy Your Golden Years
+            </h2>
+            <p
+              className="max-w-2xl text-3xl"
+              style={{ fontFamily: "'Roboto', sans-serif" }}
+            >
+              Golden Years Lounge is a social space created to bring older
+              adults from Ghana and the diaspora together in a friendly and
+              welcoming environment.
+            </p>
+          </div>
+          <div className="w-full flex justify-center flex-col items-center text-center bg-[#3F2D17] text-[#DBD1B9] pb-10">
+            <h2
+              className="text-[86px] font-light italic "
+              style={{ fontFamily: "'Instrument Serif', serif" }}
+            >
+              Play, Relax & Connect
+            </h2>
+            <p
+              className="max-w-2xl text-3xl"
+              style={{ fontFamily: "'Roboto', sans-serif" }}
+            >
+              With classic games and group activities available daily, unwind,
+              connect with others, and enjoy light-hearted fun at your own pace.
+            </p>
           </div>
         </div>
 
         <div
           id="sports-carousel"
-          className="relative left-1/2 right-1/2 mt-6 w-screen -translate-x-1/2 overflow-hidden border-y border-[#dcccb8] bg-white/70"
+          className="relative w-full overflow-hidden bg-[#DBD1B9]"
         >
-          <div className="flex h-20 items-center md:h-24 lg:h-28">
+          <div className="flex h-[163px] items-center">
             <div
-              className="flex min-w-max items-center gap-12 whitespace-nowrap px-6"
+              className="flex min-w-max items-center whitespace-nowrap will-change-transform"
               style={{
                 animation: `marquee ${marqueeDurationSeconds}s linear infinite`,
               }}
             >
-              {sports.map((sport) => (
-                <h1 key={sport} className="text-2xl font-semibold md:text-3xl lg:text-4xl">
-                  {sport}
-                </h1>
-              ))}
-              {sports.map((sport) => (
-                <h1
-                  key={`${sport}-duplicate`}
-                  aria-hidden="true"
-                  className="text-2xl font-semibold md:text-3xl lg:text-4xl"
+              {[0, 1].map((loopIndex) => (
+                <div
+                  key={`sports-loop-${loopIndex}`}
+                  aria-hidden={loopIndex === 1}
+                  className="flex shrink-0 items-center"
                 >
-                  {sport}
-                </h1>
+                  {sports.map((sport) => (
+                    <div
+                      key={`${sport}-${loopIndex}`}
+                      className="flex h-full shrink-0 items-center px-4 md:px-5 lg:px-6"
+                    >
+                      <h1
+                        className="text-center text-2xl leading-none font-light md:text-3xl lg:text-7xl italic"
+                        style={{ fontFamily: "'Instrument Serif', serif" }}
+                      >
+                        {sport}
+                      </h1>
+                      <span
+                        aria-hidden="true"
+                        className="ml-4 text-center text-2xl leading-none font-light md:ml-5 md:text-3xl lg:ml-6 lg:text-7xl italic"
+                        style={{ fontFamily: "'Instrument Serif', serif" }}
+                      >
+                        •
+                      </span>
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="w-full bg-[#14110b] px-6 py-16 text-[#f5f1ea] md:px-12 lg:px-20">
+      <section className="w-full bg-[#F1EDE5] px-6 py-16 text-[#14110b] md:px-12 lg:px-20">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
-          <h2 className="text-3xl font-semibold md:text-4xl">
-            Start your journey with the lounge.
-          </h2>
-          <p className="text-base text-[#d8d1c6] md:text-lg">
-            Discover upcoming gatherings or become a member today.
-          </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/events"
-              className="rounded-full bg-[#f5f1ea] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#14110b] transition hover:translate-y-[-2px]"
+              className="rounded-full bg-[#f5f1ea] border-2 border-[#3F2D17] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#14110b]"
             >
               Discover The Lounge
             </Link>
             <Link
               href="/membership"
-              className="rounded-full border border-[#f5f1ea] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f1ea] transition hover:translate-y-[-2px]"
+              className="rounded-full bg-[#EBBF6C] border-2 border-[#3F2D17] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#3F2D17]"
             >
               Become A Member
             </Link>

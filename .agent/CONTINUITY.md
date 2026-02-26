@@ -3,6 +3,10 @@
 [PLANS]
 - 2026-02-08T00:00Z [USER] No active plan beyond creating the continuity file.
 - 2026-02-16T11:36Z [USER] Generate a simple boilerplate for each required application page and component.
+- 2026-02-26T20:36Z [USER] Install and import Google `Instrument Serif` and expose it for homepage typography.
+- 2026-02-26T20:36Z [USER] Add a live Ghana-time pill directly below the homepage logo with explicit sizing and rounded-pill spacing.
+- 2026-02-26T20:36Z [USER] Center sports carousel items and separate each activity with `•`.
+- 2026-02-26T20:41Z [USER] Make sports carousel truly continuous (no visible reset), keep it within viewport width, and vertically center carousel text.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -12,6 +16,11 @@
 - 2026-02-10T18:01Z [USER] Stripe integration and tests removed intentionally; documentation should not reference Stripe.
 - 2026-02-13T20:35Z [USER] Keep `docs/PROJECT_OVERVIEW.md` unchanged; improve the rest of the docs to provide a high-level build system and remove Stripe dependency.
 - 2026-02-16T11:36Z [CODE] Implement route/component scaffolds as static placeholders only; defer Supabase/Auth/business-rule wiring to milestone implementation work.
+- 2026-02-26T20:36Z [CODE] Wire `Instrument_Serif` using `next/font/google` in `app/layout.tsx` and expose it via `--font-serif` in `app/globals.css`.
+- 2026-02-26T20:36Z [CODE] Keep Ghana-time UI in `components/hero/TimePill.tsx` as a client component using `Intl.DateTimeFormat` with `Africa/Accra`.
+- 2026-02-26T20:36Z [CODE] Preserve marquee behavior while centering sports labels and inserting `•` separators in the scrolling track.
+- 2026-02-26T20:41Z [CODE] Rebuild marquee as two identical `shrink-0` loops inside one animated track so `translateX(-50%)` resets seamlessly.
+- 2026-02-26T20:41Z [CODE] Replace `w-screen` + translate viewport hack with `w-full overflow-hidden` for x-axis containment.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -34,6 +43,14 @@
 - 2026-02-16T11:36Z [TOOL] Added reusable component boilerplates under `components/ui/*`, `components/forms/*`, and `components/events/*`.
 - 2026-02-16T11:36Z [CODE] Replaced `app/events/page.tsx` with a scaffold implementation that uses placeholder data and the new reusable event components.
 - 2026-02-16T11:36Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` status snapshot to reflect the new scaffold baseline.
+- 2026-02-26T20:36Z [CODE] Updated `app/layout.tsx` and `app/globals.css` to register/use `Instrument Serif` alongside Geist fonts.
+- 2026-02-26T20:36Z [CODE] Integrated `components/hero/TimePill.tsx` beneath the hero logo in `app/page.tsx`.
+- 2026-02-26T20:36Z [CODE] Updated `app/page.tsx` sports marquee to center items and render `•` separators between labels.
+- 2026-02-26T20:36Z [CODE] Corrected `docs/SYSTEM_ARCHITECTURE.md` hero utility path to `components/hero/TimePill.tsx`.
+- 2026-02-26T20:36Z [TOOL] Validation run: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass.
+- 2026-02-26T20:41Z [CODE] Refactored `app/page.tsx` sports carousel to render two identical loops (`[0,1]` map), each with item + `•` separator blocks.
+- 2026-02-26T20:41Z [CODE] Applied fixed carousel container height (`h-[163px]`), `h-full` item alignment, and `leading-none` to center text on the y-axis.
+- 2026-02-26T20:41Z [TOOL] Re-validated after refactor: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -48,6 +65,10 @@
 - 2026-02-13T20:35Z [TOOL] Supersedes prior build UNCONFIRMED note: `next build` now succeeds in this environment; output still shows server log noise from `console.log` in `app/events/page.tsx`.
 - 2026-02-16T11:36Z [TOOL] zsh expands bracketed route paths during shell writes; scaffolding files like `app/events/[eventId]/page.tsx` requires quoting the path.
 - 2026-02-16T11:36Z [TOOL] `npm run build` failed in sandbox due blocked Google Fonts requests for Geist; rerunning via approved `./node_modules/.bin/next build` succeeded and generated 15 app routes.
+- 2026-02-26T20:36Z [TOOL] `npm run build` (Turbopack) still fails in sandbox on Google font fetch (`Geist`, `Geist Mono`, `Instrument Serif`), while `next build --webpack` succeeds locally.
+- 2026-02-26T20:36Z [CODE] Homepage currently imports `GhanaTimePill` from `components/hero/TimePill.tsx`; architecture docs must reference this path (not `components/ui/ghana-time-pill.tsx`).
+- 2026-02-26T20:41Z [CODE] Seamless marquee requires two structurally identical halves; differences in separator placement between halves create visible reset jumps.
+- 2026-02-26T20:41Z [CODE] `w-screen` with `left-1/2 -translate-x-1/2` can produce horizontal overflow in this layout; `w-full overflow-hidden` keeps carousel within viewport.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -62,3 +83,6 @@
 - 2026-02-13T20:35Z [TOOL] Validation evidence after doc/dependency updates: tests pass (`7/7`), lint still reports one existing warning in `app/events/page.tsx`, and production build succeeds.
 - 2026-02-16T11:36Z [TOOL] Scaffold outcome: required page and component boilerplates now exist and compile.
 - 2026-02-16T11:36Z [TOOL] Validation evidence for scaffold change: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build` pass.
+- 2026-02-26T20:36Z [CODE] Homepage now supports Google `Instrument Serif`, includes a live Ghana-time hero pill, and has a centered sports marquee with `•` separators.
+- 2026-02-26T20:36Z [TOOL] Latest validation for these UI updates: lint pass, tests pass (`7/7`), webpack production build pass.
+- 2026-02-26T20:41Z [CODE] Sports carousel now scrolls continuously without end-reset jump, stays contained within viewport width, and keeps label text vertically centered.

@@ -50,6 +50,7 @@ Responsibilities:
 Guideline:
 - Client components only for interactivity.
 - Server components by default.
+- Typography tokens come from `next/font/google` variables (`Geist`, `Geist Mono`, `Instrument Serif`) exposed through `app/globals.css`.
 
 ### 2. Domain/Application Layer (Server Actions + API)
 Responsibilities:
@@ -175,6 +176,8 @@ Implemented now:
   - `components/ui/*`
   - `components/forms/*`
   - `components/events/*`
+- Hero utility component:
+  - `components/hero/TimePill.tsx` for live Ghana time display under the homepage logo
 - `lib/supabase.ts`
 - `lib/membership.ts`
 - `lib/resend.ts`
