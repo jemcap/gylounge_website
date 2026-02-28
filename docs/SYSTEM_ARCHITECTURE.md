@@ -25,13 +25,14 @@ GYLounge is an elderly-friendly event and membership platform for Ghana with:
 
 ## Route Architecture (Target)
 The target route map mirrors `docs/PROJECT_OVERVIEW.md`:
-- `/` landing and navigation entrypoint
+- `/` default landing and navigation entrypoint
+- `/home` consolidated public home with accordion sections for Register, Booking, FAQs, and Contact Us
 - `/events` event listing and location filtering
 - `/events/[eventId]` event detail and slot selection
-- `/booking/confirm` booking completion state
-- `/membership` membership sign-up and bank instructions
-- `/membership/pending` waiting state until activation
-- `/my-bookings` email-based booking lookup
+- `/booking/confirm` booking completion state (dedicated route scaffold)
+- `/membership` membership sign-up and bank instructions (dedicated route scaffold)
+- `/membership/pending` waiting state until activation (dedicated route scaffold)
+- `/my-bookings` email-based booking lookup (dedicated route scaffold)
 - `/admin/login` admin authentication
 - `/admin` dashboard
 - `/admin/members` membership activation and member ops
@@ -91,7 +92,7 @@ Type source of truth:
 - Every membership intent gets a unique `bank_transfer_reference`.
 - Slot capacity cannot go below zero.
 - Admin-only operations must require authenticated admin identity.
-- Public lookups (`/my-bookings`) should expose minimal fields.
+- Public lookups (`/home` booking/register sections and `/my-bookings` scaffold) should expose minimal fields.
 
 ## Security Model
 
@@ -111,26 +112,28 @@ Type source of truth:
 
 ## End-to-End Flows
 
-### Event Browsing
+### Membership Activation Flow
+1. User opens `/home` and expands the `Register` accordion.
+2. User submits membership form.
+3. Server creates `members` record with `status = 'pending'` and unique reference.
+4. App shows bank instructions and sends email.
+5. Admin validates transfer and sets member status to `active`.
+6. Optional welcome email sent after activation.
+
+### Booking Flow
+1. User opens `/home` and expands the `Booking` accordion.
+2. User submits booking form.
+3. Server checks member by normalized email.
+4. If active, reserve slot and insert booking.
+5. Send confirmation (member) and notification (organizer).
+6. If not active, route user to `/home#register`.
+
+### Event Browsing (Dedicated Flow)
 1. User opens `/events`.
 2. Server reads events and locations from Supabase.
 3. UI renders filterable event list.
 
-### Membership Activation Flow
-1. User submits membership form.
-2. Server creates `members` record with `status = 'pending'` and unique reference.
-3. App shows bank instructions and sends email.
-4. Admin validates transfer and sets member status to `active`.
-5. Optional welcome email sent after activation.
-
-### Booking Flow
-1. User opens event detail and selects slot.
-2. Server checks member by normalized email.
-3. If active, reserve slot and insert booking.
-4. Send confirmation (member) and notification (organizer).
-5. If not active, redirect user to membership flow.
-
-### My Bookings Flow
+### My Bookings Flow (Dedicated Flow)
 1. User submits email on `/my-bookings`.
 2. Server resolves member and bookings.
 3. UI returns constrained booking list.
@@ -149,16 +152,16 @@ Required environment groups:
 
 ## Build Sequence (Execution Order)
 1. Foundation: env contracts, Supabase wiring, typed schema, base route skeleton.
-2. Event catalog: `/events`, `/events/[eventId]`, location filtering.
-3. Membership flow: `/membership`, `/membership/pending`, pending-member creation + email.
-4. Booking flow: membership check, slot reservation, booking writes, confirmation emails.
-5. My bookings: email lookup with privacy-safe output.
-6. Admin console: auth, route protection, member activation, event/slot/booking management.
-7. Hardening: tests, validations, observability, deployment readiness.
+2. Public home shell: `/home` navbar + accordions (`Register`, `Booking`, `FAQs`, `Contact Us`).
+3. Membership and booking logic: wire server-backed membership + booking flows to `/home` accordion forms.
+4. Dedicated flow enhancements: `/events`, `/events/[eventId]`, `/booking/confirm`, `/membership`, `/membership/pending`, `/my-bookings`.
+5. Admin console: auth, route protection, member activation, event/slot/booking management.
+6. Hardening: tests, validations, observability, deployment readiness.
 
 ## Status Snapshot (Current Repository)
 Implemented now:
 - `app/page.tsx`
+- `app/home/page.tsx`
 - `app/events/page.tsx`
 - Route skeletons for:
   - `/events/[eventId]`
@@ -177,7 +180,7 @@ Implemented now:
   - `components/forms/*`
   - `components/events/*`
 - Hero utility component:
-  - `components/hero/TimePill.tsx` for live Ghana time display under the homepage logo
+  - `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
 - `lib/supabase.ts`
 - `lib/membership.ts`
 - `lib/resend.ts`

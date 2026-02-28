@@ -7,6 +7,9 @@
 - 2026-02-26T20:36Z [USER] Add a live Ghana-time pill directly below the homepage logo with explicit sizing and rounded-pill spacing.
 - 2026-02-26T20:36Z [USER] Center sports carousel items and separate each activity with `•`.
 - 2026-02-26T20:41Z [USER] Make sports carousel truly continuous (no visible reset), keep it within viewport width, and vertically center carousel text.
+- 2026-02-28T15:17Z [USER] Resize both CTA buttons to `341x56` and add a chevron-down icon beside each label.
+- 2026-02-28T15:17Z [USER] Replace inline chevrons with `ChevronDown` from `lucide-react`.
+- 2026-02-28T15:39Z [USER] Consolidate register/booking/FAQs/contact into a single `/home` page with accordions while keeping `/` as default entry.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -21,6 +24,10 @@
 - 2026-02-26T20:36Z [CODE] Preserve marquee behavior while centering sports labels and inserting `•` separators in the scrolling track.
 - 2026-02-26T20:41Z [CODE] Rebuild marquee as two identical `shrink-0` loops inside one animated track so `translateX(-50%)` resets seamlessly.
 - 2026-02-26T20:41Z [CODE] Replace `w-screen` + translate viewport hack with `w-full overflow-hidden` for x-axis containment.
+- 2026-02-28T15:17Z [CODE] Keep CTA links as fixed-size buttons (`w-[341px] h-[56px]`) and render chevrons with `lucide-react` `ChevronDown`.
+- 2026-02-28T15:17Z [TOOL] Install `lucide-react` using `npm --offline` cache due blocked outbound network.
+- 2026-02-28T15:39Z [USER] Keep `/` as the default route and implement the new one-page home UX on `/home`.
+- 2026-02-28T15:40Z [CODE] Reuse existing `MembershipForm` and `BookingForm` inside `/home` accordion sections instead of creating new standalone pages.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -51,6 +58,13 @@
 - 2026-02-26T20:41Z [CODE] Refactored `app/page.tsx` sports carousel to render two identical loops (`[0,1]` map), each with item + `•` separator blocks.
 - 2026-02-26T20:41Z [CODE] Applied fixed carousel container height (`h-[163px]`), `h-full` item alignment, and `leading-none` to center text on the y-axis.
 - 2026-02-26T20:41Z [TOOL] Re-validated after refactor: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass.
+- 2026-02-28T15:17Z [CODE] Updated CTA links in `app/page.tsx` to fixed button dimensions and icon+label layout.
+- 2026-02-28T15:17Z [TOOL] Installed `lucide-react` offline and replaced inline SVG chevrons with `ChevronDown`.
+- 2026-02-28T15:17Z [TOOL] Validation run after CTA/icon changes: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass.
+- 2026-02-28T15:41Z [CODE] Replaced placeholder `app/home/page.tsx` with a full single-page home layout: top navbar (logo left, Ghana time right) and accordions for Register, Booking, FAQs, Contact Us.
+- 2026-02-28T15:41Z [CODE] Added section anchors (`#register`, `#booking`, `#faqs`, `#contact-us`) to `/home` accordions and updated landing CTA links to `/home` and `/home#register`.
+- 2026-02-28T15:41Z [CODE] Updated `components/hero/TimePill.tsx` to accept optional `className` for responsive placement in multiple layouts.
+- 2026-02-28T15:42Z [CODE] Updated `docs/PROJECT_OVERVIEW.md`, `docs/SYSTEM_ARCHITECTURE.md`, and `docs/IMPLEMENTATION_ROADMAP.md` for the consolidated `/home` approach.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -69,6 +83,8 @@
 - 2026-02-26T20:36Z [CODE] Homepage currently imports `GhanaTimePill` from `components/hero/TimePill.tsx`; architecture docs must reference this path (not `components/ui/ghana-time-pill.tsx`).
 - 2026-02-26T20:41Z [CODE] Seamless marquee requires two structurally identical halves; differences in separator placement between halves create visible reset jumps.
 - 2026-02-26T20:41Z [CODE] `w-screen` with `left-1/2 -translate-x-1/2` can produce horizontal overflow in this layout; `w-full overflow-hidden` keeps carousel within viewport.
+- 2026-02-28T15:17Z [TOOL] `npm install lucide-react` failed with `ENOTFOUND registry.npmjs.org` in sandbox; `npm install lucide-react --offline` succeeded via local npm cache.
+- 2026-02-28T15:41Z [CODE] Native `<details>/<summary>` accordion patterns are sufficient for the `/home` sections and avoid introducing additional client-state wrappers.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -86,3 +102,6 @@
 - 2026-02-26T20:36Z [CODE] Homepage now supports Google `Instrument Serif`, includes a live Ghana-time hero pill, and has a centered sports marquee with `•` separators.
 - 2026-02-26T20:36Z [TOOL] Latest validation for these UI updates: lint pass, tests pass (`7/7`), webpack production build pass.
 - 2026-02-26T20:41Z [CODE] Sports carousel now scrolls continuously without end-reset jump, stays contained within viewport width, and keeps label text vertically centered.
+- 2026-02-28T15:17Z [CODE] CTA buttons are now `341x56` and use `lucide-react` `ChevronDown` icons next to labels.
+- 2026-02-28T15:44Z [CODE] `/home` now implements the requested one-page accordion UX for Register, Booking, FAQs, and Contact Us while `/` remains the default landing page.
+- 2026-02-28T15:44Z [TOOL] Validation evidence for this change set: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass; build output includes static `/home`.

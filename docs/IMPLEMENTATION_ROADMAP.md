@@ -7,6 +7,7 @@ This roadmap converts `docs/PROJECT_OVERVIEW.md` into a build sequence with mile
 - Ship vertical slices in the order users experience them.
 - Keep business rules server-enforced.
 - Reuse `lib/*` modules as the stable integration boundary.
+- Keep `/` as the default landing and route public operational workflows through `/home`.
 
 ## Milestone 0: Foundation
 Scope:
@@ -24,23 +25,23 @@ Acceptance criteria:
 - App boots locally.
 - Core libs (`lib/supabase.ts`, `lib/membership.ts`, `lib/resend.ts`) compile and tests pass.
 
-## Milestone 1: Event Catalog
+## Milestone 1: Public Home Hub
 Scope:
-- Build `/events` with location filtering and event cards.
-- Build `/events/[eventId]` for event + slot display.
+- Build `/home` with a simple top navbar (logo left, live time pill right).
+- Build accordion sections for `Register`, `Booking`, `FAQs`, and `Contact Us`.
+- Reuse existing form components for register and booking sections.
 
 Key outputs:
-- Read-only event browsing experience.
-- Stable query patterns for `events`, `locations`, and `slots`.
+- Stable one-page public home experience with expandable sections.
 
 Acceptance criteria:
-- Users can browse events by location.
-- Event detail view shows slots and event metadata.
+- `/home` renders all four accordions with their section content.
+- Layout works on desktop and mobile without route switching for register/booking/FAQ/contact content.
 
 ## Milestone 2: Membership Flow (Bank Transfer)
 Scope:
-- Build `/membership` and `/membership/pending`.
-- Implement pending membership creation with reference generation.
+- Wire the `Register` accordion on `/home` to pending membership creation.
+- Keep dedicated `/membership` and `/membership/pending` routes as scaffolds until migration decisions are final.
 - Send membership bank-transfer instructions email.
 
 Key outputs:
@@ -48,34 +49,37 @@ Key outputs:
 - Unique `bank_transfer_reference` persisted per member.
 
 Acceptance criteria:
-- Membership intent creates member with `status = 'pending'`.
+- Register submission creates member with `status = 'pending'`.
 - User sees and receives bank details + reference.
 
 ## Milestone 3: Booking Flow
 Scope:
-- Implement booking mutation endpoint/server action.
+- Wire the `Booking` accordion on `/home` to booking server actions.
 - Enforce active membership check by normalized email.
 - Reserve slot atomically and insert booking.
 - Send booking confirmation and organizer notification emails.
 
 Key outputs:
 - `createBooking` flow with transactional guard.
-- `/booking/confirm` completion UX.
+- `/home` booking UX backed by server logic.
 
 Acceptance criteria:
 - Active member can book successfully.
-- Pending/non-member is redirected to membership flow.
+- Pending/non-member is redirected to `/home#register`.
 - Slot overbooking is prevented.
 
-## Milestone 4: My Bookings
+## Milestone 4: Dedicated Event and Lookup Routes
 Scope:
+- Build `/events` and `/events/[eventId]` for dedicated event browsing.
 - Build `/my-bookings` email lookup.
 - Return privacy-safe booking projection.
 
 Key outputs:
+- Read-only event browsing experience.
 - Email-based booking retrieval flow.
 
 Acceptance criteria:
+- Users can browse events by location and view event details.
 - Valid email returns that member's bookings.
 - Response excludes unnecessary PII.
 

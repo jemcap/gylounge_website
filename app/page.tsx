@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { GhanaTimePill } from "@/components/hero/TimePill";
 
 export default function Home() {
@@ -118,20 +119,22 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="w-full bg-[#F1EDE5] px-6 py-16 text-[#14110b] md:px-12 lg:px-20">
+      <section id="cta" className="w-full bg-[#F1EDE5] px-6 py-16 text-[#14110b] md:px-12 lg:px-20">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/events"
-              className="rounded-full bg-[#f5f1ea] border-2 border-[#3F2D17] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#14110b]"
+              href="/home"
+              className="inline-flex h-[56px] w-[341px] items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#f5f1ea] text-sm font-semibold uppercase tracking-wide text-[#14110b]"
             >
-              Discover The Lounge
+              <span>Discover The Lounge</span>
+              <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2.25} />
             </Link>
             <Link
-              href="/membership"
-              className="rounded-full bg-[#EBBF6C] border-2 border-[#3F2D17] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#3F2D17]"
+              href="/home#register"
+              className="inline-flex h-[56px] w-[341px] items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#EBBF6C] text-sm font-semibold uppercase tracking-wide text-[#3F2D17]"
             >
-              Become A Member
+              <span>Become A Member</span>
+              <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2.25} />
             </Link>
           </div>
         </div>

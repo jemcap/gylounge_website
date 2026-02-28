@@ -9,6 +9,7 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 - Use clear language, large touch targets, and simple navigation.
 
 ## Core Features
+- **Consolidated Home Experience**: `/home` provides one-page accordions for Register, Booking, FAQs, and Contact Us
 - **Booking System**: Location-based event booking with date/time slots
 - **Membership**: One-time membership fee via bank transfer (no accounts required)
 - **Member Verification**: Email-based lookup - no passwords or logins
@@ -28,7 +29,8 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 ## Project Structure
 ```
 app/
-  page.tsx                # Landing page
+  page.tsx                # Default landing page
+  home/page.tsx           # Consolidated public home (Register, Booking, FAQs, Contact Us)
   types/
     database.ts           # Supabase generated types
   admin/
@@ -43,10 +45,10 @@ app/
     [eventId]/
       page.tsx            # Event detail + booking form
   booking/
-    confirm/page.tsx      # Booking confirmation
+    confirm/page.tsx      # Booking confirmation (dedicated route scaffold)
   membership/
-    page.tsx              # Membership signup + bank transfer instructions
-    pending/page.tsx      # “Awaiting verification” state
+    page.tsx              # Membership signup + bank transfer instructions (dedicated route scaffold)
+    pending/page.tsx      # “Awaiting verification” state (dedicated route scaffold)
   my-bookings/
     page.tsx              # Email lookup for booking history
 components/
@@ -76,12 +78,12 @@ const { data: member } = await supabase
 if (member?.status === 'active') {
   // Create booking
 } else {
-  // Redirect to membership page for bank transfer instructions
+  // Redirect to /home#register for bank transfer instructions
 }
 ```
 
 ### Membership Required (Server-Enforced)
-Membership is mandatory. The booking server action must check membership status and only proceed for `active` members. Non-members are redirected to the membership page for bank transfer instructions. Activation happens after payment is verified (manually). This is enforced server-side to prevent bypassing in the UI.
+Membership is mandatory. The booking server action must check membership status and only proceed for `active` members. Non-members are redirected to the Register section on `/home` for bank transfer instructions. Activation happens after payment is verified (manually). This is enforced server-side to prevent bypassing in the UI.
 
 ### Admin Portal (Supabase Auth Only)
 Public users never log in. Admins authenticate via Supabase Auth (recommended: magic link) to access `/admin/*`.
@@ -142,7 +144,7 @@ Even at low volume, prevent double-booking by performing “check availability �
 3. User submits booking form (name, email, phone, slot)
 4. Server Action: query `members` table by email
 5. If active member → create booking → send confirmations
-6. If not member → redirect to `/membership` → bank transfer instructions
+6. If not member → redirect to `/home#register` → bank transfer instructions
 7. Admin verifies transfer in the admin console → mark member `active` → user can book
 
 ## Feasibility Notes (Roadmap Alignment)
