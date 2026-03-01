@@ -10,6 +10,7 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 
 ## Core Features
 - **Consolidated Home Experience**: `/home` provides one-page accordions for Register, Booking, FAQs, and Contact Us
+- **Server-Wired Home Forms**: Register and Booking accordions submit to server actions and return in-page status feedback
 - **Booking System**: Location-based event booking with date/time slots
 - **Membership**: One-time membership fee via bank transfer (no accounts required)
 - **Member Verification**: Email-based lookup - no passwords or logins
@@ -30,7 +31,11 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 ```
 app/
   page.tsx                # Default landing page
-  home/page.tsx           # Consolidated public home (Register, Booking, FAQs, Contact Us)
+  home/
+    page.tsx              # Consolidated public home composition (Register, Booking, FAQs, Contact Us)
+    actions.ts            # Server actions for register + booking submissions
+    home-page-helpers.ts  # /home query parsing, feedback mapping, booking-target lookup
+    components/           # Route-scoped /home UI modules (header, accordion pieces, section content)
   types/
     database.ts           # Supabase generated types
   admin/

@@ -1,4 +1,4 @@
-import { EventCard, type EventCardData } from "@/components/events/event-card";
+import { EventCard, type EventCardData } from "@/app/events/components/events/EventCard";
 
 export type EventListProps = {
   events: EventCardData[];

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { EventList } from "@/components/events/event-list";
-import type { EventCardData } from "@/components/events/event-card";
-import { LocationPicker } from "@/components/events/location-picker";
+import { EventList } from "@/app/events/components/events/EventList";
+import type { EventCardData } from "@/app/events/components/events/EventCard";
+import { LocationPicker } from "@/app/events/components/events/LocationPicker";
 
 const placeholderLocations = [
   { id: "accra", name: "Accra" },

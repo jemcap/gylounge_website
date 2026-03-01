@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookingForm } from "@/components/forms/booking-form";
+import { BookingForm } from "@/components/forms/BookingForm";
 
 type EventDetailPageProps = {
   params: Promise<{ eventId: string }>;

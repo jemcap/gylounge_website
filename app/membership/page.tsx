@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MembershipForm } from "@/components/forms/membership-form";
+import { MembershipForm } from "@/components/forms/MembershipForm";
 import { Card } from "@/components/ui/card";
 
 export default function MembershipPage() {

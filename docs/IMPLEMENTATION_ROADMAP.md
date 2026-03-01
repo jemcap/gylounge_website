@@ -9,6 +9,9 @@ This roadmap converts `docs/PROJECT_OVERVIEW.md` into a build sequence with mile
 - Reuse `lib/*` modules as the stable integration boundary.
 - Keep `/` as the default landing and route public operational workflows through `/home`.
 
+Current implementation note:
+- `/home` Register and Booking forms now submit through server actions with in-page status feedback.
+
 ## Milestone 0: Foundation
 Scope:
 - Confirm environment variables and secret handling.
@@ -67,6 +70,7 @@ Acceptance criteria:
 - Active member can book successfully.
 - Pending/non-member is redirected to `/home#register`.
 - Slot overbooking is prevented.
+- Booking confirmation and notification emails are attempted after booking persistence.
 
 ## Milestone 4: Dedicated Event and Lookup Routes
 Scope:

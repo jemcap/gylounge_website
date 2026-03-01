@@ -162,6 +162,9 @@ Required environment groups:
 Implemented now:
 - `app/page.tsx`
 - `app/home/page.tsx`
+- `app/home/actions.ts`
+- `app/home/home-page-helpers.ts`
+- `app/home/components/*` (route-scoped accordion/header/section modules)
 - `app/events/page.tsx`
 - Route skeletons for:
   - `/events/[eventId]`
@@ -181,6 +184,8 @@ Implemented now:
   - `components/events/*`
 - Hero utility component:
   - `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
+- `/home` Register accordion posts to a server action that creates/updates pending members, generates transfer references, and sends membership instruction emails
+- `/home` Booking accordion posts to a server action that enforces active membership, creates bookings with slot decrement, and sends booking emails
 - `lib/supabase.ts`
 - `lib/membership.ts`
 - `lib/resend.ts`
@@ -188,8 +193,8 @@ Implemented now:
 
 Planned next:
 - Replace scaffold placeholders with:
-  - Supabase-backed event, slot, membership, and booking flows
-  - Server-enforced membership checks and transactional booking logic
+  - Dedicated event-detail booking flow wiring on `/events/[eventId]` and `/booking/confirm`
+  - Expanded slot-selection UX on `/home` beyond the next available slot shortcut
   - Supabase-authenticated admin operations and route protection
 
 ## Documentation Contract

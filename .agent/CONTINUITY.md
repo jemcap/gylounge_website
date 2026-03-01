@@ -10,6 +10,8 @@
 - 2026-02-28T15:17Z [USER] Resize both CTA buttons to `341x56` and add a chevron-down icon beside each label.
 - 2026-02-28T15:17Z [USER] Replace inline chevrons with `ChevronDown` from `lucide-react`.
 - 2026-02-28T15:39Z [USER] Consolidate register/booking/FAQs/contact into a single `/home` page with accordions while keeping `/` as default entry.
+- 2026-02-28T15:50Z [USER] Wire `/home` Register and Booking accordions to real server actions.
+- 2026-02-28T23:44Z [USER] Add a separate comprehensive phased implementation guide for calendar-based booking; user will implement code changes manually.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -28,6 +30,18 @@
 - 2026-02-28T15:17Z [TOOL] Install `lucide-react` using `npm --offline` cache due blocked outbound network.
 - 2026-02-28T15:39Z [USER] Keep `/` as the default route and implement the new one-page home UX on `/home`.
 - 2026-02-28T15:40Z [CODE] Reuse existing `MembershipForm` and `BookingForm` inside `/home` accordion sections instead of creating new standalone pages.
+- 2026-02-28T15:50Z [USER] Proceed with server-action implementation for `/home` forms.
+- 2026-02-28T15:51Z [CODE] Use Next.js Server Actions in `app/home/actions.ts` with query-param feedback redirects back to `/home#register` and `/home#booking`.
+- 2026-02-28T15:52Z [CODE] Resolve booking submissions against the next available slot exposed on `/home` rather than placeholder IDs.
+- 2026-02-28T23:44Z [USER] Scope this task to documentation only (no additional code implementation).
+- 2026-03-01T00:00Z [USER] Reviewed calendar implementation guide; approved simpler alternative (no calendar, pre-seeded slots, event dropdown + slot radio picker).
+
+[DECISIONS]
+- 2026-03-01T00:00Z [USER] Rejected on-demand slot creation in booking action due to race condition risk; slots will be pre-seeded by admin instead.
+- 2026-03-01T00:00Z [USER] Rejected `react-day-picker`/`date-fns`/shadcn calendar dependencies; use native `<select>` + radio group (zero new packages, elderly-friendly).
+- 2026-03-01T00:00Z [USER] Event date determines booking date (no separate calendar date picker); events are single-day.
+- 2026-03-01T12:18Z [USER] All `/home` accordions collapsed by default, unified background `#DBD189`, default state shows flex layout with accordion nav + "Become a Member" promo card.
+- 2026-03-01T12:18Z [CODE] Replaced native `<details>/<summary>` accordion with controlled `<button>` + `useState` pattern to support two layout modes (flex default vs full-viewport active).
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -65,6 +79,12 @@
 - 2026-02-28T15:41Z [CODE] Added section anchors (`#register`, `#booking`, `#faqs`, `#contact-us`) to `/home` accordions and updated landing CTA links to `/home` and `/home#register`.
 - 2026-02-28T15:41Z [CODE] Updated `components/hero/TimePill.tsx` to accept optional `className` for responsive placement in multiple layouts.
 - 2026-02-28T15:42Z [CODE] Updated `docs/PROJECT_OVERVIEW.md`, `docs/SYSTEM_ARCHITECTURE.md`, and `docs/IMPLEMENTATION_ROADMAP.md` for the consolidated `/home` approach.
+- 2026-02-28T15:53Z [CODE] Added `app/home/actions.ts` with `registerMemberAction` (pending-member create/update + reference + email) and `createBookingAction` (active-member check + slot decrement + booking insert + emails).
+- 2026-02-28T15:54Z [CODE] Updated `components/forms/membership-form.tsx` and `components/forms/booking-form.tsx` to accept server `action` props and inline success/error/info feedback messages.
+- 2026-02-28T15:55Z [CODE] Updated `app/home/page.tsx` to parse action feedback from `searchParams`, load next available slot from Supabase, and bind both accordion forms to server actions.
+- 2026-02-28T15:56Z [CODE] Updated architecture docs to reflect live `/home` form wiring and current roadmap status.
+- 2026-02-28T23:44Z [CODE] Added `docs/BOOKING_CALENDAR_IMPLEMENTATION_GUIDE.md` with phased tasks, concepts, acceptance criteria, testing checklist, and rollout documentation steps.
+- 2026-03-01T00:00Z [CODE] Rewrote `docs/BOOKING_CALENDAR_IMPLEMENTATION_GUIDE.md` to use simpler approach: pre-seeded admin slots, event dropdown + slot radio picker, zero new dependencies, ~3-4 files changed instead of ~8-10.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -84,7 +104,9 @@
 - 2026-02-26T20:41Z [CODE] Seamless marquee requires two structurally identical halves; differences in separator placement between halves create visible reset jumps.
 - 2026-02-26T20:41Z [CODE] `w-screen` with `left-1/2 -translate-x-1/2` can produce horizontal overflow in this layout; `w-full overflow-hidden` keeps carousel within viewport.
 - 2026-02-28T15:17Z [TOOL] `npm install lucide-react` failed with `ENOTFOUND registry.npmjs.org` in sandbox; `npm install lucide-react --offline` succeeded via local npm cache.
-- 2026-02-28T15:41Z [CODE] Native `<details>/<summary>` accordion patterns are sufficient for the `/home` sections and avoid introducing additional client-state wrappers.
+- 2026-02-28T15:41Z [CODE] SUPERSEDED by 2026-03-01T12:18Z: Native `<details>` replaced with controlled client component to support two-layout-mode accordion UX.
+- 2026-02-28T15:56Z [TOOL] Strict null checks with Supabase `maybeSingle()` required explicit non-null narrowing (`as NonNullable<...>`) before slot/event/member field usage in server actions.
+- 2026-02-28T15:57Z [TOOL] With live slot lookup and search-param feedback handling, `/home` is now generated as a dynamic route (`ƒ`) in webpack build output.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -105,3 +127,8 @@
 - 2026-02-28T15:17Z [CODE] CTA buttons are now `341x56` and use `lucide-react` `ChevronDown` icons next to labels.
 - 2026-02-28T15:44Z [CODE] `/home` now implements the requested one-page accordion UX for Register, Booking, FAQs, and Contact Us while `/` remains the default landing page.
 - 2026-02-28T15:44Z [TOOL] Validation evidence for this change set: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass; build output includes static `/home`.
+- 2026-02-28T15:57Z [CODE] `/home` Register and Booking accordions now post to real server actions with in-page status feedback and Supabase-backed membership/booking writes.
+- 2026-02-28T15:57Z [TOOL] Validation evidence for server-action wiring: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass; build output now marks `/home` as dynamic.
+- 2026-02-28T23:44Z [CODE] New standalone guide (`docs/BOOKING_CALENDAR_IMPLEMENTATION_GUIDE.md`) is available for user-led implementation of event dropdown + calendar + hourly slot booking with slot-cap enforcement.
+- 2026-03-01T12:18Z [CODE] Refactored `/home` accordion layout: `AccordionItem` is now a controlled component (isOpen/onToggle props), new `HomeAccordionSection` client component manages `activeId` state, new `HomeDefaultContent` shows "Become a Member" promo with grid card (membership cost + CTA + image). Default state uses flexbox (nav left, promo right); active state uses flex-column with open accordion filling viewport via cascading `flex-1`.
+- 2026-03-01T12:18Z [TOOL] Validation: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (15/15 routes, `/home` dynamic).

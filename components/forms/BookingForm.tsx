@@ -2,18 +2,47 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
+type FormAction = string | ((formData: FormData) => void | Promise<void>);
+
+type BookingFeedback = {
+  tone: "success" | "error" | "info";
+  message: string;
+};
+
 export type BookingFormProps = {
   eventId: string;
   slotId?: string;
+  action?: FormAction;
+  feedback?: BookingFeedback;
+  context?: string;
 };
 
-export function BookingForm({ eventId, slotId }: BookingFormProps) {
+const feedbackClassMap: Record<BookingFeedback["tone"], string> = {
+  success: "border-[#98c79f] bg-[#eef8f0] text-[#1f5a2b]",
+  error: "border-[#e3aaa8] bg-[#fff1f0] text-[#8b2e2a]",
+  info: "border-[#d3c39f] bg-[#faf5e9] text-[#5d4a2e]",
+};
+
+export function BookingForm({
+  eventId,
+  slotId,
+  action = "#",
+  feedback,
+  context,
+}: BookingFormProps) {
   return (
     <Card
       title="Booking Form"
       description="Boilerplate booking form. Wire this to the booking server action in the next milestone."
     >
-      <form action="#" className="space-y-4">
+      {context ? <p className="mb-4 rounded-xl bg-[#f4efe5] px-4 py-3 text-sm text-[#3b3127]">{context}</p> : null}
+      {feedback ? (
+        <p className={`mb-4 rounded-xl border px-4 py-3 text-sm ${feedbackClassMap[feedback.tone]}`}>
+          {feedback.message}
+        </p>
+      ) : null}
+
+      <form action={action} className="space-y-4">
         <input type="hidden" name="eventId" value={eventId} />
         {slotId ? <input type="hidden" name="slotId" value={slotId} /> : null}
         <div>
