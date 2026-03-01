@@ -79,7 +79,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   ];
 
   return (
-    <main className="flex min-h-screen flex-col bg-[#DBD189] text-[#261B07]">
+    <main className="flex min-h-screen flex-col bg-[#DBD1B9] text-[#261B07]">
       <HomeHeader />
       <HomeAccordionSection entries={entries} initialOpenId={initialOpenId} />
     </main>

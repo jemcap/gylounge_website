@@ -30,7 +30,7 @@ export function HomeAccordionSection({
      On mobile: stacked vertically (nav on top, promo below).         */
   if (activeId === null) {
     return (
-      <section className="flex flex-1 flex-col bg-[#DBD189] md:flex-row">
+      <section className="flex flex-1 flex-col bg-[#DBD1B9] md:flex-row">
         <nav className="flex flex-col md:w-2/5 lg:w-1/3">
           {entries.map((entry) => (
             <AccordionItem
