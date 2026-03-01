@@ -4,7 +4,7 @@ import { GhanaTimePill } from "@/components/hero/TimePill";
 
 export function HomeHeader() {
   return (
-    <header className="border-b border-[#d9ccb5] bg-[#f5f1ea]/95 backdrop-blur-sm">
+    <header className="border-b w-full border-[#3F2D17] bg-[#F1EDE5] backdrop-blur-sm fixed z-10">
       <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
           href="/"

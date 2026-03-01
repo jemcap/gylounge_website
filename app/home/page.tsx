@@ -1,7 +1,7 @@
 import { createBookingAction, registerMemberAction } from "@/app/home/actions";
 import { MembershipForm } from "@/components/forms/MembershipForm";
 import { BookingAccordionContent } from "./components/BookingAccordionContent";
-import { HomeAccordionSection } from "./components/HomeAccordionSection";
+import { HomeSideNavLayout } from "./components/HomeAccordionSection";
 import { HomeContactContent } from "./components/HomeContactContent";
 import { HomeFaqsContent } from "./components/HomeFaqContent";
 import { HomeHeader } from "./components/HomeHeader";
@@ -38,16 +38,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       )} at ${formatAccraTime(bookingTarget.startTime)} - ${formatAccraTime(bookingTarget.endTime)}.`
     : undefined;
 
-  // Auto-open the relevant accordion when returning from a form submission
-  let initialOpenId: string | null = null;
-  if (registerFeedback) initialOpenId = "register";
-  if (bookingFeedback) initialOpenId = "booking";
+  // Auto-scroll to the relevant section when returning from a form submission
+  let initialActiveId: string | null = null;
+  if (registerFeedback) initialActiveId = "register";
+  if (bookingFeedback) initialActiveId = "booking";
 
   const entries = [
     {
       id: "register",
       title: "Register",
-      expandedBg: "#DBD1B9",
+      bg: "#DBD1B9",
+      text: "#261B07",
       content: (
         <MembershipForm
           action={registerMemberAction}
@@ -58,7 +59,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     {
       id: "booking",
       title: "Booking",
-      expandedBg: "#3F2D17",
+      bg: "#3F2D17",
+      text: "#DBD1B9",
       content: (
         <BookingAccordionContent
           action={createBookingAction}
@@ -71,21 +73,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     {
       id: "faqs",
       title: "FAQs",
-      expandedBg: "#EBBF6C",
+      bg: "#EBBF6C",
+      text: "#261B07",
       content: <HomeFaqsContent />,
     },
     {
       id: "contact-us",
       title: "Contact Us",
-      expandedBg: "#0E0B0A",
+      bg: "#0E0B0A",
+      text: "#EBBF6C",
       content: <HomeContactContent />,
     },
   ];
 
   return (
-    <main className="flex min-h-screen flex-col bg-[#DBD1B9] text-[#261B07]">
+    <main className="flex min-h-screen flex-col">
       <HomeHeader />
-      <HomeAccordionSection entries={entries} initialOpenId={initialOpenId} />
+      <HomeSideNavLayout entries={entries} initialActiveId={initialActiveId} />
     </main>
   );
 }

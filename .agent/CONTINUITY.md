@@ -12,6 +12,7 @@
 - 2026-02-28T15:39Z [USER] Consolidate register/booking/FAQs/contact into a single `/home` page with accordions while keeping `/` as default entry.
 - 2026-02-28T15:50Z [USER] Wire `/home` Register and Booking accordions to real server actions.
 - 2026-02-28T23:44Z [USER] Add a separate comprehensive phased implementation guide for calendar-based booking; user will implement code changes manually.
+- 2026-03-01T14:17Z [USER] Create a reusable skill that stages untracked files, generates commit title/body from staged changes, commits, and pushes.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -42,6 +43,10 @@
 - 2026-03-01T00:00Z [USER] Event date determines booking date (no separate calendar date picker); events are single-day.
 - 2026-03-01T12:18Z [USER] All `/home` accordions collapsed by default, unified background `#DBD189`, default state shows flex layout with accordion nav + "Become a Member" promo card.
 - 2026-03-01T12:18Z [CODE] Replaced native `<details>/<summary>` accordion with controlled `<button>` + `useState` pattern to support two layout modes (flex default vs full-viewport active).
+- 2026-03-01T13:00Z [USER] Replace click-based accordion with scroll-driven design: Intersection Observer highlights active section as user scrolls; content displays side-by-side with sticky nav; background colour overlaps full viewport.
+- 2026-03-01T13:00Z [CODE] Rewrote `HomeAccordionSection` to scroll-spy layout: sticky sidebar nav (desktop) / horizontal sticky bar (mobile), full-viewport content panels observed by IntersectionObserver, bg+text colour transitions via inline style + `transition-colors duration-700`. AccordionItem no longer used (dead code). Added `expandedText` per entry for dark-bg readability.
+- 2026-03-01T14:00Z [USER] Match `homepage_layout.png` design: constant dark background `#1A120A`, stacking nav colour blocks (items at/above active index show their bg), narrow sticky sidebar, promo card on dark theme.
+- 2026-03-01T14:17Z [TOOL] Cannot write to `/Users/J/.codex/skills` from this sandbox; implement the requested skill inside repo at `skills/git-stage-commit-push`.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -85,6 +90,9 @@
 - 2026-02-28T15:56Z [CODE] Updated architecture docs to reflect live `/home` form wiring and current roadmap status.
 - 2026-02-28T23:44Z [CODE] Added `docs/BOOKING_CALENDAR_IMPLEMENTATION_GUIDE.md` with phased tasks, concepts, acceptance criteria, testing checklist, and rollout documentation steps.
 - 2026-03-01T00:00Z [CODE] Rewrote `docs/BOOKING_CALENDAR_IMPLEMENTATION_GUIDE.md` to use simpler approach: pre-seeded admin slots, event dropdown + slot radio picker, zero new dependencies, ~3-4 files changed instead of ~8-10.
+- 2026-03-01T14:17Z [CODE] Initialized `skills/git-stage-commit-push` using `skill-creator`, generated `agents/openai.yaml`, and authored a complete workflow in `SKILL.md`.
+- 2026-03-01T14:17Z [CODE] Added executable helper script `skills/git-stage-commit-push/scripts/stage_commit_push.sh` supporting `--stage-only` and `--title` + `--body-file` commit/push flow.
+- 2026-03-01T14:17Z [TOOL] Ran `quick_validate.py` on the new skill (pass) and verified script CLI help output.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -107,6 +115,7 @@
 - 2026-02-28T15:41Z [CODE] SUPERSEDED by 2026-03-01T12:18Z: Native `<details>` replaced with controlled client component to support two-layout-mode accordion UX.
 - 2026-02-28T15:56Z [TOOL] Strict null checks with Supabase `maybeSingle()` required explicit non-null narrowing (`as NonNullable<...>`) before slot/event/member field usage in server actions.
 - 2026-02-28T15:57Z [TOOL] With live slot lookup and search-param feedback handling, `/home` is now generated as a dynamic route (`ƒ`) in webpack build output.
+- 2026-03-01T14:17Z [TOOL] `skill-creator/init_skill.py` enforces `short_description` length (25-64 chars); longer interface values fail generation.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -132,3 +141,5 @@
 - 2026-02-28T23:44Z [CODE] New standalone guide (`docs/BOOKING_CALENDAR_IMPLEMENTATION_GUIDE.md`) is available for user-led implementation of event dropdown + calendar + hourly slot booking with slot-cap enforcement.
 - 2026-03-01T12:18Z [CODE] Refactored `/home` accordion layout: `AccordionItem` is now a controlled component (isOpen/onToggle props), new `HomeAccordionSection` client component manages `activeId` state, new `HomeDefaultContent` shows "Become a Member" promo with grid card (membership cost + CTA + image). Default state uses flexbox (nav left, promo right); active state uses flex-column with open accordion filling viewport via cascading `flex-1`.
 - 2026-03-01T12:18Z [TOOL] Validation: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (15/15 routes, `/home` dynamic).
+- 2026-03-01T14:00Z [CODE] Implemented stacking nav colour design per `homepage_layout.png`: constant `#1A120A` background, `#DBD1B9` content text, nav items accumulate their bg colours as user scrolls (index <= activeIndex), header/promo card updated to dark theme, removed debug red border.
+- 2026-03-01T14:17Z [CODE] Created new skill bundle at `skills/git-stage-commit-push` (`SKILL.md`, `agents/openai.yaml`, `scripts/stage_commit_push.sh`) for stage-untracked + generated commit message + push workflow.

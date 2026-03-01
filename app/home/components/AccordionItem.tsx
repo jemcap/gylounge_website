@@ -27,7 +27,7 @@ export function AccordionItem({
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="w-full cursor-pointer px-5 py-4 text-left text-lg font-bold text-[#261B07] md:px-6 md:py-5 md:text-xl"
+        className="w-full cursor-pointer px-5 py-4 text-left text-lg font-bold text-[#261B07] md:px-6 md:py-5 md:text-xl hover:underline transition-all duration-200"
       >
         {title}
       </button>
