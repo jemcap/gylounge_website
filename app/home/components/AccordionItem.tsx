@@ -6,6 +6,7 @@ type AccordionItemProps = {
   children: ReactNode;
   isOpen: boolean;
   onToggle: () => void;
+  expandedBg?: string;
 };
 
 export function AccordionItem({
@@ -14,11 +15,13 @@ export function AccordionItem({
   children,
   isOpen,
   onToggle,
+  expandedBg,
 }: AccordionItemProps) {
   return (
     <div
       id={id}
       className={`bg-[#DBD1B9] ${isOpen ? "flex flex-1 flex-col" : ""}`}
+      style={isOpen && expandedBg ? { backgroundColor: expandedBg } : undefined}
     >
       <button
         type="button"

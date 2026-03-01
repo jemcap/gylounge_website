@@ -47,6 +47,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     {
       id: "register",
       title: "Register",
+      expandedBg: "#DBD1B9",
       content: (
         <MembershipForm
           action={registerMemberAction}
@@ -57,6 +58,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     {
       id: "booking",
       title: "Booking",
+      expandedBg: "#3F2D17",
       content: (
         <BookingAccordionContent
           action={createBookingAction}
@@ -69,11 +71,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     {
       id: "faqs",
       title: "FAQs",
+      expandedBg: "#EBBF6C",
       content: <HomeFaqsContent />,
     },
     {
       id: "contact-us",
       title: "Contact Us",
+      expandedBg: "#0E0B0A",
       content: <HomeContactContent />,
     },
   ];

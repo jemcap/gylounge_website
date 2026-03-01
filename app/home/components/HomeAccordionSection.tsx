@@ -8,6 +8,7 @@ type AccordionEntry = {
   id: string;
   title: string;
   content: ReactNode;
+  expandedBg?: string;
 };
 
 type HomeAccordionSectionProps = {
@@ -45,7 +46,7 @@ export function HomeAccordionSection({
           ))}
         </nav>
 
-        <div className="flex flex-1 border-t border-[#c9b86e]/40 md:border-l md:border-t-0">
+        <div className="flex flex-1 border-t border-[#c9b86e]/40">
           <HomeDefaultContent onRegisterClick={() => toggle("register")} />
         </div>
       </section>
@@ -64,6 +65,7 @@ export function HomeAccordionSection({
           title={entry.title}
           isOpen={activeId === entry.id}
           onToggle={() => toggle(entry.id)}
+          expandedBg={entry.expandedBg}
         >
           {entry.content}
         </AccordionItem>
