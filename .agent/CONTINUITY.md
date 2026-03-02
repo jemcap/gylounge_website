@@ -93,6 +93,9 @@
 - 2026-03-01T14:17Z [CODE] Initialized `skills/git-stage-commit-push` using `skill-creator`, generated `agents/openai.yaml`, and authored a complete workflow in `SKILL.md`.
 - 2026-03-01T14:17Z [CODE] Added executable helper script `skills/git-stage-commit-push/scripts/stage_commit_push.sh` supporting `--stage-only` and `--title` + `--body-file` commit/push flow.
 - 2026-03-01T14:17Z [TOOL] Ran `quick_validate.py` on the new skill (pass) and verified script CLI help output.
+- 2026-03-02T20:37Z [CODE] Updated `app/home/components/HomeAccordionSection.tsx` so each `/home` accordion section centers its content in the panel (`items-center` + inner `mx-auto max-w-3xl` wrapper).
+- 2026-03-02T22:51Z [USER] Requested rollback of the `/home` register-entry refactor that moved default content into the Register section.
+- 2026-03-02T22:51Z [CODE] Reverted `app/home/page.tsx` and `app/home/components/HomeAccordionSection.tsx` to prior behavior (standalone default promo restored; Register entry no dedicated content block).
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -116,6 +119,7 @@
 - 2026-02-28T15:56Z [TOOL] Strict null checks with Supabase `maybeSingle()` required explicit non-null narrowing (`as NonNullable<...>`) before slot/event/member field usage in server actions.
 - 2026-02-28T15:57Z [TOOL] With live slot lookup and search-param feedback handling, `/home` is now generated as a dynamic route (`ƒ`) in webpack build output.
 - 2026-03-01T14:17Z [TOOL] `skill-creator/init_skill.py` enforces `short_description` length (25-64 chars); longer interface values fail generation.
+- 2026-03-02T22:31Z [TOOL] `register=error` is triggered when registration cannot complete DB writes or throws unexpectedly; in this workspace `.env.local` currently lacks required bank-transfer vars (`MEMBERSHIP_FEE_GHS`, `BANK_TRANSFER_ACCOUNT_NAME`, `BANK_TRANSFER_ACCOUNT_NUMBER`, `BANK_TRANSFER_BANK_NAME`, `BANK_TRANSFER_INSTRUCTIONS`), causing `getBankTransferDetails()` to throw and fallback to `register=error`.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -143,3 +147,4 @@
 - 2026-03-01T12:18Z [TOOL] Validation: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (15/15 routes, `/home` dynamic).
 - 2026-03-01T14:00Z [CODE] Implemented stacking nav colour design per `homepage_layout.png`: constant `#1A120A` background, `#DBD1B9` content text, nav items accumulate their bg colours as user scrolls (index <= activeIndex), header/promo card updated to dark theme, removed debug red border.
 - 2026-03-01T14:17Z [CODE] Created new skill bundle at `skills/git-stage-commit-push` (`SKILL.md`, `agents/openai.yaml`, `scripts/stage_commit_push.sh`) for stage-untracked + generated commit message + push workflow.
+- 2026-03-02T20:37Z [TOOL] Validation after accordion centering update: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass.

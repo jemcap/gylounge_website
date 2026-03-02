@@ -1,5 +1,4 @@
-import { createBookingAction, registerMemberAction } from "@/app/home/actions";
-import { MembershipForm } from "@/components/forms/MembershipForm";
+import { createBookingAction } from "@/app/home/actions";
 import { BookingAccordionContent } from "./components/BookingAccordionContent";
 import { HomeSideNavLayout } from "./components/HomeAccordionSection";
 import { HomeContactContent } from "./components/HomeContactContent";
@@ -11,8 +10,8 @@ import {
   getBookingTarget,
   getSingleParam,
   resolveBookingFeedback,
-  resolveRegisterFeedback,
 } from "./home-page-helpers";
+import { HomeDefaultContent } from "./components/HomeDefaultContent";
 
 type HomePageProps = {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -22,14 +21,8 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const registerStatus = getSingleParam(resolvedSearchParams.register);
-  const registerReference = getSingleParam(resolvedSearchParams.reference);
   const bookingStatus = getSingleParam(resolvedSearchParams.booking);
 
-  const registerFeedback = resolveRegisterFeedback(
-    registerStatus,
-    registerReference,
-  );
   const bookingFeedback = resolveBookingFeedback(bookingStatus);
   const bookingTarget = await getBookingTarget();
   const bookingContext = bookingTarget
@@ -39,9 +32,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     : undefined;
 
   // Auto-scroll to the relevant section when returning from a form submission
-  let initialActiveId: string | null = null;
-  if (registerFeedback) initialActiveId = "register";
-  if (bookingFeedback) initialActiveId = "booking";
+  const initialActiveId = bookingFeedback ? "booking" : null;
 
   const entries = [
     {
@@ -49,12 +40,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       title: "Register",
       bg: "#DBD1B9",
       text: "#261B07",
-      content: (
-        <MembershipForm
-          action={registerMemberAction}
-          feedback={registerFeedback}
-        />
-      ),
+      content: <HomeDefaultContent />,
     },
     {
       id: "booking",

@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { generateBankTransferReference, getBankTransferDetails, normalizeEmail } from "@/lib/membership";
 import {
   sendBookingConfirmation,
@@ -15,6 +15,24 @@ const redirectHome = (
 ): never => {
   const query = new URLSearchParams(params).toString();
   redirect(`/home${query ? `?${query}` : ""}#${section}`);
+};
+
+const resolveRegisterRedirectTarget = (formData: FormData) => {
+  const target = formData.get("redirectTarget");
+  return target === "register" ? "register" : "home";
+};
+
+const redirectRegister = (
+  target: "home" | "register",
+  params: Record<string, string>,
+): never => {
+  const query = new URLSearchParams(params).toString();
+
+  if (target === "register") {
+    redirect(`/register${query ? `?${query}` : ""}`);
+  }
+
+  redirect(`/home${query ? `?${query}` : ""}#register`);
 };
 
 const readRequiredValue = (formData: FormData, field: string) => {
@@ -36,12 +54,13 @@ const formatAccraTime = (raw: string) => {
 };
 
 export async function registerMemberAction(formData: FormData) {
+  const redirectTarget = resolveRegisterRedirectTarget(formData);
   const name = readRequiredValue(formData, "name");
   const emailInput = readRequiredValue(formData, "email");
   const phone = readRequiredValue(formData, "phone");
 
   if (!name || !emailInput || !phone || !emailInput.includes("@")) {
-    redirectHome("register", { register: "invalid" });
+    redirectRegister(redirectTarget, { register: "invalid" });
   }
 
   const email = normalizeEmail(emailInput);
@@ -57,11 +76,11 @@ export async function registerMemberAction(formData: FormData) {
 
     if (lookupError) {
       console.error("registerMemberAction lookup failed", lookupError);
-      redirectHome("register", { register: "error" });
+      redirectRegister(redirectTarget, { register: "error" });
     }
 
     if (existingMember?.status === "active") {
-      redirectHome("register", { register: "already-active" });
+      redirectRegister(redirectTarget, { register: "already-active" });
     }
 
     if (existingMember) {
@@ -77,7 +96,7 @@ export async function registerMemberAction(formData: FormData) {
 
       if (updateError) {
         console.error("registerMemberAction update failed", updateError);
-        redirectHome("register", { register: "error" });
+        redirectRegister(redirectTarget, { register: "error" });
       }
     } else {
       const { error: insertError } = await admin.from("members").insert({
@@ -90,7 +109,7 @@ export async function registerMemberAction(formData: FormData) {
 
       if (insertError) {
         console.error("registerMemberAction insert failed", insertError);
-        redirectHome("register", { register: "error" });
+        redirectRegister(redirectTarget, { register: "error" });
       }
     }
 
@@ -99,13 +118,14 @@ export async function registerMemberAction(formData: FormData) {
 
     if (!emailResult.ok) {
       console.error("registerMemberAction instruction email failed", emailResult.error);
-      redirectHome("register", { register: "saved", reference });
+      redirectRegister(redirectTarget, { register: "saved", reference });
     }
 
-    redirectHome("register", { register: "success", reference });
+    redirectRegister(redirectTarget, { register: "success", reference });
   } catch (error) {
+    unstable_rethrow(error);
     console.error("registerMemberAction unexpected failure", error);
-    redirectHome("register", { register: "error" });
+    redirectRegister(redirectTarget, { register: "error" });
   }
 }
 
@@ -255,6 +275,7 @@ export async function createBookingAction(formData: FormData) {
 
     redirectHome("booking", { booking: "success" });
   } catch (error) {
+    unstable_rethrow(error);
     console.error("createBookingAction unexpected failure", error);
     redirectHome("booking", { booking: "error" });
   }

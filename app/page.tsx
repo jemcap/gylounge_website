@@ -130,7 +130,7 @@ export default function Home() {
               <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0" strokeWidth={2.25} />
             </Link>
             <Link
-              href="/home#register"
+              href="/register"
               className="inline-flex h-[56px] w-[341px] items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#EBBF6C] text-sm font-semibold uppercase tracking-wide text-[#3F2D17]"
             >
               <span>Become A Member</span>

@@ -26,7 +26,8 @@ GYLounge is an elderly-friendly event and membership platform for Ghana with:
 ## Route Architecture (Target)
 The target route map mirrors `docs/PROJECT_OVERVIEW.md`:
 - `/` default landing and navigation entrypoint
-- `/home` consolidated public home with accordion sections for Register, Booking, FAQs, and Contact Us
+- `/home` consolidated public home with Register, Booking, FAQs, and Contact Us sections
+- `/register` dedicated membership sign-up form route
 - `/events` event listing and location filtering
 - `/events/[eventId]` event detail and slot selection
 - `/booking/confirm` booking completion state (dedicated route scaffold)
@@ -92,7 +93,7 @@ Type source of truth:
 - Every membership intent gets a unique `bank_transfer_reference`.
 - Slot capacity cannot go below zero.
 - Admin-only operations must require authenticated admin identity.
-- Public lookups (`/home` booking/register sections and `/my-bookings` scaffold) should expose minimal fields.
+- Public lookups (`/home` booking section, `/register` sign-up, and `/my-bookings` scaffold) should expose minimal fields.
 
 ## Security Model
 
@@ -113,8 +114,8 @@ Type source of truth:
 ## End-to-End Flows
 
 ### Membership Activation Flow
-1. User opens `/home` and expands the `Register` accordion.
-2. User submits membership form.
+1. User opens `/home` and selects `Register`, then navigates to `/register`.
+2. User submits membership form on `/register`.
 3. Server creates `members` record with `status = 'pending'` and unique reference.
 4. App shows bank instructions and sends email.
 5. Admin validates transfer and sets member status to `active`.
@@ -126,7 +127,7 @@ Type source of truth:
 3. Server checks member by normalized email.
 4. If active, reserve slot and insert booking.
 5. Send confirmation (member) and notification (organizer).
-6. If not active, route user to `/home#register`.
+6. If not active, route user to `/home#register` (which links to `/register`).
 
 ### Event Browsing (Dedicated Flow)
 1. User opens `/events`.
@@ -152,8 +153,8 @@ Required environment groups:
 
 ## Build Sequence (Execution Order)
 1. Foundation: env contracts, Supabase wiring, typed schema, base route skeleton.
-2. Public home shell: `/home` navbar + accordions (`Register`, `Booking`, `FAQs`, `Contact Us`).
-3. Membership and booking logic: wire server-backed membership + booking flows to `/home` accordion forms.
+2. Public home shell: `/home` navbar + sections (`Register`, `Booking`, `FAQs`, `Contact Us`) with Register linking to `/register`.
+3. Membership and booking logic: wire server-backed membership flow to `/register` and booking flow to `/home`.
 4. Dedicated flow enhancements: `/events`, `/events/[eventId]`, `/booking/confirm`, `/membership`, `/membership/pending`, `/my-bookings`.
 5. Admin console: auth, route protection, member activation, event/slot/booking management.
 6. Hardening: tests, validations, observability, deployment readiness.
@@ -184,7 +185,7 @@ Implemented now:
   - `components/events/*`
 - Hero utility component:
   - `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
-- `/home` Register accordion posts to a server action that creates/updates pending members, generates transfer references, and sends membership instruction emails
+- `/register` posts to a server action that creates/updates pending members, generates transfer references, and sends membership instruction emails
 - `/home` Booking accordion posts to a server action that enforces active membership, creates bookings with slot decrement, and sends booking emails
 - `lib/supabase.ts`
 - `lib/membership.ts`

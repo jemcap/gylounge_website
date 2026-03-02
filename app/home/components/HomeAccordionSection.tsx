@@ -19,8 +19,8 @@ type HomeSideNavLayoutProps = {
 /* ── Constants ────────────────────────────────────────────────────
    BASE_BG / BASE_TEXT: the constant dark warm brown backdrop.
    Nav items sit on this until their stacking colour activates.    */
-const BASE_BG = "#1A120A";
-const BASE_TEXT = "#DBD1B9";
+const BASE_BG = "#DBD1B9";
+const BASE_TEXT = "#1A120A";
 
 export function HomeSideNavLayout({
   entries,
@@ -170,26 +170,6 @@ export function HomeSideNavLayout({
         })}
       </nav>
 
-      {/* ── Full-width content panels ─────────────────────────────
-           Each panel spans the entire viewport width so its
-           background colour extends behind the nav.
-
-           Every panel always shows its own constant bg/text colour.
-           The visual stacking effect is inherent in the layout —
-           as you scroll down, more coloured sections enter the
-           viewport; scroll up and they leave.                     */}
-
-      {/* Default promo — visible before any section is scrolled to */}
-      <div
-        ref={(el) => {
-          if (el) panelElements.current.set("", el);
-        }}
-        data-section=""
-        className="flex min-h-screen items-center md:pl-[40%] lg:pl-[33.333%]"
-      >
-        <HomeDefaultContent onRegisterClick={() => scrollTo("register")} />
-      </div>
-
       {entries.map((entry) => (
         <div
           key={entry.id}
@@ -197,11 +177,11 @@ export function HomeSideNavLayout({
             if (el) panelElements.current.set(entry.id, el);
           }}
           data-section={entry.id}
-          className="flex min-h-screen items-start py-10"
+          className="flex min-h-screen items-center py-10 "
           style={{ backgroundColor: entry.bg, color: entry.text }}
         >
-          <div className="w-full px-5 md:pl-[40%] md:pr-8 lg:pl-[33.333%]">
-            {entry.content}
+          <div className="w-full px-5 md:pl-[40%] md:pr-8 lg:pl-[33.333%]"> 
+            <div className=" w-full max-w-7xl border-2 border-red-500">{entry.content}</div>
           </div>
         </div>
       ))}

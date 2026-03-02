@@ -10,7 +10,7 @@ This roadmap converts `docs/PROJECT_OVERVIEW.md` into a build sequence with mile
 - Keep `/` as the default landing and route public operational workflows through `/home`.
 
 Current implementation note:
-- `/home` Register and Booking forms now submit through server actions with in-page status feedback.
+- `/register` now owns membership sign-up submissions; `/home` keeps booking server-action flow.
 
 ## Milestone 0: Foundation
 Scope:
@@ -32,18 +32,18 @@ Acceptance criteria:
 Scope:
 - Build `/home` with a simple top navbar (logo left, live time pill right).
 - Build accordion sections for `Register`, `Booking`, `FAQs`, and `Contact Us`.
-- Reuse existing form components for register and booking sections.
+- Keep Register as a gateway section on `/home` that links to dedicated `/register`.
 
 Key outputs:
 - Stable one-page public home experience with expandable sections.
 
 Acceptance criteria:
 - `/home` renders all four accordions with their section content.
-- Layout works on desktop and mobile without route switching for register/booking/FAQ/contact content.
+- Layout works on desktop and mobile, with Register navigating to `/register` for membership submission.
 
 ## Milestone 2: Membership Flow (Bank Transfer)
 Scope:
-- Wire the `Register` accordion on `/home` to pending membership creation.
+- Wire `/register` to pending membership creation.
 - Keep dedicated `/membership` and `/membership/pending` routes as scaffolds until migration decisions are final.
 - Send membership bank-transfer instructions email.
 
@@ -52,7 +52,7 @@ Key outputs:
 - Unique `bank_transfer_reference` persisted per member.
 
 Acceptance criteria:
-- Register submission creates member with `status = 'pending'`.
+- `/register` submission creates member with `status = 'pending'`.
 - User sees and receives bank details + reference.
 
 ## Milestone 3: Booking Flow
