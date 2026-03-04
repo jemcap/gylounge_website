@@ -15,7 +15,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #DBD1B9;
     --foreground: #ededed;
   }
 }
@@ -32,5 +32,35 @@ body {
   }
   100% {
     transform: translateX(-50%);
+  }
+}
+
+@layer utilities {
+  .bg-gylounge-light {
+    @apply bg-[#ffffff];
+  }
+
+  .bg-gylounge-dark {
+    @apply bg-[#0a0a0a];
+  }
+
+  .text-gylounge-light {
+    @apply text-[#171717];
+  }
+
+  .text-gylounge-dark {
+    @apply text-[#ededed];
+  }
+
+  .bg-gylounge-primary {
+    @apply bg-[#ffffff] dark:bg-[#0a0a0a];
+  }
+
+  .text-gylounge-primary {
+    @apply text-[#261B07];
+  }
+
+  .bg-gylounge-register {
+    @apply bg-[#EBBF6C];
   }
 }

@@ -13,6 +13,10 @@
 - 2026-02-28T15:50Z [USER] Wire `/home` Register and Booking accordions to real server actions.
 - 2026-02-28T23:44Z [USER] Add a separate comprehensive phased implementation guide for calendar-based booking; user will implement code changes manually.
 - 2026-03-01T14:17Z [USER] Create a reusable skill that stages untracked files, generates commit title/body from staged changes, commits, and pushes.
+- 2026-03-04T22:18Z [USER] Ensure `/home` content always fits within its container across viewport sizes.
+- 2026-03-04T22:20Z [USER] Increase the max width of `/home` content.
+- 2026-03-04T22:22Z [USER] Make `/home` content take up more space than the navigation section.
+- 2026-03-04T22:31Z [USER] Place membership info card on the left and hero image on the right with no padding.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -96,6 +100,14 @@
 - 2026-03-02T20:37Z [CODE] Updated `app/home/components/HomeAccordionSection.tsx` so each `/home` accordion section centers its content in the panel (`items-center` + inner `mx-auto max-w-3xl` wrapper).
 - 2026-03-02T22:51Z [USER] Requested rollback of the `/home` register-entry refactor that moved default content into the Register section.
 - 2026-03-02T22:51Z [CODE] Reverted `app/home/page.tsx` and `app/home/components/HomeAccordionSection.tsx` to prior behavior (standalone default promo restored; Register entry no dedicated content block).
+- 2026-03-04T22:18Z [CODE] Added responsive containment guards to `/home` section wrappers (`overflow-x-hidden`, `min-w-0`, removed debug border) in `app/home/components/HomeAccordionSection.tsx`.
+- 2026-03-04T22:18Z [CODE] Updated `HomeDefaultContent` typography/layout classes to prevent overflow (`max-w-full`, `break-words`, responsive heading scale, bounded image minimum height).
+- 2026-03-04T22:18Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` status snapshot to note `/home` viewport containment safeguards.
+- 2026-03-04T22:20Z [CODE] Increased `/home` content wrapper max width in `HomeAccordionSection` from `max-w-7xl` to `max-w-[96rem]` to use more horizontal space on large displays.
+- 2026-03-04T22:22Z [CODE] Updated `/home` desktop column split in `HomeAccordionSection`: nav width changed from `md:w-2/5 lg:w-1/3` to `md:w-1/3 lg:w-1/4`, with content offsets aligned to `md:pl-[33.333%] lg:pl-[25%]`.
+- 2026-03-04T22:31Z [CODE] Refactored `HomeDefaultContent` membership promo block into two columns (`md:grid-cols-2`): membership card left, hero image right; removed card `p-6` to satisfy no-padding request.
+- 2026-03-04T22:31Z [CODE] Corrected invalid utility typos in `HomeDefaultContent` (`wrap-break-word`/`reak-words` -> `break-words`).
+- 2026-03-04T22:31Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` status snapshot for the left/right register promo layout.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -120,6 +132,10 @@
 - 2026-02-28T15:57Z [TOOL] With live slot lookup and search-param feedback handling, `/home` is now generated as a dynamic route (`ƒ`) in webpack build output.
 - 2026-03-01T14:17Z [TOOL] `skill-creator/init_skill.py` enforces `short_description` length (25-64 chars); longer interface values fail generation.
 - 2026-03-02T22:31Z [TOOL] `register=error` is triggered when registration cannot complete DB writes or throws unexpectedly; in this workspace `.env.local` currently lacks required bank-transfer vars (`MEMBERSHIP_FEE_GHS`, `BANK_TRANSFER_ACCOUNT_NAME`, `BANK_TRANSFER_ACCOUNT_NUMBER`, `BANK_TRANSFER_BANK_NAME`, `BANK_TRANSFER_INSTRUCTIONS`), causing `getBankTransferDetails()` to throw and fallback to `register=error`.
+- 2026-03-04T22:18Z [CODE] `app/home/components/HomeAccordionSection.tsx` still contained a visible debug wrapper border and lacked overflow clipping on panel wrappers; these were the direct causes of container spill risk.
+- 2026-03-04T22:20Z [CODE] The previous `max-w-7xl` cap on `/home` panel content constrained width on ultra-wide layouts even when viewport space remained available.
+- 2026-03-04T22:22Z [CODE] Previous desktop split (`md: 40/60`, `lg: 33/67` nav/content) still allocated more nav space than requested; reducing nav to `1/3` and `1/4` gives clearer content dominance.
+- 2026-03-04T22:31Z [CODE] Hero image was nested inside the membership card container, so left/right placement could not occur until the image was moved to a sibling grid column.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -148,3 +164,11 @@
 - 2026-03-01T14:00Z [CODE] Implemented stacking nav colour design per `homepage_layout.png`: constant `#1A120A` background, `#DBD1B9` content text, nav items accumulate their bg colours as user scrolls (index <= activeIndex), header/promo card updated to dark theme, removed debug red border.
 - 2026-03-01T14:17Z [CODE] Created new skill bundle at `skills/git-stage-commit-push` (`SKILL.md`, `agents/openai.yaml`, `scripts/stage_commit_push.sh`) for stage-untracked + generated commit message + push workflow.
 - 2026-03-02T20:37Z [TOOL] Validation after accordion centering update: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass.
+- 2026-03-04T22:18Z [CODE] `/home` register-panel content is now constrained to container bounds across viewport sizes via wrapper overflow/min-width guards and responsive text/image sizing.
+- 2026-03-04T22:18Z [TOOL] Validation evidence for containment update: `npm run lint` pass, `npm run test` pass (`7/7`), `./node_modules/.bin/next build --webpack` pass (all 16 app routes generated, `/home` remains dynamic).
+- 2026-03-04T22:20Z [CODE] `/home` content now renders with a wider maximum panel width (`96rem`) while preserving overflow safeguards.
+- 2026-03-04T22:20Z [TOOL] Validation evidence for width expansion: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (16 routes, `/home` dynamic).
+- 2026-03-04T22:22Z [CODE] `/home` now uses a content-first layout ratio on desktop (`md: 2/3 content`, `lg: 3/4 content`) so content clearly takes more space than navigation.
+- 2026-03-04T22:22Z [TOOL] Validation evidence for ratio change: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (16 routes, `/home` dynamic).
+- 2026-03-04T22:31Z [CODE] `/home` default register promo now renders membership card on the left and hero image on the right (`md+`) with no card padding.
+- 2026-03-04T22:31Z [TOOL] Validation evidence for promo layout refactor: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (16 routes, `/home` dynamic).

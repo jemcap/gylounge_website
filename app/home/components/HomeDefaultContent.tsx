@@ -1,48 +1,56 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 
 export function HomeDefaultContent() {
   return (
-    <div className="flex h-full flex-col justify-center px-6 py-10 md:px-10 md:py-12">
-      <h2 className="font-serif text-3xl font-bold text-[#DBD1B9] md:text-4xl lg:text-5xl">
+    <div className="flex h-full w-full min-w-0 max-w-full flex-col justify-center overflow-x-hidden px-6 py-10 text-[#261B07] md:px-10 md:py-12">
+      <h2 className="font-serif text-3xl italic wrap-break-word sm:text-4xl lg:text-[86px]">
         Become a Member
       </h2>
-      <p className="mt-3 max-w-lg text-base leading-relaxed text-[#a8997f] md:text-lg">
-        Join a welcoming community of older adults across Ghana. Connect through
-        local events, social activities, and shared experiences.
+      <p className="font-roboto font-semibold mt-3 max-w-5xl wrap-break-word md:text-lg">
+        At <strong>Golden Years Lounge</strong>, connection, comfort, and
+        meaningful engagement are at the heart of everything we do. As a member,
+        you&apos;ll enjoy a thoughtfully curated environment designed to support
+        social interaction, inspire new interests, and nurture personal
+        wellbeing.
+      </p>
+      <p className="font-roboto font-semibold mt-3 max-w-5xl wrap-break-word md:text-lg">
+        Membership grants you access to our lounge, enriching activities, and a
+        supportive community of peers who value companionship and purposeful
+        living.
       </p>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mt-8 grid w-full max-w-full gap-0 md:grid-cols-2 rounded-2xl text-gylounge-primary overflow-hidden h-auto">
         {/* Membership info card */}
-        <div className="flex flex-col justify-center rounded-2xl border border-[#3F2D17] bg-[#261B07]/80 p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-wide text-[#a8997f]">
-            Annual Membership
-          </p>
-          <p className="mt-2 text-3xl font-bold text-[#DBD1B9]">
-            GHS&nbsp;50
-            <span className="text-base font-normal text-[#a8997f]">
-              {" "}
-              / year
-            </span>
-          </p>
-          <p className="mt-2 text-sm leading-relaxed text-[#a8997f]">
-            Access all events, priority booking, and community perks.
-          </p>
+        <div className="relative flex min-w-0 flex-col justify-center bg-gylounge-register shadow-sm px-5 pb-20">
+          <h2 className="text-5xl italic font-serif">Membership Form</h2>
+          <div className="flex flex-col gap-3 max-w-2xl">
+            <p className="font-roboto mt-2 text-xl">
+              With a one-time fee of <strong>GH₵250</strong>, you'll receive
+              lifetime access to the space.
+            </p>
+            <p className="font-roboto mt-2 text-xl">
+              Fill out the form below and begin your journey with us.
+            </p>
+          </div>
           <Link
             href="/register"
-            className="mt-5 inline-flex w-full items-center justify-center rounded-full bg-[#EBBF6C] px-6 py-3 text-center text-sm font-semibold text-[#261B07] transition-colors hover:bg-[#d9ae5a]"
+            className="absolute bottom-5 left-5 inline-flex w-64.5 h-14 items-center justify-center gap-1 rounded-full bg-[#3F2D17] text-[#F1D39B] text-xl font-bold transition-colors hover:bg-[#d9ae5a]"
           >
             Register Now
+            <ChevronRight className="size-4" />
           </Link>
         </div>
 
         {/* Hero image */}
-        <div className="relative hidden min-h-50 overflow-hidden rounded-2xl lg:block">
+        <div className="relative min-h-64 overflow-hidden">
           <Image
             src="/gylounge_hero.svg"
             alt="GYLounge community gathering"
             fill
             className="object-cover"
+            sizes="(min-width: 768px) 50vw, 100vw"
           />
         </div>
       </div>
