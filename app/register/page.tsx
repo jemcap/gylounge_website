@@ -1,23 +1,31 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { registerMemberAction } from "@/app/home/actions";
-import { HomeHeader } from "@/app/home/components/HomeHeader";
-import { getSingleParam, resolveRegisterFeedback } from "@/app/home/home-page-helpers";
+import RegisterHeader from "./components/RegisterHeader";
+import {
+  getSingleParam,
+  resolveRegisterFeedback,
+} from "@/app/home/home-page-helpers";
 import { MembershipForm } from "@/components/forms/MembershipForm";
 
 type RegisterPageProps = {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function RegisterPage({ searchParams }: RegisterPageProps) {
+export default async function RegisterPage({
+  searchParams,
+}: RegisterPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const registerStatus = getSingleParam(resolvedSearchParams.register);
   const registerReference = getSingleParam(resolvedSearchParams.reference);
-  const registerFeedback = resolveRegisterFeedback(registerStatus, registerReference);
+  const registerFeedback = resolveRegisterFeedback(
+    registerStatus,
+    registerReference,
+  );
 
   return (
-    <main className="min-h-screen w-full bg-[#F1EDE5] text-[#261B07]">
-      <HomeHeader />
+    <main className="min-h-screen w-full bg-gylounge-register text-[#261B07]">
+      <RegisterHeader />
 
       <section className="relative flex min-h-screen w-full pt-20">
         <Link

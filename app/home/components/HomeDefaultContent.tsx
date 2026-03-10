@@ -4,8 +4,8 @@ import { ChevronRight } from "lucide-react";
 
 export function HomeDefaultContent() {
   return (
-    <div className="flex h-full w-full min-w-0 max-w-full flex-col justify-center overflow-x-hidden px-6 py-10 text-[#261B07] md:px-10 md:py-12">
-      <h2 className="font-serif text-3xl italic wrap-break-word sm:text-4xl lg:text-[86px]">
+    <div className="flex h-full w-full min-w-0 max-w-full flex-col justify-center overflow-x-hidden py-5 text-[#261B07] md:px-10 md:py-12">
+      <h2 className="font-serif text-6xl italic wrap-break-word sm:text-7xl lg:text-[86px]">
         Become a Member
       </h2>
       <p className="font-roboto font-semibold mt-3 max-w-5xl wrap-break-word md:text-lg">
@@ -23,11 +23,11 @@ export function HomeDefaultContent() {
 
       <div className="mt-8 grid w-full max-w-full gap-0 md:grid-cols-2 rounded-2xl text-gylounge-primary overflow-hidden h-auto">
         {/* Membership info card */}
-        <div className="relative flex min-w-0 flex-col justify-center bg-gylounge-register shadow-sm px-5 pb-20">
+        <div className="relative flex min-w-0 flex-col justify-center bg-gylounge-register shadow-sm px-5 pb-20 order-2 md:order-1">
           <h2 className="text-5xl italic font-serif">Membership Form</h2>
           <div className="flex flex-col gap-3 max-w-2xl">
             <p className="font-roboto mt-2 text-xl">
-              With a one-time fee of <strong>GH₵250</strong>, you'll receive
+              With a one-time fee of <strong>GH₵250</strong>, you&apos;ll receive
               lifetime access to the space.
             </p>
             <p className="font-roboto mt-2 text-xl">
@@ -44,7 +44,7 @@ export function HomeDefaultContent() {
         </div>
 
         {/* Hero image */}
-        <div className="relative min-h-64 overflow-hidden">
+        <div className="relative min-h-64 overflow-hidden order-1 md:order-2">
           <Image
             src="/gylounge_hero.svg"
             alt="GYLounge community gathering"

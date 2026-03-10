@@ -166,6 +166,7 @@ Implemented now:
 - `app/home/actions.ts`
 - `app/home/home-page-helpers.ts`
 - `app/home/components/*` (route-scoped accordion/header/section modules)
+- `/home` now uses a hamburger menu in the fixed mobile header for section navigation, while desktop keeps the left-side sticky section nav
 - `/home` content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation
 - `/home` default register promo now renders as a two-column layout on `md+` with membership card on the left and hero image on the right
 - `app/events/page.tsx`

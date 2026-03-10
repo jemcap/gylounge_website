@@ -17,6 +17,12 @@
 - 2026-03-04T22:20Z [USER] Increase the max width of `/home` content.
 - 2026-03-04T22:22Z [USER] Make `/home` content take up more space than the navigation section.
 - 2026-03-04T22:31Z [USER] Place membership info card on the left and hero image on the right with no padding.
+- 2026-03-09T22:10Z [USER] Replace the `/home` mobile row navigation with a hamburger menu in the fixed header, keeping the logo left and menu trigger right.
+- 2026-03-09T22:15Z [USER] Move `/home` mobile menu logic into context so the state is shared globally within the page tree.
+- 2026-03-09T22:19Z [USER] Make the expanded `/home` mobile menu match the section-nav colour treatment and occupy the full viewport instead of a floating card.
+- 2026-03-09T22:24Z [USER] Keep the fixed `/home` header visible while the expanded mobile menu fills the remaining viewport beneath it.
+- 2026-03-09T22:29Z [USER] Make the `Contact Us` item in the expanded `/home` mobile menu span the remaining viewport height.
+- 2026-03-09T22:32Z [USER] Strengthen the mobile-menu layout so `Contact Us` definitively fills the remaining viewport after the earlier `flex-1` attempt did not visibly apply.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -51,6 +57,12 @@
 - 2026-03-01T13:00Z [CODE] Rewrote `HomeAccordionSection` to scroll-spy layout: sticky sidebar nav (desktop) / horizontal sticky bar (mobile), full-viewport content panels observed by IntersectionObserver, bg+text colour transitions via inline style + `transition-colors duration-700`. AccordionItem no longer used (dead code). Added `expandedText` per entry for dark-bg readability.
 - 2026-03-01T14:00Z [USER] Match `homepage_layout.png` design: constant dark background `#1A120A`, stacking nav colour blocks (items at/above active index show their bg), narrow sticky sidebar, promo card on dark theme.
 - 2026-03-01T14:17Z [TOOL] Cannot write to `/Users/J/.codex/skills` from this sandbox; implement the requested skill inside repo at `skills/git-stage-commit-push`.
+- 2026-03-09T22:10Z [CODE] Keep `/home` desktop navigation as the fixed left-side section rail, but move small-screen section navigation into the fixed header via a hamburger menu.
+- 2026-03-09T22:15Z [CODE] Scope mobile-menu state globally to the `/home` subtree via a dedicated React context provider instead of keeping it local to `HomeMobileMenu`.
+- 2026-03-09T22:19Z [CODE] Expanded mobile navigation should render as a full-viewport stacked list using the same per-section background/text colours as the `/home` navigation system.
+- 2026-03-09T22:24Z [CODE] The mobile menu overlay should be bounded from `top-20` to the viewport bottom so the header remains visible while nav items fill the rest of the screen.
+- 2026-03-09T22:29Z [CODE] Only the `Contact Us` mobile nav item should flex to consume leftover menu height; the other items keep content-height sizing.
+- 2026-03-09T22:32Z [CODE] Split the mobile nav into a `shrink-0` top stack and a dedicated bottom `Contact Us` link with `flex-1 min-h-0` so the remaining viewport height is structurally reserved for that item.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -136,6 +148,12 @@
 - 2026-03-04T22:20Z [CODE] The previous `max-w-7xl` cap on `/home` panel content constrained width on ultra-wide layouts even when viewport space remained available.
 - 2026-03-04T22:22Z [CODE] Previous desktop split (`md: 40/60`, `lg: 33/67` nav/content) still allocated more nav space than requested; reducing nav to `1/3` and `1/4` gives clearer content dominance.
 - 2026-03-04T22:31Z [CODE] Hero image was nested inside the membership card container, so left/right placement could not occur until the image was moved to a sibling grid column.
+- 2026-03-09T22:10Z [ASSISTANT] Added `app/home/components/HomeMobileMenu.tsx`, passed section ids/titles into `HomeHeader`, hid the mobile row nav, and anchored mobile menu items to the existing section panels.
+- 2026-03-09T22:15Z [ASSISTANT] Added `app/home/components/HomeMobileMenuContext.tsx`, wrapped the `/home` tree with its provider, and refactored `HomeMobileMenu` to consume shared open/close/toggle state.
+- 2026-03-09T22:19Z [ASSISTANT] Passed nav colour tokens through `HomeHeader` into `HomeMobileMenu` and replaced the floating menu card with a full-height stacked overlay nav.
+- 2026-03-09T22:24Z [ASSISTANT] Changed the overlay container bounds from full-screen with top padding to `top-20 bottom-0`, preserving the header while keeping the nav list full-height underneath it.
+- 2026-03-09T22:29Z [ASSISTANT] Updated `HomeMobileMenu` so `contact-us` gets `flex-1` while the other menu items are `shrink-0`.
+- 2026-03-09T22:32Z [ASSISTANT] Reworked `HomeMobileMenu` to render non-contact links in a separate `shrink-0` wrapper and render `Contact Us` as the sole flexible region.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -172,3 +190,9 @@
 - 2026-03-04T22:22Z [TOOL] Validation evidence for ratio change: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (16 routes, `/home` dynamic).
 - 2026-03-04T22:31Z [CODE] `/home` default register promo now renders membership card on the left and hero image on the right (`md+`) with no card padding.
 - 2026-03-04T22:31Z [TOOL] Validation evidence for promo layout refactor: `npm run lint` pass, `./node_modules/.bin/next build --webpack` pass (16 routes, `/home` dynamic).
+- 2026-03-09T22:10Z [TOOL] Validation evidence for mobile-nav refactor: `npm run test` pass (`7/7`), `npm run lint` pass after fixing one unescaped apostrophe in `app/home/components/HomeDefaultContent.tsx`, and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
+- 2026-03-09T22:15Z [TOOL] Validation evidence for context refactor: `npm run test` pass (`7/7`), `npm run lint` pass, and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
+- 2026-03-09T22:19Z [TOOL] Validation evidence for full-viewport mobile-nav styling: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
+- 2026-03-09T22:24Z [TOOL] Validation evidence for header-visible overlay bounds: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
+- 2026-03-09T22:29Z [TOOL] Validation evidence for `Contact Us` height fill: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
+- 2026-03-09T22:32Z [TOOL] Validation evidence for structural `Contact Us` viewport fill: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).

@@ -4,6 +4,7 @@ import { HomeSideNavLayout } from "./components/HomeAccordionSection";
 import { HomeContactContent } from "./components/HomeContactContent";
 import { HomeFaqsContent } from "./components/HomeFaqContent";
 import { HomeHeader } from "./components/HomeHeader";
+import { HomeMobileMenuProvider } from "./components/HomeMobileMenuContext";
 import {
   formatAccraDate,
   formatAccraTime,
@@ -73,9 +74,21 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   ];
 
   return (
-    <main className="flex min-h-screen flex-col">
-      <HomeHeader />
-      <HomeSideNavLayout entries={entries} initialActiveId={initialActiveId} />
-    </main>
+    <HomeMobileMenuProvider>
+      <main className="flex min-h-screen flex-col">
+        <HomeHeader
+          entries={entries.map(({ id, title, bg, text }) => ({
+            id,
+            title,
+            bg,
+            text,
+          }))}
+        />
+        <HomeSideNavLayout
+          entries={entries}
+          initialActiveId={initialActiveId}
+        />
+      </main>
+    </HomeMobileMenuProvider>
   );
 }

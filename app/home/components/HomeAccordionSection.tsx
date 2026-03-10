@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type NavEntry = {
   id: string;
@@ -116,16 +122,16 @@ export function HomeSideNavLayout({
 
   return (
     <div
-      className="relative flex-1 overflow-x-hidden"
+      className="relative flex-1 overflow-x-hidden pt-20"
       style={{ backgroundColor: BASE_BG, color: BASE_TEXT }}
     >
-      {/* ── Fixed sidebar nav (desktop) / sticky top bar (mobile) ─
+      {/* ── Fixed sidebar nav (desktop) ───────────────────────────
            Nav buttons are transparent. Behind each button, a
            full-viewport-width colour strip appears when that
            section's content panel top touches the nav button's
            bottom edge. Strips stack as the user scrolls down
            and un-stack when scrolling back up.                    */}
-      <nav className="sticky top-0 z-20 flex flex-row overflow-x-auto md:fixed md:left-0 md:top-20 md:h-screen md:w-1/3 md:flex-col md:overflow-x-visible lg:w-1/4">
+      <nav className="hidden md:fixed md:left-0 md:top-20 md:z-20 md:flex md:h-screen md:w-1/3 md:flex-col md:overflow-x-visible lg:w-1/4">
         {entries.map((entry) => {
           const isCurrent = activeId === entry.id;
 
@@ -172,15 +178,23 @@ export function HomeSideNavLayout({
       {entries.map((entry) => (
         <div
           key={entry.id}
+          id={entry.id}
           ref={(el) => {
             if (el) panelElements.current.set(entry.id, el);
           }}
           data-section={entry.id}
-          className="flex min-h-screen items-center overflow-x-hidden py-10"
+          className="flex min-h-screen scroll-mt-24 items-center overflow-x-hidden py-2"
           style={{ backgroundColor: entry.bg, color: entry.text }}
         >
           <div className="w-full min-w-0 px-5 md:pl-[33.333%] md:pr-8 lg:pl-[20%]">
-            <div className="w-full min-w-0 max-w-[96rem] overflow-x-hidden">
+            <div className="md:hidden">
+              {entry.title && (
+                <h2 className="font-roboto font-bold underline text-xl wrap-break-word">
+                  {entry.title}
+                </h2>
+              )}
+            </div>
+            <div className="w-full min-w-0 max-w-384 overflow-x-hidden">
               {entry.content}
             </div>
           </div>
