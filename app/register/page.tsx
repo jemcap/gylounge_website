@@ -26,16 +26,16 @@ export default async function RegisterPage({
   return (
     <main className="min-h-screen w-full bg-gylounge-register text-[#261B07]">
       <RegisterHeader />
-
-      <section className="relative flex min-h-screen w-full pt-20">
+      <div className="pt-24 ">
         <Link
           href="/home"
-          className="fixed left-4 top-24 z-20 inline-flex items-center gap-2 rounded-full border border-[#3F2D17] bg-[#F1EDE5] px-4 py-2 text-sm font-semibold text-[#261B07] transition-colors hover:bg-[#e6dfd2]"
+          className="underline flex items-center gap-2 rounded-full px-4 text-3xl font-semibold text-[#261B07]"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-          Back
+          Register
         </Link>
-
+      </div>
+      <section className="relative flex min-h-screen w-full">
         <div className="flex min-h-[calc(100vh-5rem)] w-full items-center">
           <MembershipForm
             action={registerMemberAction}

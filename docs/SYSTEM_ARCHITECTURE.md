@@ -53,6 +53,7 @@ Guideline:
 - Client components only for interactivity.
 - Server components by default.
 - Typography tokens come from `next/font/google` variables (`Geist`, `Geist Mono`, `Instrument Serif`) exposed through `app/globals.css`.
+- The membership registration UI uses React Hook Form with a shared Zod schema, then derives the server-required `name` and `phone` fields before calling the registration action.
 
 ### 2. Domain/Application Layer (Server Actions + API)
 Responsibilities:
@@ -75,6 +76,7 @@ Responsibilities:
 Current modules:
 - `lib/supabase.ts`: public and service-role clients
 - `lib/membership.ts`: email normalization, bank details, reference generation
+- `lib/membership-form.ts`: shared membership form schema, defaults, and normalized `FormData` builder
 - `lib/resend.ts`: booking/membership/admin email helpers
 
 ### 4. Data Layer (Supabase Postgres)
@@ -170,6 +172,7 @@ Implemented now:
 - `/home` content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation
 - `/home` default register promo now renders as a two-column layout on `md+` with membership card on the left and hero image on the right
 - `app/events/page.tsx`
+- `components/forms/MembershipForm.tsx` now uses React Hook Form + Zod and submits a normalized payload that preserves the existing `registerMemberAction` contract
 - Route skeletons for:
   - `/events/[eventId]`
   - `/booking/confirm`
@@ -192,6 +195,7 @@ Implemented now:
 - `/home` Booking accordion posts to a server action that enforces active membership, creates bookings with slot decrement, and sends booking emails
 - `lib/supabase.ts`
 - `lib/membership.ts`
+- `lib/membership-form.ts`
 - `lib/resend.ts`
 - integration tests under `__tests__/lib/*`
 

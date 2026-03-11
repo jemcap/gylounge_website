@@ -23,6 +23,8 @@
 - 2026-03-09T22:24Z [USER] Keep the fixed `/home` header visible while the expanded mobile menu fills the remaining viewport beneath it.
 - 2026-03-09T22:29Z [USER] Make the `Contact Us` item in the expanded `/home` mobile menu span the remaining viewport height.
 - 2026-03-09T22:32Z [USER] Strengthen the mobile-menu layout so `Contact Us` definitively fills the remaining viewport after the earlier `flex-1` attempt did not visibly apply.
+- 2026-03-11T18:53Z [USER] Migrate the membership form to React Hook Form and use Zod for schema validation.
+- 2026-03-11T19:12Z [USER] Split the remaining membership form field groups into dedicated components.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -63,6 +65,8 @@
 - 2026-03-09T22:24Z [CODE] The mobile menu overlay should be bounded from `top-20` to the viewport bottom so the header remains visible while nav items fill the rest of the screen.
 - 2026-03-09T22:29Z [CODE] Only the `Contact Us` mobile nav item should flex to consume leftover menu height; the other items keep content-height sizing.
 - 2026-03-09T22:32Z [CODE] Split the mobile nav into a `shrink-0` top stack and a dedicated bottom `Contact Us` link with `flex-1 min-h-0` so the remaining viewport height is structurally reserved for that item.
+- 2026-03-11T18:53Z [CODE] Keep `registerMemberAction` unchanged and bridge the richer membership form back to its existing `name`/`email`/`phone` contract via a shared normalization helper.
+- 2026-03-11T19:12Z [CODE] Keep `MembershipForm.tsx` as the RHF/state coordinator and move field rendering into separate components backed by shared style tokens.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -120,6 +124,8 @@
 - 2026-03-04T22:31Z [CODE] Refactored `HomeDefaultContent` membership promo block into two columns (`md:grid-cols-2`): membership card left, hero image right; removed card `p-6` to satisfy no-padding request.
 - 2026-03-04T22:31Z [CODE] Corrected invalid utility typos in `HomeDefaultContent` (`wrap-break-word`/`reak-words` -> `break-words`).
 - 2026-03-04T22:31Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` status snapshot for the left/right register promo layout.
+- 2026-03-11T18:53Z [CODE] Added `lib/membership-form.ts` with the shared Zod schema/default values/FormData builder, refactored `components/forms/MembershipForm.tsx` to React Hook Form, and added schema coverage in `__tests__/lib/membership-form.test.ts`.
+- 2026-03-11T19:12Z [CODE] Added dedicated membership form field components (`BirthDateFields`, `MembershipNameFields`, `MembershipGenderFields`, `MembershipPhoneFields`, `MembershipEmailField`, `MembershipAddressFields`, `MembershipEmergencyContactFields`) plus shared style tokens in `components/forms/membership-form-styles.ts`.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -148,6 +154,8 @@
 - 2026-03-04T22:20Z [CODE] The previous `max-w-7xl` cap on `/home` panel content constrained width on ultra-wide layouts even when viewport space remained available.
 - 2026-03-04T22:22Z [CODE] Previous desktop split (`md: 40/60`, `lg: 33/67` nav/content) still allocated more nav space than requested; reducing nav to `1/3` and `1/4` gives clearer content dominance.
 - 2026-03-04T22:31Z [CODE] Hero image was nested inside the membership card container, so left/right placement could not occur until the image was moved to a sibling grid column.
+- 2026-03-11T18:53Z [CODE] `MembershipForm.tsx` collected `firstName`, `lastName`, and `mobilePhone`, while `registerMemberAction` still reads `name`, `email`, and `phone`; the new helper resolves that mismatch before submission.
+- 2026-03-11T19:12Z [CODE] Pulling shared field styles into one module avoided duplicating the same label/error/select Tailwind strings across seven extracted form components.
 - 2026-03-09T22:10Z [ASSISTANT] Added `app/home/components/HomeMobileMenu.tsx`, passed section ids/titles into `HomeHeader`, hid the mobile row nav, and anchored mobile menu items to the existing section panels.
 - 2026-03-09T22:15Z [ASSISTANT] Added `app/home/components/HomeMobileMenuContext.tsx`, wrapped the `/home` tree with its provider, and refactored `HomeMobileMenu` to consume shared open/close/toggle state.
 - 2026-03-09T22:19Z [ASSISTANT] Passed nav colour tokens through `HomeHeader` into `HomeMobileMenu` and replaced the floating menu card with a full-height stacked overlay nav.
@@ -196,3 +204,5 @@
 - 2026-03-09T22:24Z [TOOL] Validation evidence for header-visible overlay bounds: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
 - 2026-03-09T22:29Z [TOOL] Validation evidence for `Contact Us` height fill: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
 - 2026-03-09T22:32Z [TOOL] Validation evidence for structural `Contact Us` viewport fill: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
+- 2026-03-11T18:53Z [TOOL] Membership form migration validation passed: `npm run lint`, `npm run test` (`10/10`), and `./node_modules/.bin/next build` all succeeded.
+- 2026-03-11T19:12Z [TOOL] Membership component-splitting validation passed: `npm run lint`, `npm run test` (`10/10`), and `./node_modules/.bin/next build` all succeeded.

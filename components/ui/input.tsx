@@ -4,7 +4,7 @@ export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
 export function Input({ className, ...props }: InputProps) {
   const classNames = [
-    "w-full rounded-xl border border-[#d9cfbf] bg-white px-4 py-3 text-sm text-[#1c1b18] outline-none transition focus:border-[#8b6b3f]",
+    "w-full rounded-full border-3 border-[#3F2D17] bg-[#F1D39B] px-4 py-3 text-sm text-[#1c1b18] outline-none transition focus:border-[#8b6b3f]",
     className,
   ]
     .filter(Boolean)
