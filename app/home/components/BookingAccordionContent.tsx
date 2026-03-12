@@ -1,13 +1,17 @@
-import Link from "next/link";
 import { BookingForm } from "@/components/forms/BookingForm";
 import { Card } from "@/components/ui/card";
-import type { BookingTarget, Feedback } from "@/app/home/home-page-helpers";
+import type {
+  BookableLocation,
+  AvailableSlot,
+  Feedback,
+} from "@/app/home/home-page-helpers";
 
 type FormAction = string | ((formData: FormData) => void | Promise<void>);
 
 type BookingAccordionContentProps = {
   action: FormAction;
-  bookingTarget: BookingTarget | null;
+  locations: BookableLocation[];
+  slots: AvailableSlot[];
   bookingFeedback?: Feedback;
   bookingContext?: string;
 };
@@ -20,18 +24,17 @@ const feedbackClassMap: Record<Feedback["tone"], string> = {
 
 export function BookingAccordionContent({
   action,
-  bookingTarget,
+  locations,
+  slots,
   bookingFeedback,
   bookingContext,
 }: BookingAccordionContentProps) {
-  if (bookingTarget) {
+  console.log(locations, slots);
+  if (locations.length === 0 || slots.length === 0) {
     return (
-      <BookingForm
-        eventId={bookingTarget.eventId}
-        slotId={bookingTarget.slotId}
-        action={action}
-        feedback={bookingFeedback}
-        context={bookingContext}
+      <Card
+        title="No bookable slots right now"
+        description="We could not find an available slot. Check back later in this Booking section for updates."
       />
     );
   }
@@ -45,17 +48,14 @@ export function BookingAccordionContent({
           {bookingFeedback.message}
         </p>
       ) : null}
-      <Card
-        title="No bookable slots right now"
-        description="We could not find an available slot. Check back later or browse events for updates."
-      >
-        <Link
-          href="/events"
-          className="text-sm font-semibold text-[#1c1b18] underline-offset-4 hover:underline"
-        >
-          Browse events
-        </Link>
-      </Card>
+
+      <BookingForm
+        locations={locations}
+        slots={slots}
+        action={action}
+        feedback={bookingFeedback}
+        context={bookingContext}
+      />
     </>
   );
 }

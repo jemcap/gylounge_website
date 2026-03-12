@@ -30,7 +30,6 @@ describe('Resend Client', () => {
     const result = await sendBookingConfirmation(
       'member@example.com',
       'Alex',
-      'Wellness Night',
       '2026-02-10',
       '7:00 PM',
       'Downtown Studio'
@@ -52,7 +51,6 @@ describe('Resend Client', () => {
       'Alex',
       'member@example.com',
       null,
-      'Wellness Night',
       '2026-02-10',
       '7:00 PM',
       'Downtown Studio'
@@ -70,7 +68,6 @@ describe('Resend Client', () => {
       'Alex',
       'member@example.com',
       '555-222-1234',
-      'Wellness Night',
       '2026-02-10',
       '7:00 PM',
       'Downtown Studio'

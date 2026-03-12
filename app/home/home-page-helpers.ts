@@ -1,31 +1,45 @@
-import { supabaseAdminClient } from "@/lib/supabase";
+import type { Tables } from "@/app/types/database"
+import { supabaseAdminClient } from "@/lib/supabase"
 
-export type BookingTarget = {
-  eventId: string;
-  slotId: string;
-  eventTitle: string;
-  eventDate: string;
-  startTime: string;
-  endTime: string;
-  locationName: string;
-};
+type LocationRow = Pick<Tables<"locations">, "id" | "name" | "address" | "region">
+
+type SlotRow = Pick<
+  Tables<"slots">,
+  "id" | "location_id" | "date" | "start_time" | "end_time" | "available_spots"
+>
+
+export type BookableLocation = {
+  id: string
+  name: string
+  address: string
+  region: string
+}
+
+export type AvailableSlot = {
+  id: string
+  locationId: string
+  date: string
+  startTime: string
+  endTime: string
+  availableSpots: number
+}
 
 export type Feedback = {
-  tone: "success" | "error" | "info";
-  message: string;
-};
+  tone: "success" | "error" | "info"
+  message: string
+}
 
 export const getSingleParam = (value: string | string[] | undefined) => {
   if (Array.isArray(value)) {
-    return value[0];
+    return value[0]
   }
-  return value;
-};
+  return value
+}
 
 export const formatAccraDate = (raw: string) => {
-  const parsed = new Date(raw);
+  const parsed = new Date(raw)
   if (Number.isNaN(parsed.getTime())) {
-    return raw;
+    return raw
   }
 
   return new Intl.DateTimeFormat("en-US", {
@@ -33,13 +47,27 @@ export const formatAccraDate = (raw: string) => {
     year: "numeric",
     month: "short",
     day: "numeric",
-  }).format(parsed);
-};
+  }).format(parsed)
+}
 
 export const formatAccraTime = (raw: string) => {
-  const parsed = new Date(raw);
+  const timeOnlyMatch = raw.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/)
+  if (timeOnlyMatch) {
+    const hours = Number.parseInt(timeOnlyMatch[1], 10)
+    const minutes = Number.parseInt(timeOnlyMatch[2], 10)
+    const seconds = Number.parseInt(timeOnlyMatch[3] ?? "0", 10)
+
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "Africa/Accra",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: false,
+    }).format(new Date(Date.UTC(1970, 0, 1, hours, minutes, seconds)))
+  }
+
+  const parsed = new Date(raw)
   if (Number.isNaN(parsed.getTime())) {
-    return raw;
+    return raw
   }
 
   return new Intl.DateTimeFormat("en-US", {
@@ -47,8 +75,22 @@ export const formatAccraTime = (raw: string) => {
     hour: "numeric",
     minute: "2-digit",
     hour12: false,
-  }).format(parsed);
-};
+  }).format(parsed)
+}
+
+const getTimeSortValue = (raw: string) => {
+  const timeOnlyMatch = raw.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/)
+  if (timeOnlyMatch) {
+    const hours = Number.parseInt(timeOnlyMatch[1], 10)
+    const minutes = Number.parseInt(timeOnlyMatch[2], 10)
+    const seconds = Number.parseInt(timeOnlyMatch[3] ?? "0", 10)
+
+    return hours * 3600 + minutes * 60 + seconds
+  }
+
+  const parsed = new Date(raw)
+  return Number.isNaN(parsed.getTime()) ? Number.MAX_SAFE_INTEGER : parsed.getTime()
+}
 
 export const resolveRegisterFeedback = (
   status?: string,
@@ -61,33 +103,33 @@ export const resolveRegisterFeedback = (
         message: reference
           ? `Registration saved. Your transfer reference is ${reference}.`
           : "Registration saved. Check your email for bank transfer details.",
-      };
+      }
     case "saved":
       return {
         tone: "info",
         message: reference
           ? `Registration saved with reference ${reference}, but we could not send the email. Contact support if needed.`
           : "Registration saved, but we could not send the email. Contact support if needed.",
-      };
+      }
     case "already-active":
       return {
         tone: "info",
         message: "This email already has an active membership.",
-      };
+      }
     case "invalid":
       return {
         tone: "error",
-        message: "Please provide valid name, email, and phone details.",
-      };
+        message: "Please complete the required membership details before submitting.",
+      }
     case "error":
       return {
         tone: "error",
         message: "We could not save your registration right now. Please try again.",
-      };
+      }
     default:
-      return undefined;
+      return undefined
   }
-};
+}
 
 export const resolveBookingFeedback = (status?: string): Feedback | undefined => {
   switch (status) {
@@ -95,88 +137,124 @@ export const resolveBookingFeedback = (status?: string): Feedback | undefined =>
       return {
         tone: "success",
         message: "Booking created successfully. A confirmation email has been sent.",
-      };
+      }
     case "success-email-warning":
       return {
         tone: "info",
         message: "Booking created, but one or more confirmation emails could not be sent.",
-      };
+      }
     case "membership-required":
       return {
         tone: "info",
         message:
           "You need an active membership before booking. Complete Register first.",
-      };
+      }
     case "slot-unavailable":
       return {
         tone: "error",
         message: "That slot is no longer available. Please try another available slot.",
-      };
+      }
     case "invalid":
       return {
         tone: "error",
         message: "Please complete all required booking fields.",
-      };
+      }
     case "error":
       return {
         tone: "error",
         message: "We could not complete your booking right now. Please try again.",
-      };
-    default:
-      return undefined;
-  }
-};
-
-export const getBookingTarget = async (): Promise<BookingTarget | null> => {
-  try {
-    const admin = supabaseAdminClient();
-    const { data: slots, error: slotError } = await admin
-      .from("slots")
-      .select("id, event_id, start_time, end_time, available_spots")
-      .gt("available_spots", 0)
-      .order("start_time", { ascending: true })
-      .limit(1);
-
-    if (slotError || !slots?.length || !slots[0].event_id) {
-      return null;
-    }
-
-    const slot = slots[0];
-    const slotEventId = slot.event_id as string;
-
-    const { data: event, error: eventError } = await admin
-      .from("events")
-      .select("id, title, date, location_id")
-      .eq("id", slotEventId)
-      .maybeSingle();
-
-    if (eventError || !event) {
-      return null;
-    }
-
-    let locationName = "Location pending";
-    if (event.location_id) {
-      const { data: location } = await admin
-        .from("locations")
-        .select("name")
-        .eq("id", event.location_id)
-        .maybeSingle();
-      if (location?.name) {
-        locationName = location.name;
       }
+    default:
+      return undefined
+  }
+}
+
+const sortSlotsByStartTime = (slots: AvailableSlot[]) =>
+  [...slots].sort(
+    (left, right) => getTimeSortValue(left.startTime) - getTimeSortValue(right.startTime),
+  )
+
+export const getBookingFormOptions = async (
+): Promise<{ locations: BookableLocation[]; slots: AvailableSlot[] }> => {
+  try {
+    const admin = supabaseAdminClient()
+    const today = new Date().toISOString().slice(0, 10)
+
+    const slotsQuery = admin
+      .from("slots")
+      .select("id, location_id, date, start_time, end_time, available_spots")
+      .gte("date", today)
+      .gt("available_spots", 0)
+      .order("date", { ascending: true })
+      .order("start_time", { ascending: true })
+
+    const [{ data: locationRows, error: locationError }, { data: slotRows, error: slotError }] =
+      await Promise.all([
+        admin
+          .from("locations")
+          .select("id, name, address, region")
+          .order("name", { ascending: true }),
+        slotsQuery,
+      ])
+
+    if (locationError || slotError) {
+      console.error("home getBookingFormOptions query failed", {
+        locationError,
+        slotError,
+      })
+      return { locations: [], slots: [] }
     }
+
+    const locationList = (locationRows ?? []) as LocationRow[]
+    const locationMap = new Map<string, BookableLocation>(
+      locationList.map((location) => [
+        location.id,
+        {
+          id: location.id,
+          name: location.name,
+          address: location.address,
+          region: location.region,
+        },
+      ]),
+    )
+
+    const slots = ((slotRows ?? []) as SlotRow[])
+      .map((slot) => {
+        if (!slot.location_id) {
+          return null
+        }
+
+        if (!locationMap.has(slot.location_id)) {
+          return null
+        }
+
+        return {
+          id: slot.id,
+          locationId: slot.location_id,
+          date: slot.date,
+          startTime: slot.start_time,
+          endTime: slot.end_time,
+          availableSpots: slot.available_spots,
+        } satisfies AvailableSlot
+      })
+      .filter((slot): slot is AvailableSlot => Boolean(slot))
+
+    const locationIdsWithAvailability = new Set(slots.map((slot) => slot.locationId))
+    const locations = locationList
+      .filter((location) => locationIdsWithAvailability.has(location.id))
+      .map((location) => ({
+        id: location.id,
+        name: location.name,
+        address: location.address,
+        region: location.region,
+      }))
 
     return {
-      eventId: event.id,
-      slotId: slot.id,
-      eventTitle: event.title,
-      eventDate: event.date,
-      startTime: slot.start_time,
-      endTime: slot.end_time,
-      locationName,
-    };
+      locations,
+      slots: sortSlotsByStartTime(slots),
+    }
   } catch (error) {
-    console.error("home getBookingTarget failed", error);
-    return null;
+    console.error("home getBookingFormOptions failed", error)
+    return { locations: [], slots: [] }
   }
-};
+}

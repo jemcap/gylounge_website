@@ -28,8 +28,8 @@ export default function MyBookingsPage() {
 
         <Card title="Lookup result placeholder" description="Render sanitized booking rows here after wiring server-side lookup.">
           <ul className="space-y-2 text-sm text-[#3b3127]">
-            <li>Morning Stretch Circle - 2026-03-01 - Confirmed</li>
-            <li>Community Tea Social - 2026-03-05 - Pending</li>
+            <li>Airport Residential - 2026-03-01 - 08:00 - Confirmed</li>
+            <li>East Legon - 2026-03-05 - 14:00 - Pending</li>
           </ul>
         </Card>
       </div>

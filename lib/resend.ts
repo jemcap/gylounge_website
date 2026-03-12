@@ -39,10 +39,10 @@ const sendEmail = async (params: {
 export const sendBookingConfirmation = async (
   to: string,
   memberName: string,
-  eventTitle: string,
   date: string,
   time: string,
   location: string,
+  guestCount = 1,
 ): Promise<SendResult> => {
   const subject = "Booking Confirmation";
   const html = `
@@ -50,20 +50,20 @@ export const sendBookingConfirmation = async (
     <p>Hi ${memberName},</p>
     <p>Thanks for your booking. We look forward to welcoming you to GYLounge.</p>
     <ul>
-      <li><strong>Event:</strong> ${eventTitle}</li>
       <li><strong>Date:</strong> ${date}</li>
       <li><strong>Time:</strong> ${time}</li>
       <li><strong>Location:</strong> ${location}</li>
+      <li><strong>Guests:</strong> ${guestCount}</li>
     </ul>
   `;
   const text = [
     "Booking Confirmation",
     `Hi ${memberName},`,
     "Thanks for your booking. We look forward to welcoming you to GYLounge.",
-    `Event: ${eventTitle}`,
     `Date: ${date}`,
     `Time: ${time}`,
     `Location: ${location}`,
+    `Guests: ${guestCount}`,
   ].join("\n");
   return sendEmail({ to, subject, html, text });
 };
@@ -72,10 +72,10 @@ export const sendBookingNotification = async (
   memberName: string,
   memberEmail: string,
   memberPhone: string | null | undefined,
-  eventTitle: string,
   date: string,
   time: string,
   location: string,
+  guestCount = 1,
 ): Promise<SendResult> => {
   const recipients = (process.env.BOOKING_NOTIFICATION_EMAILS ?? "")
     .split(",")
@@ -92,10 +92,10 @@ export const sendBookingNotification = async (
       <li><strong>Member:</strong> ${memberName}</li>
       <li><strong>Email:</strong> ${memberEmail}</li>
       <li><strong>${phoneLine}</strong></li>
-      <li><strong>Event:</strong> ${eventTitle}</li>
       <li><strong>Date:</strong> ${date}</li>
       <li><strong>Time:</strong> ${time}</li>
       <li><strong>Location:</strong> ${location}</li>
+      <li><strong>Guests:</strong> ${guestCount}</li>
     </ul>
   `;
   const text = [
@@ -103,10 +103,10 @@ export const sendBookingNotification = async (
     `Member: ${memberName}`,
     `Email: ${memberEmail}`,
     phoneLine,
-    `Event: ${eventTitle}`,
     `Date: ${date}`,
     `Time: ${time}`,
     `Location: ${location}`,
+    `Guests: ${guestCount}`,
   ].join("\n");
   return sendEmail({ to: recipients, subject, html, text });
 };
@@ -154,7 +154,7 @@ export const sendMembershipInstructions = async (
       <li><strong>Reference:</strong> ${reference}</li>
     </ul>
     <p><strong>Important:</strong> ${details.instructions}</p>
-    <p>Once verified, your membership will be activated and you can book events.</p>
+    <p>Once verified, your membership will be activated and you can book visits.</p>
   `;
   const text = [
     "GYLounge Membership",
@@ -167,7 +167,7 @@ export const sendMembershipInstructions = async (
     `Reference: ${reference}`,
     "",
     `Important: ${details.instructions}`,
-    "Once verified, your membership will be activated and you can book events.",
+    "Once verified, your membership will be activated and you can book visits.",
   ].join("\n");
   return sendEmail({ to, subject, html, text });
 };

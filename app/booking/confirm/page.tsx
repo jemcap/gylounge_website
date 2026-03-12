@@ -10,8 +10,8 @@ export default function BookingConfirmPage() {
           description="Your booking request has been received. This page is the scaffold for post-booking status details."
         >
           <div className="mt-4 flex flex-wrap gap-4">
-            <Link href="/events" className="rounded-full bg-[#14110b] px-4 py-2 text-sm font-semibold text-[#f5f1ea]">
-              Browse more events
+            <Link href="/home#booking" className="rounded-full bg-[#14110b] px-4 py-2 text-sm font-semibold text-[#f5f1ea]">
+              Back to booking
             </Link>
             <Link
               href="/my-bookings"

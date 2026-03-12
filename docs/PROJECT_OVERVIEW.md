@@ -1,5 +1,5 @@
 ## Project Overview
-GYLounge is a Ghanaian community platform helping elderly people connect through local events and activities. Built with Next.js 16, React 19, and Tailwind CSS v4, deployed on Vercel.
+GYLounge is a Ghanaian community platform helping elderly people connect through local visits and activities. Built with Next.js 16, React 19, and Tailwind CSS v4, deployed on Vercel.
 
 For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 
@@ -12,11 +12,11 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 - **Consolidated Home Experience**: `/home` provides one-page sections for Register, Booking, FAQs, and Contact Us
 - **Dedicated Register Route**: `/register` hosts the full membership sign-up form with server-action feedback
 - **Server-Wired Public Forms**: `/register` and `/home` (Booking) submit to server actions and return status feedback
-- **Booking System**: Location-based event booking with date/time slots
+- **Booking System**: Location-based booking with date-specific hourly time slots
 - **Membership**: One-time membership fee via bank transfer (no accounts required)
 - **Member Verification**: Email-based lookup - no passwords or logins
 - **Email Notifications**: Confirmation emails via Resend to booker and organizer
-- **Admin Console**: Protected admin pages for managing events/slots, viewing bookings, and activating members
+- **Admin Console**: Protected admin pages for managing locations/availability, viewing bookings, and activating members
 
 ## Tech Stack
 - **Next.js 16.1.4** - App Router (no Pages Router)
@@ -37,7 +37,7 @@ app/
   home/
     page.tsx              # Consolidated public home composition (Register link panel, Booking, FAQs, Contact Us)
     actions.ts            # Server actions for register + booking submissions
-    home-page-helpers.ts  # /home query parsing, feedback mapping, booking-target lookup
+    home-page-helpers.ts  # /home query parsing, feedback mapping, booking option lookup
     components/           # Route-scoped /home UI modules (header, accordion pieces, section content)
   types/
     database.ts           # Supabase generated types
@@ -46,12 +46,10 @@ app/
     page.tsx              # Admin dashboard
     members/page.tsx      # Manage members (activate from pending -> active)
     bookings/page.tsx     # View/manage bookings
-    events/page.tsx       # Manage events
-    slots/page.tsx        # Manage slots/time availability
+    events/page.tsx       # Manage locations (legacy route name)
+    slots/page.tsx        # Manage location/date/time availability
   events/
-    page.tsx              # Event listings by location
-    [eventId]/
-      page.tsx            # Event detail + booking form
+    page.tsx              # Redirects to the live booking section on /home
   booking/
     confirm/page.tsx      # Booking confirmation (dedicated route scaffold)
   membership/
@@ -62,7 +60,7 @@ app/
 components/
   ui/                     # Base UI primitives (Button, Input, Card)
   forms/                  # BookingForm, MembershipForm
-  events/                 # EventCard, EventList, LocationPicker
+  events/                 # Legacy placeholder cards/pickers for redirect route
 utils/
   date.ts                 # Date formatting helpers
   validation.ts           # Form validation (email, phone)
@@ -98,7 +96,7 @@ Public users never log in. Admins authenticate via Supabase Auth (recommended: m
 
 Admin capabilities (planned):
 - Activate members after verifying bank transfers (`pending` → `active`).
-- Manage events and slots.
+- Manage locations and availability slots.
 - View and manage bookings.
 
 Security requirements:
@@ -147,8 +145,8 @@ Even at low volume, prevent double-booking by performing “check availability �
 ```
 
 ## Data Flow: Booking System
-1. User selects location → fetch events for that location
-2. User selects event → fetch available time slots
+1. User selects location → fetch available booking dates for that location
+2. User selects a date → fetch available hourly time slots
 3. User submits booking form (name, email, phone, slot)
 4. Server Action: query `members` table by email
 5. If active member → create booking → send confirmations
@@ -168,20 +166,21 @@ Even at low volume, prevent double-booking by performing “check availability �
 ## Database Schema (Supabase PostgreSQL)
 ```sql
 -- Members (created as pending, activated after manual verification)
-members: id, email, name, phone, bank_transfer_reference, status, created_at
+members: id, first_name, last_name, email, birthday, gender, phone, home_address_line1, home_address_line2, home_address_digital, emergency_contact_first_name, emergency_contact_last_name, emergency_contact_relationship, emergency_contact_phone, status, created_at
 
 -- Locations
-locations: id, name, address, region, created_at
+locations: id, name, address, region, description, image_url, created_at
 
--- Events (linked to location)
-events: id, location_id, title, description, date, capacity, created_at
+-- Time Slots (linked directly to location)
+slots: id, location_id, date, start_time, end_time, available_spots, created_at
 
--- Time Slots (linked to event)
-slots: id, event_id, start_time, end_time, available_spots
-
--- Bookings (linked to member, event, slot)
-bookings: id, member_id, event_id, slot_id, status, created_at
+-- Bookings (linked to member, location, and slot)
+bookings: id, member_id, location_id, slot_id, status, created_at
 ```
+
+Slot policy:
+- hourly slots from `08:00` to `22:00`
+- default capacity of `10` per slot unless explicitly changed in admin tooling later
 
 ## Environment Variables
 ```bash

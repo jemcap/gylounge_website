@@ -12,9 +12,9 @@ This document defines the bank-transfer membership system used by GYLounge and h
 1. User submits membership details (name, email, phone).
 2. Server creates `members` row with:
    - `status = 'pending'`
-   - unique `bank_transfer_reference`
-3. App shows bank transfer instructions and emails the same details.
-4. User completes transfer and includes reference in narration.
+   - the submitted profile details required by the current membership schema
+3. App shows bank transfer instructions and emails the same details, including a generated reference string for narration.
+4. User completes transfer and includes the emailed reference in narration.
 5. Admin verifies transfer and sets member to `active`.
 6. Member can now complete bookings.
 
@@ -47,7 +47,7 @@ Current helper behavior in `lib/membership.ts`:
 Primary path:
 - Admin signs in to `/admin/*`.
 - Admin opens member management (`/admin/members`).
-- Admin searches by `bank_transfer_reference`.
+- Admin reconciles the transfer using the emailed reference plus the member's name/email details.
 - Admin updates member status to `active` after verification.
 
 Operational rules:
@@ -73,7 +73,7 @@ Operational rules:
 - Public booking flows must validate `members.status` each time.
 
 ## Acceptance Criteria
-- Membership submission creates pending member with unique reference.
+- Membership submission creates a pending member record and issues a generated payment reference in the instructions email.
 - User receives identical instructions on screen and by email.
-- Admin can activate member using reference verification.
+- Admin can activate member using the emailed reference plus the member record.
 - Booking path rejects non-active members.

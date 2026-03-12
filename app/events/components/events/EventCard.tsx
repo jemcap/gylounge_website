@@ -1,11 +1,12 @@
 import Link from "next/link";
-import type { Tables } from "@/app/types/database";
 import { Card } from "@/components/ui/card";
 
-export type EventCardData = Pick<
-  Tables<"events">,
-  "id" | "title" | "description" | "date" | "capacity"
-> & {
+export type EventCardData = {
+  id: string;
+  title: string;
+  description?: string | null;
+  date: string;
+  capacity: number;
   locationName?: string | null;
 };
 
@@ -15,7 +16,7 @@ export type EventCardProps = {
 };
 
 export function EventCard({ event, href }: EventCardProps) {
-  const targetHref = href ?? `/events/${event.id}`;
+  const targetHref = href ?? "/home#booking";
 
   return (
     <Card
@@ -34,7 +35,7 @@ export function EventCard({ event, href }: EventCardProps) {
         href={targetHref}
         className="mt-4 inline-flex rounded-full border border-[#14110b] px-4 py-2 text-sm font-semibold text-[#14110b] transition hover:bg-[#f3ede3]"
       >
-        View event
+        Book on home
       </Link>
     </Card>
   );

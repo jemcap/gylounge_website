@@ -1,39 +1,34 @@
-import { createBookingAction } from "@/app/home/actions";
-import { BookingAccordionContent } from "./components/BookingAccordionContent";
-import { HomeSideNavLayout } from "./components/HomeAccordionSection";
-import { HomeContactContent } from "./components/HomeContactContent";
-import { HomeFaqsContent } from "./components/HomeFaqContent";
-import { HomeHeader } from "./components/HomeHeader";
-import { HomeMobileMenuProvider } from "./components/HomeMobileMenuContext";
+import { createBookingAction } from "@/app/home/actions"
+import { BookingAccordionContent } from "./components/BookingAccordionContent"
+import { HomeSideNavLayout } from "./components/HomeAccordionSection"
+import { HomeContactContent } from "./components/HomeContactContent"
+import { HomeFaqsContent } from "./components/HomeFaqContent"
+import { HomeHeader } from "./components/HomeHeader"
+import { HomeMobileMenuProvider } from "./components/HomeMobileMenuContext"
 import {
-  formatAccraDate,
-  formatAccraTime,
-  getBookingTarget,
+  getBookingFormOptions,
   getSingleParam,
   resolveBookingFeedback,
-} from "./home-page-helpers";
-import { HomeDefaultContent } from "./components/HomeDefaultContent";
+} from "./home-page-helpers"
+import { HomeDefaultContent } from "./components/HomeDefaultContent"
 
 type HomePageProps = {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-  const bookingStatus = getSingleParam(resolvedSearchParams.booking);
+  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const bookingStatus = getSingleParam(resolvedSearchParams.booking)
 
-  const bookingFeedback = resolveBookingFeedback(bookingStatus);
-  const bookingTarget = await getBookingTarget();
-  const bookingContext = bookingTarget
-    ? `Next available: ${bookingTarget.eventTitle} (${bookingTarget.locationName}) on ${formatAccraDate(
-        bookingTarget.eventDate,
-      )} at ${formatAccraTime(bookingTarget.startTime)} - ${formatAccraTime(bookingTarget.endTime)}.`
-    : undefined;
+  const bookingFeedback = resolveBookingFeedback(bookingStatus)
+  const { locations, slots } = await getBookingFormOptions()
+  const bookingContext = slots.length
+    ? "Choose a location to unlock its available dates and hourly booking slots."
+    : undefined
 
-  // Auto-scroll to the relevant section when returning from a form submission
-  const initialActiveId = bookingFeedback ? "booking" : null;
+  const initialActiveId = bookingFeedback ? "booking" : null
 
   const entries = [
     {
@@ -51,7 +46,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       content: (
         <BookingAccordionContent
           action={createBookingAction}
-          bookingTarget={bookingTarget}
+          locations={locations}
+          slots={slots}
           bookingFeedback={bookingFeedback}
           bookingContext={bookingContext}
         />
@@ -71,7 +67,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       text: "#EBBF6C",
       content: <HomeContactContent />,
     },
-  ];
+  ]
 
   return (
     <HomeMobileMenuProvider>
@@ -84,11 +80,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             text,
           }))}
         />
-        <HomeSideNavLayout
-          entries={entries}
-          initialActiveId={initialActiveId}
-        />
+        <HomeSideNavLayout entries={entries} initialActiveId={initialActiveId} />
       </main>
     </HomeMobileMenuProvider>
-  );
+  )
 }

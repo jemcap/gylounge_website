@@ -4,8 +4,8 @@ import { Card } from "@/components/ui/card";
 const adminLinks = [
   { href: "/admin/members", label: "Members" },
   { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/events", label: "Events" },
-  { href: "/admin/slots", label: "Slots" },
+  { href: "/admin/events", label: "Locations" },
+  { href: "/admin/slots", label: "Availability" },
 ];
 
 export default function AdminDashboardPage() {

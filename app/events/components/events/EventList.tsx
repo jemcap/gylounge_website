@@ -8,7 +8,7 @@ export function EventList({ events }: EventListProps) {
   if (events.length === 0) {
     return (
       <p className="rounded-3xl border border-dashed border-[#d9cfbf] bg-white/70 p-6 text-sm text-[#3b3127]">
-        No events yet. Add events from the admin console when management flows are connected.
+        No bookable location summaries yet. Add location availability once management flows are connected.
       </p>
     );
   }

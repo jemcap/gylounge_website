@@ -40,6 +40,14 @@ const readRequiredValue = (formData: FormData, field: string) => {
   return typeof value === "string" ? value.trim() : "";
 };
 
+const buildIsoDate = (year: string, month: string, day: string) => {
+  if (!year || !month || !day) {
+    return "";
+  }
+
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+};
+
 const formatAccraTime = (raw: string) => {
   const parsed = new Date(raw);
   if (Number.isNaN(parsed.getTime())) {
@@ -55,16 +63,58 @@ const formatAccraTime = (raw: string) => {
 
 export async function registerMemberAction(formData: FormData) {
   const redirectTarget = resolveRegisterRedirectTarget(formData);
-  const name = readRequiredValue(formData, "name");
+  const firstName = readRequiredValue(formData, "firstName");
+  const lastName = readRequiredValue(formData, "lastName");
+  const name =
+    readRequiredValue(formData, "name") ||
+    [firstName, lastName].filter(Boolean).join(" ");
   const emailInput = readRequiredValue(formData, "email");
-  const phone = readRequiredValue(formData, "phone");
+  const phone =
+    readRequiredValue(formData, "mobilePhone") ||
+    readRequiredValue(formData, "phone");
+  const birthday = buildIsoDate(
+    readRequiredValue(formData, "birthYear"),
+    readRequiredValue(formData, "birthMonth"),
+    readRequiredValue(formData, "birthDay"),
+  );
+  const gender = readRequiredValue(formData, "gender") || "Prefer not to say";
+  const addressLine1 = readRequiredValue(formData, "addressLine1");
+  const addressLine2 = readRequiredValue(formData, "addressLine2");
+  const digitalAddress = readRequiredValue(formData, "digitalAddress");
+  const emergencyFirstName = readRequiredValue(formData, "emergencyFirstName");
+  const emergencyLastName = readRequiredValue(formData, "emergencyLastName");
+  const emergencyRelationship = readRequiredValue(formData, "emergencyRelationship");
+  const emergencyPhone = readRequiredValue(formData, "emergencyPhone");
 
-  if (!name || !emailInput || !phone || !emailInput.includes("@")) {
+  if (
+    !name ||
+    !firstName ||
+    !lastName ||
+    !emailInput ||
+    !phone ||
+    !birthday ||
+    !emailInput.includes("@")
+  ) {
     redirectRegister(redirectTarget, { register: "invalid" });
   }
 
   const email = normalizeEmail(emailInput);
   const reference = generateBankTransferReference();
+  const memberPayload = {
+    first_name: firstName,
+    last_name: lastName,
+    birthday,
+    gender,
+    phone,
+    home_address_line1: addressLine1,
+    home_address_line2: addressLine2,
+    home_address_digital: digitalAddress,
+    emergency_contact_first_name: emergencyFirstName,
+    emergency_contact_last_name: emergencyLastName,
+    emergency_contact_relationship: emergencyRelationship,
+    emergency_contact_phone: emergencyPhone,
+    status: "pending" as const,
+  };
 
   try {
     const admin = supabaseAdminClient();
@@ -86,12 +136,7 @@ export async function registerMemberAction(formData: FormData) {
     if (existingMember) {
       const { error: updateError } = await admin
         .from("members")
-        .update({
-          name,
-          phone,
-          status: "pending",
-          bank_transfer_reference: reference,
-        })
+        .update(memberPayload)
         .eq("id", existingMember.id);
 
       if (updateError) {
@@ -100,11 +145,8 @@ export async function registerMemberAction(formData: FormData) {
       }
     } else {
       const { error: insertError } = await admin.from("members").insert({
-        name,
         email,
-        phone,
-        status: "pending",
-        bank_transfer_reference: reference,
+        ...memberPayload,
       });
 
       if (insertError) {
@@ -130,14 +172,27 @@ export async function registerMemberAction(formData: FormData) {
 }
 
 export async function createBookingAction(formData: FormData) {
-  const name = readRequiredValue(formData, "name");
+  const firstName = readRequiredValue(formData, "firstName");
+  const lastName = readRequiredValue(formData, "lastName");
+  const submittedName = readRequiredValue(formData, "name");
+  const name = submittedName || [firstName, lastName].filter(Boolean).join(" ");
   const emailInput = readRequiredValue(formData, "email");
   const phoneRaw = readRequiredValue(formData, "phone");
-  const eventId = readRequiredValue(formData, "eventId");
+  const locationId = readRequiredValue(formData, "locationId");
   const slotId = readRequiredValue(formData, "slotId");
+  const guestCountRaw = readRequiredValue(formData, "numberOfGuests");
   const phone = phoneRaw || null;
+  const numberOfGuests = guestCountRaw ? Number.parseInt(guestCountRaw, 10) : 1;
 
-  if (!name || !emailInput || !eventId || !slotId || !emailInput.includes("@")) {
+  if (
+    !name ||
+    !emailInput ||
+    !locationId ||
+    !slotId ||
+    !emailInput.includes("@") ||
+    !Number.isInteger(numberOfGuests) ||
+    numberOfGuests < 1
+  ) {
     redirectHome("booking", { booking: "invalid" });
   }
 
@@ -164,9 +219,9 @@ export async function createBookingAction(formData: FormData) {
 
     const { data: slot, error: slotError } = await admin
       .from("slots")
-      .select("id, event_id, start_time, end_time, available_spots")
+      .select("id, location_id, date, start_time, end_time, available_spots")
       .eq("id", slotId)
-      .eq("event_id", eventId)
+      .eq("location_id", locationId)
       .maybeSingle();
 
     if (slotError) {
@@ -174,30 +229,19 @@ export async function createBookingAction(formData: FormData) {
       redirectHome("booking", { booking: "error" });
     }
 
-    if (!slot || !slot.event_id || slot.available_spots <= 0) {
+    if (
+      !slot ||
+      !slot.location_id ||
+      slot.available_spots <= 0 ||
+      slot.available_spots < numberOfGuests
+    ) {
       redirectHome("booking", { booking: "slot-unavailable" });
     }
     const availableSlot = slot as NonNullable<typeof slot>;
 
-    const { data: event, error: eventError } = await admin
-      .from("events")
-      .select("id, title, date, location_id")
-      .eq("id", eventId)
-      .maybeSingle();
-
-    if (eventError) {
-      console.error("createBookingAction event lookup failed", eventError);
-      redirectHome("booking", { booking: "error" });
-    }
-
-    if (!event) {
-      redirectHome("booking", { booking: "slot-unavailable" });
-    }
-    const bookingEvent = event as NonNullable<typeof event>;
-
     const { data: slotUpdate, error: slotUpdateError } = await admin
       .from("slots")
-      .update({ available_spots: availableSlot.available_spots - 1 })
+      .update({ available_spots: availableSlot.available_spots - numberOfGuests })
       .eq("id", availableSlot.id)
       .eq("available_spots", availableSlot.available_spots)
       .select("id")
@@ -216,7 +260,7 @@ export async function createBookingAction(formData: FormData) {
       .from("bookings")
       .insert({
         member_id: activeMember.id,
-        event_id: bookingEvent.id,
+        location_id: availableSlot.location_id,
         slot_id: availableSlot.id,
         status: "confirmed",
       })
@@ -233,11 +277,11 @@ export async function createBookingAction(formData: FormData) {
     }
 
     let locationName = "Location pending";
-    if (bookingEvent.location_id) {
+    if (availableSlot.location_id) {
       const { data: location } = await admin
         .from("locations")
         .select("name")
-        .eq("id", bookingEvent.location_id)
+        .eq("id", availableSlot.location_id)
         .maybeSingle();
       if (location?.name) {
         locationName = location.name;
@@ -249,19 +293,19 @@ export async function createBookingAction(formData: FormData) {
       sendBookingConfirmation(
         email,
         name,
-        bookingEvent.title,
-        bookingEvent.date,
+        availableSlot.date,
         timeLabel,
         locationName,
+        numberOfGuests,
       ),
       sendBookingNotification(
         name,
         email,
         phone,
-        bookingEvent.title,
-        bookingEvent.date,
+        availableSlot.date,
         timeLabel,
         locationName,
+        numberOfGuests,
       ),
     ]);
 

@@ -1,5 +1,7 @@
 # Booking Event & Slot Selection Implementation Guide
 
+> Status: superseded on 2026-03-12. The live app now uses a location-first booking model with `location -> date -> hourly slot`, no `events` table in the active flow, hourly availability from `08:00` to `22:00`, and default slot capacity `10`. Do not use this guide for new implementation work without rewriting it first.
+
 ## Purpose
 This guide walks you through enhancing the booking workflow on `/home` so users can:
 - select an upcoming event from a dropdown,

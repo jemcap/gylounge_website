@@ -25,6 +25,8 @@
 - 2026-03-09T22:32Z [USER] Strengthen the mobile-menu layout so `Contact Us` definitively fills the remaining viewport after the earlier `flex-1` attempt did not visibly apply.
 - 2026-03-11T18:53Z [USER] Migrate the membership form to React Hook Form and use Zod for schema validation.
 - 2026-03-11T19:12Z [USER] Split the remaining membership form field groups into dedicated components.
+- 2026-03-11T20:41Z [USER] Generate a comprehensive setup guide for local Docker-backed Supabase development so the deployed database is not used for day-to-day development/testing.
+- 2026-03-12T21:28Z [USER] Replace the event-based booking model with location-based dated hourly slots while keeping active-membership enforcement.
 
 [DECISIONS]
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
@@ -67,6 +69,8 @@
 - 2026-03-09T22:32Z [CODE] Split the mobile nav into a `shrink-0` top stack and a dedicated bottom `Contact Us` link with `flex-1 min-h-0` so the remaining viewport height is structurally reserved for that item.
 - 2026-03-11T18:53Z [CODE] Keep `registerMemberAction` unchanged and bridge the richer membership form back to its existing `name`/`email`/`phone` contract via a shared normalization helper.
 - 2026-03-11T19:12Z [CODE] Keep `MembershipForm.tsx` as the RHF/state coordinator and move field rendering into separate components backed by shared style tokens.
+- 2026-03-12T21:28Z [USER] Booking remains active-membership-only and uses hourly slots from `08:00` through `22:00`.
+- 2026-03-12T21:28Z [CODE] The active booking model is now `location -> date -> slot`; `slots` are keyed directly to `location_id` + `date`, and `/admin/events` is treated as a legacy route name for location management.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -126,6 +130,11 @@
 - 2026-03-04T22:31Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` status snapshot for the left/right register promo layout.
 - 2026-03-11T18:53Z [CODE] Added `lib/membership-form.ts` with the shared Zod schema/default values/FormData builder, refactored `components/forms/MembershipForm.tsx` to React Hook Form, and added schema coverage in `__tests__/lib/membership-form.test.ts`.
 - 2026-03-11T19:12Z [CODE] Added dedicated membership form field components (`BirthDateFields`, `MembershipNameFields`, `MembershipGenderFields`, `MembershipPhoneFields`, `MembershipEmailField`, `MembershipAddressFields`, `MembershipEmergencyContactFields`) plus shared style tokens in `components/forms/membership-form-styles.ts`.
+- 2026-03-11T20:41Z [CODE] Added `docs/LOCAL_SUPABASE_DEVELOPMENT.md` and linked it from `docs/SYSTEM_ARCHITECTURE.md` with repo-specific instructions for local Supabase, env wiring, migrations, seeding, types, and promotion flow.
+- 2026-03-12T21:28Z [CODE] Refactored `/home` booking data loading, form state, and server action to use locations plus dated slots instead of events; updated booking emails and admin placeholders to match the new model.
+- 2026-03-12T21:28Z [CODE] Reworked `registerMemberAction` to write the current `members` schema fields (`first_name`, `last_name`, `birthday`, address, emergency contact, etc.) after build validation exposed drift from the older `name`-based payload assumption.
+- 2026-03-12T21:28Z [CODE] Authored `supabase/migrations/20260312212840_book_location.sql` to migrate from `events` to `locations + dated slots`, backfill location/slot/booking data, enforce hourly `08:00`-`22:00` slot rules, cap capacity at `10`, and drop legacy `event_id` references.
+- 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
@@ -156,12 +165,17 @@
 - 2026-03-04T22:31Z [CODE] Hero image was nested inside the membership card container, so left/right placement could not occur until the image was moved to a sibling grid column.
 - 2026-03-11T18:53Z [CODE] `MembershipForm.tsx` collected `firstName`, `lastName`, and `mobilePhone`, while `registerMemberAction` still reads `name`, `email`, and `phone`; the new helper resolves that mismatch before submission.
 - 2026-03-11T19:12Z [CODE] Pulling shared field styles into one module avoided duplicating the same label/error/select Tailwind strings across seven extracted form components.
+- 2026-03-11T20:41Z [TOOL] Supabase’s official local-development workflow is Docker-backed via the CLI and supports `db pull`, `db reset`, `db push`, `status -o env`, local type generation, and local database tests; the guide is based on those first-party flows rather than a hand-rolled mock server.
 - 2026-03-09T22:10Z [ASSISTANT] Added `app/home/components/HomeMobileMenu.tsx`, passed section ids/titles into `HomeHeader`, hid the mobile row nav, and anchored mobile menu items to the existing section panels.
 - 2026-03-09T22:15Z [ASSISTANT] Added `app/home/components/HomeMobileMenuContext.tsx`, wrapped the `/home` tree with its provider, and refactored `HomeMobileMenu` to consume shared open/close/toggle state.
 - 2026-03-09T22:19Z [ASSISTANT] Passed nav colour tokens through `HomeHeader` into `HomeMobileMenu` and replaced the floating menu card with a full-height stacked overlay nav.
 - 2026-03-09T22:24Z [ASSISTANT] Changed the overlay container bounds from full-screen with top padding to `top-20 bottom-0`, preserving the header while keeping the nav list full-height underneath it.
 - 2026-03-09T22:29Z [ASSISTANT] Updated `HomeMobileMenu` so `contact-us` gets `flex-1` while the other menu items are `shrink-0`.
 - 2026-03-09T22:32Z [ASSISTANT] Reworked `HomeMobileMenu` to render non-contact links in a separate `shrink-0` wrapper and render `Contact Us` as the sole flexible region.
+- 2026-03-12T21:28Z [TOOL] `next build` initially failed because the generated `members` type no longer includes `name` or `bank_transfer_reference`; the registration action had to map the RHF payload to the current field set before the booking refactor could validate cleanly.
+- 2026-03-12T21:28Z [CODE] Querying `slots` directly by `location_id` + `date` removed the need for nested `events` joins in `/home` and simplified the client grouping logic to one location/date map.
+- 2026-03-12T21:28Z [ASSUMPTION] The migration backfills `locations.description` and `locations.image_url` from the most recent event row per location, because multiple historical events could exist for one location and the schema now stores those fields only once on `locations`.
+- 2026-03-12T21:28Z [TOOL] Existing slot rows in the user database violate the strict hourly-window rule; the migration must tolerate those historical rows or normalize/remove them before adding a validated check constraint.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -206,3 +220,8 @@
 - 2026-03-09T22:32Z [TOOL] Validation evidence for structural `Contact Us` viewport fill: `npm run lint` pass and `./node_modules/.bin/next build` pass (16 routes, `/home` dynamic).
 - 2026-03-11T18:53Z [TOOL] Membership form migration validation passed: `npm run lint`, `npm run test` (`10/10`), and `./node_modules/.bin/next build` all succeeded.
 - 2026-03-11T19:12Z [TOOL] Membership component-splitting validation passed: `npm run lint`, `npm run test` (`10/10`), and `./node_modules/.bin/next build` all succeeded.
+- 2026-03-11T20:41Z [ASSISTANT] Local Supabase setup is now documented in a dedicated guide, including safe env separation, current repo dependencies, Resend/bank-transfer caveats, and a local-to-staging-to-production promotion workflow.
+- 2026-03-12T21:28Z [CODE] `app/types/database.ts`, `/home` booking flow, booking emails, admin placeholder copy, and the canonical architecture docs now reflect the location-based dated-slot model with hourly `08:00`-`22:00` availability and active-membership-only booking.
+- 2026-03-12T21:28Z [TOOL] Validation after the booking-model refactor: `npm run lint` pass, `npm run test` pass (`10/10`), and `./node_modules/.bin/next build` pass (16 routes, `/home` and `/register` dynamic).
+- 2026-03-12T21:28Z [CODE] The new migration file exists and is populated, but execution against a local or hosted Supabase database is UNCONFIRMED in this turn.
+- 2026-03-12T21:28Z [CODE] Migration file now tolerates legacy off-policy slot rows while keeping them out of the active booking flow, but re-execution against the user database remains UNCONFIRMED in this turn.

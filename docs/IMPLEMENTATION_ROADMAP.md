@@ -72,18 +72,18 @@ Acceptance criteria:
 - Slot overbooking is prevented.
 - Booking confirmation and notification emails are attempted after booking persistence.
 
-## Milestone 4: Dedicated Event and Lookup Routes
+## Milestone 4: Dedicated Booking and Lookup Routes
 Scope:
-- Build `/events` and `/events/[eventId]` for dedicated event browsing.
+- Keep `/events` as a redirect into the live booking flow, or replace it with a dedicated location-availability landing page later.
 - Build `/my-bookings` email lookup.
 - Return privacy-safe booking projection.
 
 Key outputs:
-- Read-only event browsing experience.
+- Read-only booking lookup experience.
 - Email-based booking retrieval flow.
 
 Acceptance criteria:
-- Users can browse events by location and view event details.
+- Users can reach booking from `/events` without leaving the active booking model.
 - Valid email returns that member's bookings.
 - Response excludes unnecessary PII.
 
@@ -92,7 +92,7 @@ Scope:
 - Build `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, `/admin/slots`.
 - Enforce Supabase-authenticated admin access.
 - Implement member activation (`pending` to `active`).
-- Implement events/slots/bookings management operations.
+- Implement location/slot/bookings management operations.
 
 Key outputs:
 - Protected admin workspace.
@@ -100,7 +100,7 @@ Key outputs:
 
 Acceptance criteria:
 - Non-admin is blocked from `/admin/*`.
-- Admin can activate members and manage events/slots/bookings.
+- Admin can activate members and manage locations/slots/bookings.
 
 ## Milestone 6: Hardening and Release
 Scope:
@@ -121,7 +121,6 @@ Acceptance criteria:
 Core schema remains:
 - `members`
 - `locations`
-- `events`
 - `slots`
 - `bookings`
 

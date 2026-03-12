@@ -12,39 +12,64 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.1"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       bookings: {
         Row: {
           created_at: string | null
-          event_id: string | null
           id: string
+          location_id: string
           member_id: string | null
           slot_id: string | null
           status: string | null
         }
         Insert: {
           created_at?: string | null
-          event_id?: string | null
           id?: string
+          location_id: string
           member_id?: string | null
           slot_id?: string | null
           status?: string | null
         }
         Update: {
           created_at?: string | null
-          event_id?: string | null
           id?: string
+          location_id?: string
           member_id?: string | null
           slot_id?: string | null
           status?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "bookings_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: "bookings_location_id_fkey"
+            columns: ["location_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
           {
@@ -63,66 +88,31 @@ export type Database = {
           },
         ]
       }
-      events: {
-        Row: {
-          capacity: number
-          created_at: string | null
-          date: string
-          description: string | null
-          id: string
-          image_url: string | null
-          location_id: string | null
-          title: string
-        }
-        Insert: {
-          capacity: number
-          created_at?: string | null
-          date: string
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          location_id?: string | null
-          title: string
-        }
-        Update: {
-          capacity?: number
-          created_at?: string | null
-          date?: string
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          location_id?: string | null
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "events_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "locations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       locations: {
         Row: {
           address: string
           created_at: string | null
+          description: string | null
           id: string
+          image_url: string | null
           name: string
           region: string
         }
         Insert: {
           address: string
           created_at?: string | null
+          description?: string | null
           id?: string
+          image_url?: string | null
           name: string
           region: string
         }
         Update: {
           address?: string
           created_at?: string | null
+          description?: string | null
           id?: string
+          image_url?: string | null
           name?: string
           region?: string
         }
@@ -130,29 +120,56 @@ export type Database = {
       }
       members: {
         Row: {
-          bank_transfer_reference: string
+          birthday: string
           created_at: string | null
           email: string
+          emergency_contact_first_name: string
+          emergency_contact_last_name: string
+          emergency_contact_phone: string
+          emergency_contact_relationship: string
+          first_name: string | null
+          gender: string
+          home_address_digital: string
+          home_address_line1: string
+          home_address_line2: string
           id: string
-          name: string
+          last_name: string | null
           phone: string | null
           status: string | null
         }
         Insert: {
-          bank_transfer_reference: string
+          birthday: string
           created_at?: string | null
           email: string
+          emergency_contact_first_name: string
+          emergency_contact_last_name: string
+          emergency_contact_phone: string
+          emergency_contact_relationship: string
+          first_name?: string | null
+          gender: string
+          home_address_digital: string
+          home_address_line1: string
+          home_address_line2: string
           id?: string
-          name: string
+          last_name?: string | null
           phone?: string | null
           status?: string | null
         }
         Update: {
-          bank_transfer_reference?: string
+          birthday?: string
           created_at?: string | null
           email?: string
+          emergency_contact_first_name?: string
+          emergency_contact_last_name?: string
+          emergency_contact_phone?: string
+          emergency_contact_relationship?: string
+          first_name?: string | null
+          gender?: string
+          home_address_digital?: string
+          home_address_line1?: string
+          home_address_line2?: string
           id?: string
-          name?: string
+          last_name?: string | null
           phone?: string | null
           status?: string | null
         }
@@ -162,33 +179,36 @@ export type Database = {
         Row: {
           available_spots: number
           created_at: string | null
+          date: string
           end_time: string
-          event_id: string | null
           id: string
+          location_id: string
           start_time: string
         }
         Insert: {
-          available_spots: number
+          available_spots?: number
           created_at?: string | null
+          date: string
           end_time: string
-          event_id?: string | null
           id?: string
+          location_id: string
           start_time: string
         }
         Update: {
           available_spots?: number
           created_at?: string | null
+          date?: string
           end_time?: string
-          event_id?: string | null
           id?: string
+          location_id?: string
           start_time?: string
         }
         Relationships: [
           {
-            foreignKeyName: "slots_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: "slots_location_id_fkey"
+            columns: ["location_id"]
             isOneToOne: false
-            referencedRelation: "events"
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
         ]
@@ -327,6 +347,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
