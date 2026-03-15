@@ -90,6 +90,7 @@ Type source of truth:
 
 ## Core Business Rules
 - Only `members.status = 'active'` can complete bookings.
+- Member birthdays cannot be in the future.
 - Booking selection is always `location -> date -> hourly slot`.
 - Standard slot hours are `08:00` through `22:00`.
 - Default slot capacity is `10`.

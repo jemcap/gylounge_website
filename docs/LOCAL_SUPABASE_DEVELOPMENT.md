@@ -223,11 +223,14 @@ Use this command whenever you want a clean rebuild.
 ## Step 6. Add Seed Data for Repeatable Development
 Create `supabase/seed.sql` and insert the minimum development data your app needs.
 
-For this repo, that will likely become:
-- sample members
-- sample locations
-- sample dated hourly slots
-- optional admin-usable rows if you later add local admin auth data
+This repository now includes a committed `supabase/seed.sql` that seeds:
+- 2 demo locations with fixed UUIDs
+- 6 demo hourly slots tied to those seeded locations
+- rolling future dates based on `current_date` so booking availability remains visible over time
+
+The seed file is intentionally rerunnable:
+- it upserts the same demo rows on every reset
+- it does not delete unrelated data outside those seeded ids
 
 After changing the seed file, re-run:
 

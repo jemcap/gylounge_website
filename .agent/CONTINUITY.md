@@ -71,6 +71,11 @@
 - 2026-03-11T19:12Z [CODE] Keep `MembershipForm.tsx` as the RHF/state coordinator and move field rendering into separate components backed by shared style tokens.
 - 2026-03-12T21:28Z [USER] Booking remains active-membership-only and uses hourly slots from `08:00` through `22:00`.
 - 2026-03-12T21:28Z [CODE] The active booking model is now `location -> date -> slot`; `slots` are keyed directly to `location_id` + `date`, and `/admin/events` is treated as a legacy route name for location management.
+- 2026-03-15T09:00Z [USER] Prioritize seeding the deployed Supabase database now; local Docker-backed Supabase remains future work.
+- 2026-03-15T09:00Z [CODE] Use the existing deployed `locations` rows for Accra and Kumasi when seeding hosted `slots` so production-like data is augmented without creating duplicate demo locations.
+- 2026-03-15T09:11Z [USER] Add a migration script to fix the registration blocker in the deployed `members` table.
+- 2026-03-15T09:11Z [CODE] Replace the deployed `members_birthday_check` with a constraint that allows any birthday on or before the row creation date in UTC, matching the app's non-future birthday validation without depending on `current_date`.
+- 2026-03-15T09:20Z [CODE] Keep the registration contract aligned to two member statuses in the live database: `pending` for newly registered members and `active` for verified members.
 
 [PROGRESS]
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
@@ -176,6 +181,11 @@
 - 2026-03-12T21:28Z [CODE] Querying `slots` directly by `location_id` + `date` removed the need for nested `events` joins in `/home` and simplified the client grouping logic to one location/date map.
 - 2026-03-12T21:28Z [ASSUMPTION] The migration backfills `locations.description` and `locations.image_url` from the most recent event row per location, because multiple historical events could exist for one location and the schema now stores those fields only once on `locations`.
 - 2026-03-12T21:28Z [TOOL] Existing slot rows in the user database violate the strict hourly-window rule; the migration must tolerate those historical rows or normalize/remove them before adding a validated check constraint.
+- 2026-03-15T09:00Z [TOOL] `npx supabase db reset --local --yes` is UNCONFIRMED in this workspace because Docker is not running (`Cannot connect to the Docker daemon at unix:///Users/J/.docker/run/docker.sock`).
+- 2026-03-15T09:07Z [TOOL] The deployed `members` table currently rejects inserts that use the app's full registration payload with `23514` / `members_birthday_check`; test birthdays `1950-05-20`, `2000-05-20`, and `2030-05-20` all failed, which indicates the live DB constraint is inconsistent with the current form validation and blocks `/register` before email/bank-transfer side effects.
+- 2026-03-15T09:11Z [CODE] Using `birthday <= ((created_at at time zone 'UTC')::date)` keeps the check dump/restore-safe because it depends only on row values, unlike a `current_date` check that changes over time.
+- 2026-03-15T09:19Z [TOOL] The live `members.birthday` column is `text`, not `date`; the first follow-up migration failed with `COALESCE types date and text cannot be matched`, so the replacement check had to validate an ISO `YYYY-MM-DD` string and cast via `to_date(...)`.
+- 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
@@ -225,3 +235,9 @@
 - 2026-03-12T21:28Z [TOOL] Validation after the booking-model refactor: `npm run lint` pass, `npm run test` pass (`10/10`), and `./node_modules/.bin/next build` pass (16 routes, `/home` and `/register` dynamic).
 - 2026-03-12T21:28Z [CODE] The new migration file exists and is populated, but execution against a local or hosted Supabase database is UNCONFIRMED in this turn.
 - 2026-03-12T21:28Z [CODE] Migration file now tolerates legacy off-policy slot rows while keeping them out of the active booking flow, but re-execution against the user database remains UNCONFIRMED in this turn.
+- 2026-03-15T09:00Z [CODE] Added a portable `supabase/seed.sql` and updated `docs/LOCAL_SUPABASE_DEVELOPMENT.md` to describe the committed demo locations plus rolling future slot seed.
+- 2026-03-15T09:00Z [TOOL] Seeded the deployed Supabase `slots` table with 6 hourly rows tied to existing locations `baa77240-6032-4ebd-9215-e42a25f6fe9d` (Accra) and `0241ae10-ae67-46d5-8ae0-20390ce11d9f` (Kumasi) for 2026-03-16, 2026-03-17, and 2026-03-19; read-back verification confirmed all 6 rows.
+- 2026-03-15T09:07Z [TOOL] Verified `/register` field names map to the intended `members` columns in code, confirmed the deployed `members` table exposes those columns, and confirmed the current `.env.local` is also missing all bank-transfer vars plus `RESEND_FROM`; however, the immediate live blocker is the deployed `members_birthday_check` constraint, not a field-name mismatch.
+- 2026-03-15T09:11Z [CODE] Added `supabase/migrations/20260315091100_fix_members_birthday_constraint.sql` to replace the broken `members_birthday_check` and documented the non-future birthday rule in `docs/SYSTEM_ARCHITECTURE.md`.
+- 2026-03-15T09:20Z [CODE] Added `supabase/migrations/20260315091500_reapply_members_birthday_constraint.sql` and `supabase/migrations/20260315092000_fix_members_status_constraint.sql`, then pushed both follow-up fixes to the linked Supabase project.
+- 2026-03-15T09:20Z [TOOL] Remote verification passed after both migrations: a throwaway `members` insert using the `/register` payload shape succeeded with `status='pending'` and `birthday='1999-09-22'`, and the test row was deleted immediately afterward.

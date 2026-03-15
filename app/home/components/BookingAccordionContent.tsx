@@ -28,7 +28,7 @@ export function BookingAccordionContent({
   slots,
   bookingFeedback,
   bookingContext,
-}: BookingAccordionContentProps) {
+}: BookingAccordionContentProps) { 
   console.log(locations, slots);
   if (locations.length === 0 || slots.length === 0) {
     return (
