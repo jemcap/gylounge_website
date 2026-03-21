@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Commit Writer"
+  short_description: "Create detailed conventional git commits"
+  default_prompt: "Stage changes, write a conventional commit header with a valid type prefix, produce a fully detailed commit body for all implementations, then commit and push."
