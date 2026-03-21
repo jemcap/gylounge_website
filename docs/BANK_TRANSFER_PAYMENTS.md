@@ -13,10 +13,11 @@ This document defines the bank-transfer membership system used by GYLounge and h
 2. Server creates `members` row with:
    - `status = 'pending'`
    - the submitted profile details required by the current membership schema
-3. App shows bank transfer instructions and emails the same details, including a generated reference string for narration.
-4. User completes transfer and includes the emailed reference in narration.
-5. Admin verifies transfer and sets member to `active`.
-6. Member can now complete bookings.
+3. Server writes a row in a dedicated reference table (for example `payment_references`) and links it to the member.
+4. App shows bank transfer instructions and emails the same details, including the generated reference string for narration.
+5. User completes transfer and includes the emailed reference in narration.
+6. Admin verifies transfer and sets member to `active`.
+7. Member can now complete bookings.
 
 ## Environment Contract
 Set in `.env.local` and production:
@@ -34,6 +35,7 @@ Reference format must be:
 - Unique per membership intent
 - Short and copyable
 - Easy to match in bank statements
+- Persisted in a dedicated reference table rather than directly on `members` or `bookings`
 
 Current helper behavior in `lib/membership.ts`:
 - `generateBankTransferReference()` returns `GYL-MEM-<8 hex chars>`.
@@ -41,7 +43,8 @@ Current helper behavior in `lib/membership.ts`:
 ## Membership State Machine
 - `pending`: instructions issued, transfer not yet verified
 - `active`: transfer verified, booking allowed
-- `inactive` / `cancelled`: admin-controlled non-bookable states
+
+Status vocabulary for this scope is intentionally limited to `pending` and `active`.
 
 ## Admin Verification Workflow
 Primary path:
@@ -74,6 +77,7 @@ Operational rules:
 
 ## Acceptance Criteria
 - Membership submission creates a pending member record and issues a generated payment reference in the instructions email.
+- Membership submission persists the generated reference in a dedicated reference table linked to the member.
 - User receives identical instructions on screen and by email.
 - Admin can activate member using the emailed reference plus the member record.
 - Booking path rejects non-active members.

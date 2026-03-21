@@ -8,7 +8,7 @@ GYLounge is an elderly-friendly location-booking and membership platform for Gha
 - Public no-auth flows (email-based identity)
 - Membership-required booking
 - Manual bank-transfer activation
-- Protected in-app admin console (Supabase Auth)
+- Protected in-app admin console (Supabase Auth + allowlisted admin access)
 
 ## Architecture Principles
 - Simplicity first: prefer fewer moving parts over automation.
@@ -33,10 +33,12 @@ The target route map mirrors `docs/PROJECT_OVERVIEW.md`:
 - `/membership` membership sign-up and bank instructions (dedicated route scaffold)
 - `/membership/pending` waiting state until activation (dedicated route scaffold)
 - `/my-bookings` email-based booking lookup (dedicated route scaffold)
-- `/admin/login` admin authentication
+- `/admin/login` admin authentication (email + password)
+- `/admin/reset-password` admin password recovery completion
 - `/admin` dashboard
 - `/admin/members` membership activation and member ops
 - `/admin/bookings` bookings operations
+- `/admin/bookings/[date]` bookings detail for a selected calendar date
 - `/admin/events` location operations (legacy route name)
 - `/admin/slots` slot availability operations
 
@@ -64,8 +66,15 @@ Primary server use cases:
 - `createMembershipIntent`
 - `createBooking`
 - `lookupBookingsByEmail`
-- `activateMember` (admin only)
-- `manageLocationAvailability` (admin only)
+- `adminSignIn`
+- `adminRequestPasswordReset`
+- `adminCompletePasswordReset`
+- `adminDashboardSummary`
+- `updateMember` (admin only)
+- `deleteMember` (admin only, guarded when bookings exist)
+- `listBookingCountsByDate` (admin only)
+- `updateBooking` (admin only, transactional slot-capacity handling)
+- `manageLocationAvailability` (admin only, later slice)
 
 ### 3. Integration Layer (`lib/*`)
 Responsibilities:
@@ -74,9 +83,16 @@ Responsibilities:
 
 Current modules:
 - `lib/supabase.ts`: public and service-role clients
+- `lib/supabase-browser.ts`: browser Supabase auth client for recovery flow
+- `lib/supabase-server.ts`: server, server-action, and proxy Supabase auth clients
+- `lib/admin-auth.ts`: admin allowlist, auth validation schemas, and auth feedback helpers
+- `lib/admin-session.ts`: `requireAdminUser()` server guard for protected admin pages
 - `lib/membership.ts`: email normalization, bank details, reference generation
 - `lib/membership-form.ts`: shared membership form schema, defaults, and normalized `FormData` builder
 - `lib/resend.ts`: booking/membership/admin email helpers
+
+Still planned for later admin slices:
+- Admin-specific validation schemas for member and booking updates
 
 ### 4. Data Layer (Supabase Postgres)
 Core tables:
@@ -84,6 +100,12 @@ Core tables:
 - `locations`
 - `slots`
 - `bookings`
+
+Planned booking schema addition:
+- `bookings.guest_count` to persist the guest count already used when decrementing slot capacity
+
+Planned reference persistence addition:
+- `payment_references` table to store issued references (`membership` and `booking`) separately from `members` and `bookings`
 
 Type source of truth:
 - `app/types/database.ts`
@@ -96,6 +118,9 @@ Type source of truth:
 - Default slot capacity is `10`.
 - Slot capacity cannot go below zero.
 - Admin-only operations must require authenticated admin identity.
+- Admin-only operations must also require an allowlisted admin email.
+- Admin login uses email/password with password reset support.
+- Member status vocabulary remains `pending` and `active`.
 - Public lookups (`/home` booking section, `/register` sign-up, and `/my-bookings` scaffold) should expose minimal fields.
 
 ## Security Model
@@ -106,13 +131,19 @@ Type source of truth:
 
 ### Admin Area
 - Supabase Auth session is required.
+- Admin login uses email/password.
+- Password reset is handled through Supabase Auth recovery flow.
 - Authorization gate by `ADMIN_EMAIL_ALLOWLIST` (MVP).
+- Admin authentication applies only to `/admin/*` dashboard and management routes.
+- Root `proxy.ts` uses `@supabase/ssr` to refresh session cookies before protected admin routes render.
+- Protected admin pages re-check the verified user server-side with `requireAdminUser()`.
 - Service role writes only on the server.
 
 ### Data Safeguards
 - Validate all server action inputs.
 - Avoid returning unnecessary PII.
 - Add RLS and policy checks when admin/data endpoints expand.
+- Keep member deletion conservative: reject deletes while related bookings exist unless a later migration introduces explicit archival/cascade rules.
 
 ## End-to-End Flows
 
@@ -120,9 +151,37 @@ Type source of truth:
 1. User opens `/home` and selects `Register`, then navigates to `/register`.
 2. User submits membership form on `/register`.
 3. Server creates or updates a `members` record with the submitted profile fields and `status = 'pending'`.
-4. App shows bank instructions and sends email.
-5. Admin validates transfer and sets member status to `active`.
-6. Optional welcome email sent after activation.
+4. Server creates a membership reference record in `payment_references` and links it to the member.
+5. App shows bank instructions and sends email.
+6. Admin validates transfer and sets member status to `active`.
+7. Optional welcome email sent after activation.
+
+### Admin Authentication Flow
+1. Admin opens `/admin/login`.
+2. Admin submits an email/password form handled by a server action.
+3. Supabase Auth creates the session and writes cookies through `@supabase/ssr`.
+4. `proxy.ts` refreshes the session on `/admin/*`, and protected pages call `requireAdminUser()`.
+5. Server verifies the authenticated email is present in `ADMIN_EMAIL_ALLOWLIST`.
+6. Allowed admins may access `/admin/*`.
+7. Non-allowlisted authenticated users are rejected and signed out.
+8. If needed, the admin starts a password reset flow and completes it on `/admin/reset-password`.
+
+### Admin Member Management Flow
+1. Admin opens `/admin/members`.
+2. Server loads members and groups them by `pending` and `active`.
+3. Admin filters the list by name or email.
+4. Admin edits member details or switches status between `pending` and `active`.
+5. Server validates the payload and updates the `members` row.
+6. Admin may delete a member only when no related bookings exist.
+
+### Admin Booking Management Flow
+1. Admin opens `/admin/bookings`.
+2. Server loads all locations and booking counts grouped by date.
+3. Admin optionally filters the calendar by location.
+4. Admin selects a date and navigates to `/admin/bookings/[date]`.
+5. Server loads bookings for the selected date and groups them by time slot.
+6. Admin amends booking details, including moving the booking to another slot if required.
+7. Server updates the booking and slot capacity transactionally.
 
 ### Booking Flow
 1. User opens `/home` and expands the `Booking` accordion.
@@ -145,6 +204,8 @@ Type source of truth:
 ## Concurrency and Integrity
 - Protect slot booking with database-level transaction or RPC (`SELECT ... FOR UPDATE`).
 - Insert booking only after capacity decrement succeeds.
+- Persist booking guest count so future booking edits or cancellations can restore slot capacity correctly.
+- Handle admin booking reassignments with a transactional RPC or equivalent database-level lock strategy.
 - Keep booking creation idempotency strategy in scope for retries.
 
 ## Deployment and Configuration
@@ -154,12 +215,15 @@ Required environment groups:
 - Membership bank details: fee and bank instructions
 - Admin: email allowlist
 
+Optional fallback:
+- `NEXT_PUBLIC_SITE_URL` can be used to build the admin password-reset redirect when forwarded host headers are unavailable.
+
 ## Build Sequence (Execution Order)
 1. Foundation: env contracts, Supabase wiring, typed schema, base route skeleton.
 2. Public home shell: `/home` navbar + sections (`Register`, `Booking`, `FAQs`, `Contact Us`) with Register linking to `/register`.
 3. Membership and booking logic: wire server-backed membership flow to `/register` and booking flow to `/home`.
 4. Dedicated flow enhancements: `/booking/confirm`, `/membership`, `/membership/pending`, `/my-bookings`.
-5. Admin console: auth, route protection, member activation, location/availability/booking management.
+5. Admin console: email/password auth, allowlist route protection, password reset, member activation, bookings management, then later location/availability management.
 6. Hardening: tests, validations, observability, deployment readiness.
 
 ## Status Snapshot (Current Repository)
@@ -198,13 +262,25 @@ Implemented now:
 - `lib/membership.ts`
 - `lib/membership-form.ts`
 - `lib/resend.ts`
+- `lib/admin-auth.ts`
+- `lib/admin-session.ts`
+- `lib/supabase-browser.ts`
+- `lib/supabase-server.ts`
+- `proxy.ts` protecting `/admin/*` except the public admin auth routes
 - integration tests under `__tests__/lib/*`
+- `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md` documenting the target admin auth, dashboard, members, and bookings implementation slice
+- `/admin/login` uses server-action-based email/password auth and reset-email requests
+- `/admin/reset-password` completes Supabase recovery with a client-side password update form
+- `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots` are now authenticated admin routes with logout access
 
 Planned next:
 - Replace scaffold placeholders with:
   - Dedicated booking confirmation and my-bookings lookup wiring
-  - Admin operations for locations and pre-seeded hourly slot availability
-  - Supabase-authenticated admin operations and route protection
+  - Dashboard summary cards for members and bookings
+  - Member management with search, edit, status changes, and guarded delete
+  - Booking calendar and date-detail management flows
+  - `bookings.guest_count` persistence to support correct capacity restoration during admin booking edits
+  - Admin operations for locations and pre-seeded hourly slot availability in a later slice
 
 ## Documentation Contract
 - `docs/PROJECT_OVERVIEW.md` remains the product-definition source.

@@ -183,7 +183,7 @@ export function HomeSideNavLayout({
             if (el) panelElements.current.set(entry.id, el);
           }}
           data-section={entry.id}
-          className="flex min-h-screen scroll-mt-24 items-center overflow-x-hidden py-2"
+          className="flex min-h-screen scroll-mt-24 items-center overflow-x-hidden py-32"
           style={{ backgroundColor: entry.bg, color: entry.text }}
         >
           <div className="w-full min-w-0 px-5 md:pl-[33.333%] md:pr-8 lg:pl-[20%]">

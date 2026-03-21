@@ -49,7 +49,7 @@ Scope:
 
 Key outputs:
 - Server action or route handler for membership intent creation.
-- Unique `bank_transfer_reference` persisted per member.
+- Unique payment reference persisted in a dedicated references table linked to the member.
 
 Acceptance criteria:
 - `/register` submission creates member with `status = 'pending'`.
@@ -89,18 +89,26 @@ Acceptance criteria:
 
 ## Milestone 5: Admin Console
 Scope:
-- Build `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, `/admin/slots`.
-- Enforce Supabase-authenticated admin access.
-- Implement member activation (`pending` to `active`).
-- Implement location/slot/bookings management operations.
+- Phase 1 implemented:
+  - `@supabase/ssr` admin auth helpers for browser, server, server-action, and proxy contexts
+  - `/admin/login` email/password sign-in and password-reset request flow
+  - `/admin/reset-password` recovery completion page
+  - root `proxy.ts` protection for `/admin/*`
+  - protected placeholders for `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots`
+- Remaining admin console work:
+  - dashboard summary cards
+  - member activation and member management operations
+  - booking calendar and booking detail management
+  - later location and slot management operations
 
 Key outputs:
-- Protected admin workspace.
-- Member activation path used for bank-transfer verification.
+- Protected admin auth boundary with login, logout, allowlist checks, and password recovery.
+- Protected admin workspace ready for the later member and booking management slices.
 
 Acceptance criteria:
 - Non-admin is blocked from `/admin/*`.
-- Admin can activate members and manage locations/slots/bookings.
+- Allowlisted admins can sign in, request a reset email, complete password recovery, and sign out.
+- Later milestone slices will add member and booking management behavior inside the protected shell.
 
 ## Milestone 6: Hardening and Release
 Scope:
@@ -138,7 +146,7 @@ Shared rule:
 
 ## Testing Plan
 Current:
-- Unit tests for `lib/supabase.ts` and `lib/resend.ts`.
+- Unit tests for `lib/supabase.ts`, `lib/admin-auth.ts`, and `lib/resend.ts`.
 
 Add next:
 - Membership creation tests.

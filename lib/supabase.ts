@@ -1,25 +1,45 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/app/types/database";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-  "";
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+export const getSupabaseUrl = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
+
+  if (!supabaseUrl) {
+    throw new Error("Supabase URL must be provided");
+  }
+
+  return supabaseUrl;
+};
+
+export const getSupabaseAnonKey = () => {
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    "";
+
+  if (!supabaseKey) {
+    throw new Error("Supabase anon or publishable key must be provided");
+  }
+
+  return supabaseKey;
+};
+
+const getSupabaseServiceRoleKey = () => {
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+  if (!supabaseServiceRoleKey) {
+    throw new Error("Supabase service role key must be provided");
+  }
+
+  return supabaseServiceRoleKey;
+};
 
 export const supabaseClient = () => {
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Supabase URL and Key must be provided");
-  }
-  return createClient<Database>(supabaseUrl, supabaseKey);
+  return createClient<Database>(getSupabaseUrl(), getSupabaseAnonKey());
 };
 
 export const supabaseAdminClient = () => {
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("Supabase URL and Service Role Key must be provided");
-  }
-  return createClient<Database>(supabaseUrl, supabaseServiceRoleKey, {
+  return createClient<Database>(getSupabaseUrl(), getSupabaseServiceRoleKey(), {
     auth: {
       persistSession: false,
       autoRefreshToken: false,

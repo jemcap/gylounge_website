@@ -1,16 +1,23 @@
+import { AdminShell } from "@/components/admin/AdminShell";
 import { Card } from "@/components/ui/card";
+import { requireAdminUser } from "@/lib/admin-session";
 
-export default function AdminSlotsPage() {
+export default async function AdminSlotsPage() {
+  const adminUser = await requireAdminUser();
+
   return (
-    <main className="min-h-screen bg-[#f5f1ea] px-6 py-12 text-[#1c1b18] md:px-12 lg:px-20">
-      <div className="mx-auto w-full max-w-5xl">
-        <Card
-          title="Admin availability"
-          description="Boilerplate for managing location dates, hourly slots, and capacity."
-        >
-          <p className="text-sm text-[#3b3127]">Add slot CRUD and 08:00-22:00 availability controls in milestone 5.</p>
-        </Card>
-      </div>
-    </main>
+    <AdminShell
+      currentPath="/admin/slots"
+      description="Availability management remains a later slice, but the route is now inside the protected admin boundary."
+      email={adminUser.email}
+      title="Admin availability"
+    >
+      <Card
+        title="Availability placeholder"
+        description="Slot CRUD and capacity management are not part of phase 1."
+      >
+        <p className="text-sm text-[#3b3127]">Only authenticated allowlisted admins can now reach this route.</p>
+      </Card>
+    </AdminShell>
   );
 }

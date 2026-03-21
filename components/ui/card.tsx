@@ -15,7 +15,7 @@ export function Card({
   ...props
 }: CardProps) {
   const classNames = [
-    "rounded-3xl border border-[#dcccb8] bg-white/80 p-6 shadow-sm",
+    "rounded-3xl border border-[#dcccb8] p-6 shadow-sm",
     className,
   ]
     .filter(Boolean)

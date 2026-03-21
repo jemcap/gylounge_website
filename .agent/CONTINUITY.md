@@ -1,6 +1,12 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-03-21T15:57Z [USER] Fix P1 review issue by moving reset-password allowlist enforcement out of the client component into server-side auth checks.
+- 2026-03-21T15:54Z [USER] Create a reusable skill that commits to GitHub with a Conventional Commit prefix (`feat`, `fix`, `perf`, etc.), a meaningful header tied to the main task, and a fully detailed commit body.
+- 2026-03-21T12:50Z [USER] Increase the calendar cell gap while allowing the date grid to span the full container width.
+- 2026-03-21T12:48Z [USER] Make the booking time-slot pane take most of the date/time section width.
+- 2026-03-21T12:50Z [USER] Tighten the booking calendar date spacing and cap the calendar grid with a max width.
+- 2026-03-19T15:10Z [USER] Start phase 1 of the admin portal implementation and include the official `@supabase/ssr` helper in the solution.
 - 2026-02-08T00:00Z [USER] No active plan beyond creating the continuity file.
 - 2026-02-16T11:36Z [USER] Generate a simple boilerplate for each required application page and component.
 - 2026-02-26T20:36Z [USER] Install and import Google `Instrument Serif` and expose it for homepage typography.
@@ -27,8 +33,15 @@
 - 2026-03-11T19:12Z [USER] Split the remaining membership form field groups into dedicated components.
 - 2026-03-11T20:41Z [USER] Generate a comprehensive setup guide for local Docker-backed Supabase development so the deployed database is not used for day-to-day development/testing.
 - 2026-03-12T21:28Z [USER] Replace the event-based booking model with location-based dated hourly slots while keeping active-membership enforcement.
+- 2026-03-18T00:00Z [USER] Requested an implementation plan for an admin portal covering admin auth, dashboard, members management, and bookings management.
+- 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-03-21T15:57Z [CODE] Keep `ResetPasswordForm` as a client component for recovery-session readiness and client-side schema feedback, but perform allowlist authorization and password mutation in a server action.
+- 2026-03-21T15:57Z [CODE] Move allowlist helpers into `lib/admin-allowlist.server.ts` and update server-only callers (`proxy.ts`, `lib/admin-session.ts`, `app/admin/actions.ts`) to remove env-dependent authorization logic from client-importable modules.
+- 2026-03-21T15:54Z [CODE] Implement this request as a new local skill at `.github/skills/github-commit` generated with the `skill-creator` workflow, keeping existing application code untouched.
+- 2026-03-19T15:10Z [USER] Use the official `@supabase/ssr` package for admin auth/session handling instead of a custom cookie adapter.
+- 2026-03-19T15:10Z [CODE] Use root `proxy.ts` for `/admin/*` session refresh/protection on Next.js 16 and keep the existing admin pages as protected placeholders until later dashboard/member/booking slices are implemented.
 - 2026-02-08T00:00Z [USER] Maintain `.agent/CONTINUITY.md` per AGENTS.md requirements.
 - 2026-02-08T14:02Z [USER] Switch payments scope from Stripe to Paystack (Ghana-first, GHS support).
 - 2026-02-08T14:30Z [USER] Switch payments scope to bank transfer only (no payment gateway).
@@ -76,8 +89,24 @@
 - 2026-03-15T09:11Z [USER] Add a migration script to fix the registration blocker in the deployed `members` table.
 - 2026-03-15T09:11Z [CODE] Replace the deployed `members_birthday_check` with a constraint that allows any birthday on or before the row creation date in UTC, matching the app's non-future birthday validation without depending on `current_date`.
 - 2026-03-15T09:20Z [CODE] Keep the registration contract aligned to two member statuses in the live database: `pending` for newly registered members and `active` for verified members.
+- 2026-03-19T00:00Z [USER] Persist booking/membership references in a dedicated table (not directly on `members`/`bookings`) where possible.
+- 2026-03-19T00:00Z [USER] Admin auth is email/password only and is scoped to `/admin/*` dashboard/member/booking management routes.
+- 2026-03-19T00:00Z [USER] Member status vocabulary remains strictly `pending` and `active`.
 
 [PROGRESS]
+- 2026-03-21T16:09Z [TOOL] Ran the new `.github/skills/github-commit` workflow against the skill files: staged `.github/skills/github-commit/*`, created a Conventional Commit with a detailed multi-section body, and pushed `main` to `origin/main`.
+- 2026-03-21T15:57Z [CODE] Added `adminUpdatePasswordAction` in `app/admin/actions.ts`, wired `app/admin/reset-password/page.tsx` to pass the server action + query error message into `ResetPasswordForm`, and updated the form to submit via server action while keeping client-side password/confirm validation.
+- 2026-03-21T15:57Z [CODE] Removed the client-side `isAdminEmailAllowlisted` gate from `ResetPasswordForm` and moved allowlist parsing/checking to new server-only module `lib/admin-allowlist.server.ts`.
+- 2026-03-21T15:57Z [CODE] Removed render-loop debug logging from `components/forms/BookingForm.tsx` (`console.log(selectedDateEntry?.slots)` inside slot-map callback).
+- 2026-03-21T15:57Z [TOOL] Validation for this slice: `npm run test` passed (`13/13`), `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused), and `npm run build` passed after allowing network access for Google Fonts fetch.
+- 2026-03-21T15:54Z [CODE] Initialized `.github/skills/github-commit` (including `agents/openai.yaml`) and replaced the template with a workflow that enforces type prefixes, main-task headers, detailed body sections, and GitHub push steps.
+- 2026-03-21T12:50Z [CODE] Updated `components/forms/BookingForm.tsx` calendar grids to remove `max-w-[14rem]`/`mx-auto` constraints and increase spacing from `gap-0.5` to `gap-2`, so cells fill container width with larger separation.
+- 2026-03-21T12:50Z [TOOL] Validation for the full-width/gap update: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused), `npm run test` passed (`13/13`), and `npm run build` passed after allowing network access for Google Fonts fetch.
+- 2026-03-21T12:49Z [CODE] Updated `components/forms/BookingForm.tsx` date/time layout split to `lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]` so the time-slot pane takes the larger share of horizontal space.
+- 2026-03-21T12:49Z [TOOL] Validation for the layout update: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused), `npm run test` passed (`13/13`), and `npm run build` passed after allowing network access for Google Fonts fetch.
+- 2026-03-21T12:50Z [CODE] Updated `components/forms/BookingForm.tsx` calendar styles to reduce cell padding, tighten inter-date spacing, and apply `max-w-[14rem]` to weekday/day grids for a compact calendar layout.
+- 2026-03-21T12:50Z [TOOL] Validation for the styling update: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused), and `npm run test` passed (`13/13`).
+- 2026-03-19T15:10Z [CODE] Implemented phase 1 admin auth across the existing admin route set: server-action login/reset/logout, allowlist enforcement, protected placeholder pages, dynamic `/admin/reset-password`, and a protected `/admin/bookings/[date]` scaffold.
 - 2026-02-08T00:00Z [TOOL] Initialized `.agent/CONTINUITY.md` with required sections.
 - 2026-02-08T00:00Z [ASSISTANT] Implemented simplified `lib/resend.ts` with Resend client, send helper, and three email functions.
 - 2026-02-08T00:00Z [ASSISTANT] Added Resend tests and updated Stripe/Resend mocks to use constructible classes.
@@ -142,6 +171,12 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-03-21T16:09Z [TOOL] `git push` from the sandbox failed with DNS resolution (`Could not resolve hostname github.com`); rerunning with escalated network access succeeded.
+- 2026-03-21T15:57Z [TOOL] `proxy.ts` redirecting authenticated users away from `/admin/reset-password` also affects server-action POSTs on that route; gating the redirect to `request.method === "GET"` preserves public-page redirect behavior while allowing reset submissions.
+- 2026-03-21T15:54Z [TOOL] `skill-creator/scripts/quick_validate.py` is UNCONFIRMED in this workspace because the local Python runtime is missing `PyYAML` (`ModuleNotFoundError: No module named 'yaml'`).
+- 2026-03-19T15:10Z [TOOL] Next.js 16 warns that `middleware.ts` is deprecated in favor of `proxy.ts`; switching the auth gate to `proxy.ts` removed the framework warning from the admin auth slice.
+- 2026-03-19T15:10Z [TOOL] Importing `normalizeEmail` from `lib/membership.ts` into the admin allowlist helper pulled Node `crypto` into the Edge proxy path and broke the build; admin email normalization now stays local to `lib/admin-auth.ts`.
+- 2026-03-19T15:10Z [TOOL] `/admin/reset-password` had to be marked dynamic because prerendering a recovery page that instantiates the browser Supabase client failed without runtime env/session context (`Supabase URL must be provided` during static generation).
 - 2026-02-08T00:00Z [ASSUMPTION] No notable discoveries yet.
 - 2026-02-08T00:00Z [NOTE] Stripe helpers expect positional args and use `STRIPE_SECRET_KEY` for webhook verification.
 - 2026-02-08T14:02Z [TOOL] Paystack webhooks can be verified via `x-paystack-signature` using HMAC SHA-512 over the raw request body with `PAYSTACK_SECRET_KEY` (no separate webhook secret).
@@ -188,6 +223,14 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-03-21T16:09Z [TOOL] Commit `81afe61` (`feat(skills): add github commit skill with detailed body`) is now on `origin/main`, adding `.github/skills/github-commit/SKILL.md` and `.github/skills/github-commit/agents/openai.yaml`.
+- 2026-03-21T15:57Z [CODE] Admin reset-password flow no longer depends on client access to `ADMIN_EMAIL_ALLOWLIST`: allowlist checks and password updates now execute server-side, and unauthorized/invalid recovery attempts are redirected with existing admin error codes.
+- 2026-03-21T15:57Z [TOOL] Post-change verification: tests green (`13/13`), lint clean except one pre-existing warning in `components/admin/AdminShell.tsx`, and production build successful when network is allowed for font fetch.
+- 2026-03-21T15:54Z [CODE] Added a new skill at `.github/skills/github-commit` that standardizes GitHub commits using Conventional Commit prefixes, a meaningful main-task header format, and a fully detailed body template covering summary, implementation details, validation, and notes, plus explicit push commands.
+- 2026-03-21T15:54Z [TOOL] Automated skill validation with `quick_validate.py` could not run due missing `PyYAML`; manual structural review is complete and automated validation remains UNCONFIRMED.
+- 2026-03-19T15:10Z [CODE] Phase 1 of the admin portal is now implemented with `@supabase/ssr`: new admin auth/session helpers, root `proxy.ts` protection, `/admin/login` email/password sign-in and reset-email request, `/admin/reset-password`, protected admin placeholders with logout, and a protected `/admin/bookings/[date]` route scaffold.
+- 2026-03-19T15:10Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md`, `docs/IMPLEMENTATION_ROADMAP.md`, and `docs/PROJECT_OVERVIEW.md` so the repo documents the shipped phase 1 auth boundary and the remaining admin slices.
+- 2026-03-19T15:10Z [TOOL] Validation passed for this slice: `npm run lint` pass, `npm run test` pass (`13/13`), and `npm run build` pass after allowing network access for Next.js Google Font fetches.
 - 2026-02-08T00:00Z [TOOL] Created initial continuity file.
 - 2026-02-08T00:00Z [ASSISTANT] `__tests__/lib/resend.test.ts` added; `__tests__/lib/stripe.test.ts` updated for constructor mocks and async usage.
 - 2026-02-08T14:02Z [ASSISTANT] `docs/PROJECT_OVERVIEW.md` and `docs/IMPLEMENTATION_ROADMAP.md` now describe Paystack (GHS) flow; `docs/PAYSTACK_INTEGRATION.md` added.
@@ -241,3 +284,11 @@
 - 2026-03-15T09:11Z [CODE] Added `supabase/migrations/20260315091100_fix_members_birthday_constraint.sql` to replace the broken `members_birthday_check` and documented the non-future birthday rule in `docs/SYSTEM_ARCHITECTURE.md`.
 - 2026-03-15T09:20Z [CODE] Added `supabase/migrations/20260315091500_reapply_members_birthday_constraint.sql` and `supabase/migrations/20260315092000_fix_members_status_constraint.sql`, then pushed both follow-up fixes to the linked Supabase project.
 - 2026-03-15T09:20Z [TOOL] Remote verification passed after both migrations: a throwaway `members` insert using the `/register` payload shape succeeded with `status='pending'` and `birthday='1999-09-22'`, and the test row was deleted immediately afterward.
+- 2026-03-18T00:00Z [USER] Scope changed from code implementation to documentation-only delivery: write the admin portal plan and place it in `docs/`.
+
+[OUTCOMES]
+- 2026-03-18T00:00Z [CODE] Added `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md`, a standalone implementation plan covering admin auth, allowlist protection, dashboard metrics, member CRUD, booking calendar/detail flows, `guest_count` schema support, and required testing/documentation work.
+- 2026-03-18T00:00Z [TOOL] Workspace was clean before and after this documentation-only change; build/lint/test were not run because no application code changed.
+- 2026-03-18T00:00Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` so the target architecture now reflects email/password admin auth with reset-password support, allowlist gating, `/admin/reset-password`, `/admin/bookings/[date]`, admin member/booking flows, and the planned `bookings.guest_count` integrity requirement.
+- 2026-03-19T00:00Z [TOOL] Completed a feasibility review of current documentation and identified concrete design/documentation gaps: admin auth-mode drift across docs/code, non-persisted transfer-reference traceability, status-vocabulary mismatch, and pending booking-integrity prerequisites (`guest_count` + transactional booking updates).
+- 2026-03-19T00:00Z [CODE] Updated architecture/plan docs and admin login placeholder copy to reflect user-confirmed decisions: dedicated reference table persistence, admin-only email/password auth scope, and `pending`/`active` status model.

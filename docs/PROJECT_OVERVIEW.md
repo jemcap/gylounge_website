@@ -42,7 +42,7 @@ app/
   types/
     database.ts           # Supabase generated types
   admin/
-    login/page.tsx        # Admin magic-link login (Supabase Auth)
+    login/page.tsx        # Admin email/password login (Supabase Auth)
     page.tsx              # Admin dashboard
     members/page.tsx      # Manage members (activate from pending -> active)
     bookings/page.tsx     # View/manage bookings
@@ -92,7 +92,7 @@ if (member?.status === 'active') {
 Membership is mandatory. The booking server action must check membership status and only proceed for `active` members. Non-members are redirected to the Register section on `/home`, which routes users to the dedicated `/register` sign-up form. Activation happens after payment is verified (manually). This is enforced server-side to prevent bypassing in the UI.
 
 ### Admin Portal (Supabase Auth Only)
-Public users never log in. Admins authenticate via Supabase Auth (recommended: magic link) to access `/admin/*`.
+Public users never log in. Admins authenticate via Supabase Auth using email/password to access `/admin/*`.
 
 Admin capabilities (planned):
 - Activate members after verifying bank transfers (`pending` → `active`).
@@ -103,6 +103,7 @@ Security requirements:
 - Gate all `/admin/*` routes by server-side session checks.
 - Restrict admin access by email allowlist (MVP) or an `admin_users` table (more robust).
 - Perform writes server-side using `supabaseAdminClient()` after verifying the requester is an admin.
+- Admin auth is only for dashboard and management routes; public membership/booking flows remain no-auth.
 
 ### App Router Conventions
 - `page.tsx` = route (Server Component by default)
@@ -139,9 +140,10 @@ Even at low volume, prevent double-booking by performing “check availability �
 // No payment webhook. Membership is activated after manual verification.
 // Recommended minimal flow:
 // 1. User submits membership intent (name, email, phone)
-// 2. App creates a `members` row with `status = 'pending'` and a unique reference
-// 3. App shows bank transfer instructions + reference and emails them to the user
-// 4. Admin verifies transfer in bank statement and sets `status = 'active'`
+// 2. App creates or updates a `members` row with `status = 'pending'`
+// 3. App stores a unique reference in a dedicated reference table linked to the member
+// 4. App shows bank transfer instructions + reference and emails them to the user
+// 5. Admin verifies transfer in bank statement and sets `status = 'active'`
 ```
 
 ## Data Flow: Booking System
@@ -198,6 +200,7 @@ BANK_TRANSFER_INSTRUCTIONS=
 
 # Admin
 ADMIN_EMAIL_ALLOWLIST=
+NEXT_PUBLIC_SITE_URL= # optional fallback for admin reset-password redirects
 
 # Resend
 RESEND_API_KEY=

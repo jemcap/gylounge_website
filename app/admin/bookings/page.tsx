@@ -1,16 +1,23 @@
+import { AdminShell } from "@/components/admin/AdminShell";
 import { Card } from "@/components/ui/card";
+import { requireAdminUser } from "@/lib/admin-session";
 
-export default function AdminBookingsPage() {
+export default async function AdminBookingsPage() {
+  const adminUser = await requireAdminUser();
+
   return (
-    <main className="min-h-screen bg-[#f5f1ea] px-6 py-12 text-[#1c1b18] md:px-12 lg:px-20">
-      <div className="mx-auto w-full max-w-5xl">
-        <Card
-          title="Admin bookings"
-          description="Boilerplate for booking oversight, status updates, and operational support."
-        >
-          <p className="text-sm text-[#3b3127]">Add bookings table and management actions in milestone 5.</p>
-        </Card>
-      </div>
-    </main>
+    <AdminShell
+      currentPath="/admin/bookings"
+      description="This route is now protected. Calendar counts, date detail views, and booking edits are still pending."
+      email={adminUser?.email}
+      title="Admin bookings"
+    >
+      <Card
+        title="Booking management placeholder"
+        description="Booking oversight, date navigation, and amendment actions will be added in the later admin phases."
+      >
+        <p className="text-sm text-[#3b3127]">Phase 1 is limited to auth, recovery, and route protection.</p>
+      </Card>
+    </AdminShell>
   );
 }

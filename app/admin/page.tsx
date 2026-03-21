@@ -1,35 +1,56 @@
-import Link from "next/link";
+import { AdminShell } from "@/components/admin/AdminShell";
 import { Card } from "@/components/ui/card";
+import { getAdminSuccessMessage } from "@/lib/admin-auth";
+import { requireAdminUser } from "@/lib/admin-session";
+import { supabaseAdminClient } from "@/lib/supabase";
 
-const adminLinks = [
-  { href: "/admin/members", label: "Members" },
-  { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/events", label: "Locations" },
-  { href: "/admin/slots", label: "Availability" },
-];
+type AdminDashboardPageProps = {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: AdminDashboardPageProps) {
+  const adminUser = await requireAdminUser();
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const successMessage = getAdminSuccessMessage(resolvedSearchParams.message);
+
+  // Get total members from supabase
+  const { count, error: totalMembersError } = await supabaseAdminClient().from("members").select("*", { count: "exact", head: true });
+  console.log("Total members count:", count, "Error:", totalMembersError); 
+
   return (
-    <main className="min-h-screen bg-[#f5f1ea] px-6 py-12 text-[#1c1b18] md:px-12 lg:px-20">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <header>
-          <p className="text-xs uppercase tracking-[0.3em] text-[#8b6b3f]">Admin</p>
-          <h1 className="mt-3 text-3xl font-semibold">Admin dashboard</h1>
-          <p className="mt-2 text-sm text-[#3b3127]">
-            Boilerplate hub for management pages. Add auth guards before connecting write operations.
-          </p>
-        </header>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {adminLinks.map((link) => (
-            <Card key={link.href} title={link.label} description={`Scaffold page for ${link.label.toLowerCase()} operations.`}>
-              <Link href={link.href} className="text-sm font-semibold text-[#1c1b18] hover:underline">
-                Open {link.label}
-              </Link>
-            </Card>
-          ))}
+    <AdminShell
+      currentPath="/admin"
+      description="Phase 1 secures the admin routes and gets email/password auth, password recovery, and logout in place before dashboard metrics are added."
+      email={adminUser.email}
+      title="Admin dashboard"
+    >
+      {successMessage ? (
+        <div className="rounded-2xl border border-[#8b6b3f] bg-[#f7ead2] px-4 py-3 text-sm text-[#3b3127]">
+          {successMessage}
         </div>
+      ) : null}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card
+          title="Members"
+          description="Member search, activation, editing, and safe delete operations land in phase 3."
+        >
+          <p className="text-sm text-[#3b3127]">
+            {count}
+          </p>
+        </Card>
+
+        <Card
+          title="Bookings"
+          description="Calendar counts, date detail, and booking amendment flows land in later admin phases."
+        >
+          <p className="text-sm text-[#3b3127]">
+            Phase 1 focuses only on the auth boundary around these routes.
+          </p>
+        </Card>
       </div>
-    </main>
+    </AdminShell>
   );
 }

@@ -45,10 +45,7 @@ const feedbackClassMap: Record<BookingFeedback["tone"], string> = {
 }
 
 const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-
-const sectionClassName =
-  "rounded-[2rem] border border-[#dcccb8] bg-[#fffaf2] p-5 shadow-[0_12px_30px_rgba(63,45,23,0.06)]"
-const sectionHeadingClass = "text-lg font-semibold text-[#261B07]"
+const sectionHeadingClass = "text-[48px] font-serif italic text-[#261B07]"
 const helperTextClass = "text-sm text-[#5f5240]"
 const errorTextClass = "mt-2 text-sm text-[#8b2e2a]"
 
@@ -141,7 +138,6 @@ export function BookingForm({
   slots,
   action = "#",
   feedback,
-  context,
 }: BookingFormProps) {
   const locationDateMap = useMemo(() => {
     const map = new Map<string, LocationDateOption[]>()
@@ -196,8 +192,6 @@ export function BookingForm({
   const activeFeedback = clientFeedback ?? feedback
   const selectedLocationId = watch("locationId")
   const selectedSlotId = watch("slotId")
-  const selectedLocation =
-    locations.find((location) => location.id === selectedLocationId) ?? null
   const selectedLocationDates = locationDateMap.get(selectedLocationId) ?? []
   const selectedDateEntry =
     selectedLocationDates.find((entry) => entry.date === selectedDate) ?? null
@@ -283,40 +277,30 @@ export function BookingForm({
 
   return (
     <Card
-      title="Booking Form"
-      description="Book a visit by choosing a location, date, and available time slot before entering your details."
-      className="bg-white/90"
+      className="bg-[#DBD1B9]"
     >
-      {context ? (
-        <p className="mb-4 rounded-2xl bg-[#f4efe5] px-4 py-3 text-sm text-[#3b3127]">
-          {context}
-        </p>
-      ) : null}
+
       {activeFeedback ? (
         <p className={`mb-4 rounded-xl border px-4 py-3 text-sm ${feedbackClassMap[activeFeedback.tone]}`}>
           {activeFeedback.message}
         </p>
       ) : null}
 
-      <form noValidate onSubmit={onSubmit} className="space-y-6">
+      <form noValidate onSubmit={onSubmit} className="space-y-2">
         <input type="hidden" {...register("locationId")} />
         <input type="hidden" {...register("slotId")} />
 
-        <section className={sectionClassName}>
-          <div className="space-y-3">
+        <section className="p-5">
+          <div>
             <div>
               <h3 className={sectionHeadingClass}>Select a Location</h3>
-              <p className={helperTextClass}>
-                Locations are loaded from Supabase and only dates with open hourly slots will appear in the calendar.
-              </p>
             </div>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-[#1c1b18]">Location</span>
               <select
                 value={selectedLocationId}
                 onChange={(event) => selectLocation(event.target.value)}
-                className="w-full rounded-2xl border border-[#d9cfbf] bg-white px-4 py-3 text-sm text-[#1c1b18] outline-none transition focus:border-[#8b6b3f]"
+                className="w-full rounded-full border-3 border-[#3F2D17] bg-[#DBD1B9] px-4 py-3 text-sm text-[#1c1b18] outline-none transition focus:border-[#8b6b3f]"
               >
                 <option value="">Choose a location</option>
                 {locations.map((location) => (
@@ -327,31 +311,20 @@ export function BookingForm({
               </select>
             </label>
 
-            {selectedLocation ? (
-              <div className="rounded-2xl border border-[#e8dcc9] bg-white px-4 py-3 text-sm text-[#3b3127]">
-                <p className="font-semibold text-[#1c1b18]">{selectedLocation.name}</p>
-                <p>{selectedLocation.address}</p>
-                <p>{selectedLocation.region}</p>
-              </div>
-            ) : null}
-
             {errors.locationId?.message ? (
               <p className={errorTextClass}>{errors.locationId.message}</p>
             ) : null}
           </div>
         </section>
 
-        <section className={sectionClassName}>
+        <section className="p-5">
           <div className="space-y-4">
             <div>
               <h3 className={sectionHeadingClass}>Choose a Date &amp; Time Slot</h3>
-              <p className={helperTextClass}>
-                Pick an available date from the calendar, then choose a time on the right.
-              </p>
             </div>
 
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-              <div className="rounded-[1.75rem] border border-[#e5d7c3] bg-white p-4">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
+              <div className="rounded-[1.75rem] p-3">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <button
                     type="button"
@@ -372,16 +345,16 @@ export function BookingForm({
                   </button>
                 </div>
 
-                <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[#7d6c54]">
+                <div className="grid w-full grid-cols-7 gap-2 text-center text-xs font-semibold uppercase tracking-[0.18em] text-[#7d6c54]">
                   {weekdayLabels.map((label) => (
                     <span key={label}>{label}</span>
                   ))}
                 </div>
 
-                <div className="mt-3 grid grid-cols-7 gap-2">
+                <div className="mt-2 grid w-full grid-cols-7 gap-2">
                   {calendarCells.map((cell, index) => {
                     if (cell.type === "empty") {
-                      return <span key={`empty-${index}`} className="aspect-square" />
+                      return <span key={`empty-${index}`} className="aspect-square w-full" />
                     }
 
                     const isSelected = cell.dateKey === selectedDate
@@ -393,10 +366,10 @@ export function BookingForm({
                         onClick={() => selectDate(cell.dateKey)}
                         disabled={!cell.isAvailable}
                         className={[
-                          "aspect-square rounded-2xl border text-sm font-semibold transition",
+                          "aspect-square w-full rounded-full border p-0 text-xs font-semibold transition",
                           cell.isAvailable
-                            ? "border-[#d9cfbf] bg-[#fffaf2] text-[#261B07] hover:border-[#8b6b3f]"
-                            : "border-transparent bg-[#f3eee6] text-[#b4a58f]",
+                            ? "border-[#3F2D17] border-3 text-[#261B07] hover:border-[#8b6b3f]"
+                            : "bg-transparent border-3  text-[#b4a58f]",
                           isSelected ? "border-[#3F2D17] bg-[#3F2D17] text-[#F1D39B]" : "",
                         ]
                           .filter(Boolean)
@@ -417,17 +390,14 @@ export function BookingForm({
                 ) : null}
               </div>
 
-              <div className="rounded-[1.75rem] border border-[#e5d7c3] bg-white p-4">
+              <div className="rounded-[1.75rem]  p-4">
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-[#261B07]">
                     {selectedDateEntry ? formatAccraDate(selectedDateEntry.date) : "Choose a date"}
                   </p>
-                  <p className="mt-1 text-sm text-[#5f5240]">
-                    Hourly slots from 08:00 to 22:00 will appear here once you select an available date.
-                  </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex flex-row space-x-3 overflow-x-auto">
                   {selectedDateEntry?.slots.map((slot) => {
                     const isSelected = selectedSlotId === slot.id
                     return (
@@ -436,17 +406,17 @@ export function BookingForm({
                         type="button"
                         onClick={() => selectSlot(slot)}
                         className={[
-                          "flex w-full flex-col items-start gap-1 rounded-2xl border px-4 py-3 text-left transition",
+                          "flex w-full flex-col items-center gap-1 rounded-full border px-4 py-3 text-left transition",
                           isSelected
                             ? "border-[#3F2D17] bg-[#3F2D17] text-[#F1D39B]"
-                            : "border-[#d9cfbf] bg-[#fffaf2] text-[#261B07] hover:border-[#8b6b3f]",
+                            : "border-[#3F2D17] border-3 text-[#261B07] hover:border-[#8b6b3f]",
                         ]
                           .filter(Boolean)
                           .join(" ")}
                         aria-pressed={isSelected}
                       >
                         <span className="text-sm font-semibold">
-                          {formatAccraTime(slot.startTime)} - {formatAccraTime(slot.endTime)}
+                          {formatAccraTime(slot.startTime)}
                         </span>
                         <span className={isSelected ? "text-xs text-[#f7e6bf]" : "text-xs text-[#5f5240]"}>
                           {slot.availableSpots} spot{slot.availableSpots === 1 ? "" : "s"} left
@@ -468,7 +438,7 @@ export function BookingForm({
           </div>
         </section>
 
-        <section className={sectionClassName}>
+        <section className="p-5">
           <div className="space-y-4">
             <div>
               <h3 className={sectionHeadingClass}>Your Details</h3>
@@ -479,39 +449,39 @@ export function BookingForm({
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-2 block text-sm font-medium text-[#1c1b18]">First Name</span>
-                <Input placeholder="Ama" {...register("firstName")} />
+                <span className="mb-2 block text-sm font-bold text-[#1c1b18]">First Name *</span>
+                <Input placeholder="Ama" {...register("firstName")} required/>
                 {errors.firstName?.message ? (
                   <p className={errorTextClass}>{errors.firstName.message}</p>
                 ) : null}
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-medium text-[#1c1b18]">Last Name</span>
-                <Input placeholder="Mensah" {...register("lastName")} />
+                <span className="mb-2 block text-sm font-bold text-[#1c1b18]">Last Name *</span>
+                <Input placeholder="Mensah" {...register("lastName")} required/>
                 {errors.lastName?.message ? (
                   <p className={errorTextClass}>{errors.lastName.message}</p>
                 ) : null}
               </label>
 
               <label className="block md:col-span-2">
-                <span className="mb-2 block text-sm font-medium text-[#1c1b18]">Email Address</span>
-                <Input type="email" placeholder="ama@example.com" {...register("email")} />
+                <span className="mb-2 block text-sm font-bold text-[#1c1b18]">Email Address *</span>
+                <Input type="email" placeholder="ama@example.com" {...register("email")} required/>
                 {errors.email?.message ? (
                   <p className={errorTextClass}>{errors.email.message}</p>
                 ) : null}
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-medium text-[#1c1b18]">Phone Number</span>
-                <Input placeholder="+233 24 000 0000" {...register("phone")} />
+                <span className="mb-2 block text-sm font-bold text-[#1c1b18]">Phone Number *</span>
+                <Input placeholder="+233 24 000 0000" {...register("phone")} required/>
                 {errors.phone?.message ? (
                   <p className={errorTextClass}>{errors.phone.message}</p>
                 ) : null}
               </label>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-medium text-[#1c1b18]">Number of Guests</span>
+                <span className="mb-2 block text-sm font-bold text-[#1c1b18]">Number of Guests</span>
                 <Input type="number" min={1} step={1} {...register("numberOfGuests", { valueAsNumber: true })} />
                 {errors.numberOfGuests?.message ? (
                   <p className={errorTextClass}>{errors.numberOfGuests.message}</p>
