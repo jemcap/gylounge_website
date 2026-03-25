@@ -1,6 +1,11 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-03-25T22:01Z [USER] Make the booking slot buttons match input height/padding more closely and stack them in a single column on mobile.
+- 2026-03-25T21:50Z [USER] Set a max width and wrap the booking time-slot options.
+- 2026-03-25T21:42Z [USER] Seed the linked remote Supabase project directly instead of relying on local `db reset`.
+- 2026-03-25T21:36Z [USER] Seed the `public.slots` table with date and time slot availability.
+- 2026-03-21T16:15Z [USER] Commit and push all remaining tracked and untracked workspace changes with a meaningful Conventional Commit title/body, then run the `github-commit` workflow.
 - 2026-03-21T15:57Z [USER] Fix P1 review issue by moving reset-password allowlist enforcement out of the client component into server-side auth checks.
 - 2026-03-21T15:54Z [USER] Create a reusable skill that commits to GitHub with a Conventional Commit prefix (`feat`, `fix`, `perf`, etc.), a meaningful header tied to the main task, and a fully detailed commit body.
 - 2026-03-21T12:50Z [USER] Increase the calendar cell gap while allowing the date grid to span the full container width.
@@ -37,6 +42,11 @@
 - 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-03-25T22:01Z [CODE] Keep the existing desktop wrapped slot grid, but switch slot buttons to a vertical mobile stack and use input-like `px-4 py-3` sizing with a shared minimum height for visual consistency.
+- 2026-03-25T21:50Z [CODE] Apply the max-width/wrap request to the booking time-slot chip row in `components/forms/BookingForm.tsx` by replacing horizontal scroll with a wrapping flex layout and capped chip widths.
+- 2026-03-25T21:42Z [CODE] Seed remote `slots` through the service-role API using existing Accra/Kumasi location IDs, because Supabase CLI linked-project auth was unavailable (`SUPABASE_ACCESS_TOKEN` missing in this environment).
+- 2026-03-25T21:36Z [CODE] Replace the six hardcoded demo slot rows in `supabase/seed.sql` with deterministic rolling hourly slots for the next 14 days (`08:00` through `22:00`) across the two seeded locations.
+- 2026-03-21T16:15Z [CODE] Stage all remaining tracked and untracked files (`git add -A`) and ship them in one commit focused on the main implementation theme: phase-1 admin auth boundary with password recovery and protected admin routes.
 - 2026-03-21T15:57Z [CODE] Keep `ResetPasswordForm` as a client component for recovery-session readiness and client-side schema feedback, but perform allowlist authorization and password mutation in a server action.
 - 2026-03-21T15:57Z [CODE] Move allowlist helpers into `lib/admin-allowlist.server.ts` and update server-only callers (`proxy.ts`, `lib/admin-session.ts`, `app/admin/actions.ts`) to remove env-dependent authorization logic from client-importable modules.
 - 2026-03-21T15:54Z [CODE] Implement this request as a new local skill at `.github/skills/github-commit` generated with the `skill-creator` workflow, keeping existing application code untouched.
@@ -94,6 +104,14 @@
 - 2026-03-19T00:00Z [USER] Member status vocabulary remains strictly `pending` and `active`.
 
 [PROGRESS]
+- 2026-03-25T22:01Z [CODE] Updated `components/forms/BookingForm.tsx` so slot options render in a single column on mobile (`flex-col`, `w-full`) and return to wrapped fixed-width chips from `sm` upward; button classes now use `min-h-[46px] px-4 py-3` and centered layout to align more closely with the input component sizing.
+- 2026-03-25T22:01Z [TOOL] Validation for this UI slice: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`13/13`); `npm run build` was attempted and failed in sandbox because `next/font` could not fetch Google Fonts (`Instrument Serif`, `Roboto`).
+- 2026-03-25T21:50Z [CODE] Updated the time-slot row in `components/forms/BookingForm.tsx` to `max-w-[34rem]` with `flex-wrap`, and updated each slot button to use bounded widths (`min-w-[7.75rem]`, `max-w-[10rem]`) so options wrap cleanly.
+- 2026-03-25T21:50Z [TOOL] Validation for this UI slice: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`13/13`); `npm run build` passed after rerun with network access for Google Fonts fetch.
+- 2026-03-25T21:42Z [TOOL] `npx supabase db push --linked --include-seed --yes` failed with `Access token not provided`; reran remote seeding via a one-off Node script (`@supabase/supabase-js`) using `.env` service-role credentials and upserted 392 rows for a 14-day hourly window.
+- 2026-03-25T21:36Z [CODE] Updated `supabase/seed.sql` to generate hash-stable UUID slot rows from location/date/time combinations and upsert them with `available_spots = 10`; updated `docs/LOCAL_SUPABASE_DEVELOPMENT.md` to describe rolling hourly 14-day seeding.
+- 2026-03-21T16:15Z [TOOL] Ran `npm run lint`, `npm run test`, and `npm run build`; build first failed in sandbox due Google Fonts fetch, then passed when rerun with escalated network access.
+- 2026-03-21T16:15Z [TOOL] Created commit `20f2e1c` with the requested detailed Conventional Commit body and pushed `main` to `origin/main`.
 - 2026-03-21T16:09Z [TOOL] Ran the new `.github/skills/github-commit` workflow against the skill files: staged `.github/skills/github-commit/*`, created a Conventional Commit with a detailed multi-section body, and pushed `main` to `origin/main`.
 - 2026-03-21T15:57Z [CODE] Added `adminUpdatePasswordAction` in `app/admin/actions.ts`, wired `app/admin/reset-password/page.tsx` to pass the server action + query error message into `ResetPasswordForm`, and updated the form to submit via server action while keeping client-side password/confirm validation.
 - 2026-03-21T15:57Z [CODE] Removed the client-side `isAdminEmailAllowlisted` gate from `ResetPasswordForm` and moved allowlist parsing/checking to new server-only module `lib/admin-allowlist.server.ts`.
@@ -171,6 +189,9 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-03-25T21:42Z [TOOL] Supabase CLI remote push is UNAVAILABLE in this workspace without `SUPABASE_ACCESS_TOKEN`; direct service-role API calls remain viable for controlled data seeding.
+- 2026-03-25T21:36Z [TOOL] Local seed execution is UNCONFIRMED: `npx supabase db reset --local --yes` failed with `Cannot connect to the Docker daemon at unix:///Users/joshc/.docker/run/docker.sock`.
+- 2026-03-21T16:15Z [TOOL] Lint remains non-blocking but still reports one warning in `components/admin/AdminShell.tsx` (`Link` imported but unused).
 - 2026-03-21T16:09Z [TOOL] `git push` from the sandbox failed with DNS resolution (`Could not resolve hostname github.com`); rerunning with escalated network access succeeded.
 - 2026-03-21T15:57Z [TOOL] `proxy.ts` redirecting authenticated users away from `/admin/reset-password` also affects server-action POSTs on that route; gating the redirect to `request.method === "GET"` preserves public-page redirect behavior while allowing reset submissions.
 - 2026-03-21T15:54Z [TOOL] `skill-creator/scripts/quick_validate.py` is UNCONFIRMED in this workspace because the local Python runtime is missing `PyYAML` (`ModuleNotFoundError: No module named 'yaml'`).
@@ -223,6 +244,11 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-03-25T22:01Z [CODE] Booking slot buttons now read as input-sized controls and collapse to a single-column stack on mobile while preserving equal-width wrapped chips on larger screens.
+- 2026-03-25T21:50Z [CODE] Booking slot options now have a capped row width and wrap across lines instead of forcing a horizontal scrolling strip.
+- 2026-03-25T21:42Z [TOOL] Remote `slots` seeding completed: 392 hourly rows (`08:00`-`22:00`) were upserted for `2026-03-26` through `2026-04-08` across locations `baa77240-6032-4ebd-9215-e42a25f6fe9d` (Accra Community Center) and `0241ae10-ae67-46d5-8ae0-20390ce11d9f` (Kumasi Senior Hub); verification count for that window is 392.
+- 2026-03-25T21:36Z [CODE] The repository now seeds `public.slots` as rolling date/time hourly availability for seeded Accra/Kumasi locations, and the local Supabase guide reflects the new slot seeding behavior.
+- 2026-03-21T16:15Z [TOOL] Commit `20f2e1c` (`feat(admin-auth): implement protected admin auth and recovery flow`) is now on `origin/main`, containing all previously remaining tracked and untracked workspace changes.
 - 2026-03-21T16:09Z [TOOL] Commit `81afe61` (`feat(skills): add github commit skill with detailed body`) is now on `origin/main`, adding `.github/skills/github-commit/SKILL.md` and `.github/skills/github-commit/agents/openai.yaml`.
 - 2026-03-21T15:57Z [CODE] Admin reset-password flow no longer depends on client access to `ADMIN_EMAIL_ALLOWLIST`: allowlist checks and password updates now execute server-side, and unauthorized/invalid recovery attempts are redirected with existing admin error codes.
 - 2026-03-21T15:57Z [TOOL] Post-change verification: tests green (`13/13`), lint clean except one pre-existing warning in `components/admin/AdminShell.tsx`, and production build successful when network is allowed for font fetch.

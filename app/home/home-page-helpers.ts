@@ -42,12 +42,36 @@ export const formatAccraDate = (raw: string) => {
     return raw
   }
 
-  return new Intl.DateTimeFormat("en-US", {
+  const formatter = new Intl.DateTimeFormat("en-US", {
     timeZone: "Africa/Accra",
-    year: "numeric",
-    month: "short",
+    weekday: "long",
+    month: "long",
     day: "numeric",
-  }).format(parsed)
+  })
+
+  const parts = formatter.formatToParts(parsed)
+  const weekday = parts.find((p) => p.type === "weekday")?.value ?? ""
+  const day = parts.find((p) => p.type === "day")?.value ?? ""
+  const month = parts.find((p) => p.type === "month")?.value ?? ""
+
+  const dayNum = Number.parseInt(day, 10)
+  const ordinal = getOrdinal(dayNum)
+
+  return `${weekday} ${dayNum}${ordinal} ${month}`
+}
+
+const getOrdinal = (num: number): string => {
+  if (num > 3 && num < 21) return "th"
+  switch (num % 10) {
+    case 1:
+      return "st"
+    case 2:
+      return "nd"
+    case 3:
+      return "rd"
+    default:
+      return "th"
+  }
 }
 
 export const formatAccraTime = (raw: string) => {
