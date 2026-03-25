@@ -1,4 +1,5 @@
 import type { Tables } from "@/app/types/database"
+import type { BookingConfirmation } from "@/lib/booking-confirmation"
 import { supabaseAdminClient } from "@/lib/supabase"
 
 type LocationRow = Pick<Tables<"locations">, "id" | "name" | "address" | "region">
@@ -7,6 +8,13 @@ type SlotRow = Pick<
   Tables<"slots">,
   "id" | "location_id" | "date" | "start_time" | "end_time" | "available_spots"
 >
+
+type BookingRow = Pick<
+  Tables<"bookings">,
+  "guest_count" | "id" | "location_id" | "member_id" | "slot_id"
+>
+
+type MemberRow = Pick<Tables<"members">, "email" | "first_name" | "last_name" | "phone">
 
 export type BookableLocation = {
   id: string
@@ -173,6 +181,18 @@ export const resolveBookingFeedback = (status?: string): Feedback | undefined =>
         message:
           "You need an active membership before booking. Complete Register first.",
       }
+    case "already-booked":
+      return {
+        tone: "info",
+        message:
+          "This email already has a booking for that time slot. Choose a different slot if you need another visit.",
+      }
+    case "processing":
+      return {
+        tone: "info",
+        message:
+          "This booking request is already being processed. Wait a moment, then refresh if the confirmation modal does not appear.",
+      }
     case "slot-unavailable":
       return {
         tone: "error",
@@ -190,6 +210,93 @@ export const resolveBookingFeedback = (status?: string): Feedback | undefined =>
       }
     default:
       return undefined
+  }
+}
+
+const buildMemberName = (member: MemberRow) => {
+  const name = [member.first_name, member.last_name].filter(Boolean).join(" ").trim()
+  return name || member.email
+}
+
+const isMissingGuestCountColumnError = (error: unknown) =>
+  Boolean(
+    error &&
+      typeof error === "object" &&
+      "message" in error &&
+      typeof error.message === "string" &&
+      error.message.includes("guest_count") &&
+      "code" in error &&
+      (error.code === "42703" || error.code === "PGRST204"),
+  )
+
+export const getBookingConfirmation = async (
+  bookingId?: string,
+): Promise<BookingConfirmation | null> => {
+  if (!bookingId) {
+    return null
+  }
+
+  try {
+    const admin = supabaseAdminClient()
+    const { data: booking, error: bookingError } = await admin
+      .from("bookings")
+      .select("id, member_id, location_id, slot_id, guest_count")
+      .eq("id", bookingId)
+      .maybeSingle()
+
+    if (bookingError || !booking?.member_id || !booking.location_id || !booking.slot_id) {
+      if (bookingError) {
+        if (isMissingGuestCountColumnError(bookingError)) {
+          return null
+        }
+        console.error("home getBookingConfirmation booking lookup failed", bookingError)
+      }
+      return null
+    }
+
+    const typedBooking = booking as BookingRow
+    const [
+      { data: member, error: memberError },
+      { data: location, error: locationError },
+      { data: slot, error: slotError },
+    ] = await Promise.all([
+      admin
+        .from("members")
+        .select("first_name, last_name, email, phone")
+        .eq("id", String(typedBooking.member_id))
+        .maybeSingle(),
+      admin.from("locations").select("name").eq("id", String(typedBooking.location_id)).maybeSingle(),
+      admin
+        .from("slots")
+        .select("date, start_time, end_time")
+        .eq("id", String(typedBooking.slot_id))
+        .maybeSingle(),
+    ])
+
+    if (memberError || locationError || slotError || !member || !location || !slot) {
+      console.error("home getBookingConfirmation detail lookup failed", {
+        locationError,
+        memberError,
+        slotError,
+      })
+      return null
+    }
+
+    const typedMember = member as MemberRow
+    const time = `${formatAccraTime(slot.start_time)} - ${formatAccraTime(slot.end_time)}`
+
+    return {
+      date: formatAccraDate(slot.date),
+      email: typedMember.email,
+      guestCount: typedBooking.guest_count,
+      location: location.name,
+      name: buildMemberName(typedMember),
+      phone: typedMember.phone ?? "Not provided",
+      time,
+    }
+  } catch (error) {
+    console.error("home getBookingConfirmation failed", error)
+    return null
   }
 }
 

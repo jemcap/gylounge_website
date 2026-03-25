@@ -1,6 +1,11 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-03-25T23:28Z [USER] Add booking idempotency keys so retried submissions do not repeat slot-capacity or email side effects.
+- 2026-03-25T23:15Z [USER] Prevent the same email from booking the same slot more than once by checking existing bookings before proceeding.
+- 2026-03-25T23:07Z [USER] Add unit tests that validate the booking confirmation field-to-row mapping logic.
+- 2026-03-25T23:03Z [USER] Suppress the remote `guest_count` lookup failure in the booking confirmation loader while the deployed schema is still behind the code.
+- 2026-03-25T22:39Z [USER] Replace booking success inline feedback with a modal, persist `bookings.guest_count`, and support a bottom-sheet mobile layout with a full-width close button.
 - 2026-03-25T22:01Z [USER] Make the booking slot buttons match input height/padding more closely and stack them in a single column on mobile.
 - 2026-03-25T21:50Z [USER] Set a max width and wrap the booking time-slot options.
 - 2026-03-25T21:42Z [USER] Seed the linked remote Supabase project directly instead of relying on local `db reset`.
@@ -42,6 +47,12 @@
 - 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-03-25T23:28Z [CODE] Implement booking idempotency with a new persisted `booking_requests` table keyed by a client-generated request UUID, because a hidden form field alone would not stop duplicate server-side side effects.
+- 2026-03-25T23:15Z [CODE] Enforce the duplicate public-booking guard in `createBookingAction` by resolving the normalized email to an active member first, then querying `bookings` by `member_id + slot_id` before any slot-capacity decrement.
+- 2026-03-25T23:07Z [CODE] Extract the booking confirmation field/query-param transformation into a pure helper module (`lib/booking-confirmation.ts`) so the modal row-generation logic can be unit tested directly without importing Next/Supabase runtime code.
+- 2026-03-25T23:03Z [CODE] Treat missing `bookings.guest_count` lookup errors (`42703`, `PGRST204`) as an expected compatibility case in `getBookingConfirmation()` and fall back silently to redirect-provided modal data instead of logging a false failure.
+- 2026-03-25T22:39Z [CODE] Implement the booking confirmation UI with a local Radix dialog wrapper (`@radix-ui/react-dialog`) instead of a generator-driven shadcn setup, and keep non-success booking states as inline feedback.
+- 2026-03-25T22:39Z [CODE] Persist `guest_count` on `bookings` via a new migration, but keep booking success working before the remote migration is applied by retrying the insert without `guest_count` when PostgREST returns `PGRST204` and hydrating the modal from redirect params only in that fallback path.
 - 2026-03-25T22:01Z [CODE] Keep the existing desktop wrapped slot grid, but switch slot buttons to a vertical mobile stack and use input-like `px-4 py-3` sizing with a shared minimum height for visual consistency.
 - 2026-03-25T21:50Z [CODE] Apply the max-width/wrap request to the booking time-slot chip row in `components/forms/BookingForm.tsx` by replacing horizontal scroll with a wrapping flex layout and capped chip widths.
 - 2026-03-25T21:42Z [CODE] Seed remote `slots` through the service-role API using existing Accra/Kumasi location IDs, because Supabase CLI linked-project auth was unavailable (`SUPABASE_ACCESS_TOKEN` missing in this environment).
@@ -104,6 +115,15 @@
 - 2026-03-19T00:00Z [USER] Member status vocabulary remains strictly `pending` and `active`.
 
 [PROGRESS]
+- 2026-03-25T23:07Z [CODE] Added `lib/booking-confirmation.ts` with `createBookingConfirmationRows()` and `getBookingConfirmationFromParams()`, updated the booking modal and `/home` success flow to consume that helper, and added `__tests__/lib/booking-confirmation.test.ts` to cover row ordering/labels plus query-param parsing.
+- 2026-03-25T23:07Z [TOOL] Validation for the booking-confirmation helper extraction: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`16/16`); `npm run build` passed after rerun with network access for Google Fonts fetch.
+- 2026-03-25T23:03Z [CODE] Updated `app/home/home-page-helpers.ts` so `getBookingConfirmation()` detects missing-`guest_count` remote schemas and returns `null` without console noise, allowing `/home` to use the existing redirect-param confirmation fallback cleanly.
+- 2026-03-25T23:03Z [TOOL] Re-validated after the compatibility fix: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`13/13`); `npm run build` passed after rerun with network access for Google Fonts fetch.
+- 2026-03-25T22:39Z [CODE] Added `components/ui/dialog.tsx` and `app/home/components/BookingConfirmationModal.tsx`; `/home` now loads booking confirmation data server-side after a successful booking and opens a modal instead of showing the old inline success banner.
+- 2026-03-25T22:39Z [CODE] Updated `app/home/actions.ts`, `app/home/page.tsx`, `app/home/home-page-helpers.ts`, `app/home/components/BookingAccordionContent.tsx`, and `components/forms/BookingForm.tsx` so success redirects carry a booking id, canonical confirmation payloads come from `bookings`/`members`/`locations`/`slots`, and missing-`guest_count` remotes fall back to redirect payload hydration.
+- 2026-03-25T22:39Z [CODE] Added `supabase/migrations/20260325221500_add_guest_count_to_bookings.sql`, updated `app/types/database.ts`, and updated `docs/SYSTEM_ARCHITECTURE.md` to reflect persisted guest counts plus the booking success modal behavior.
+- 2026-03-25T22:39Z [TOOL] Installed `@radix-ui/react-dialog` with network access because offline npm cache did not contain the package (`ENOTCACHED`).
+- 2026-03-25T22:39Z [TOOL] Validation for the confirmation-modal slice: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`13/13`); `npm run build` passed after rerun with network access for Google Fonts fetch.
 - 2026-03-25T22:01Z [CODE] Updated `components/forms/BookingForm.tsx` so slot options render in a single column on mobile (`flex-col`, `w-full`) and return to wrapped fixed-width chips from `sm` upward; button classes now use `min-h-[46px] px-4 py-3` and centered layout to align more closely with the input component sizing.
 - 2026-03-25T22:01Z [TOOL] Validation for this UI slice: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`13/13`); `npm run build` was attempted and failed in sandbox because `next/font` could not fetch Google Fonts (`Instrument Serif`, `Roboto`).
 - 2026-03-25T21:50Z [CODE] Updated the time-slot row in `components/forms/BookingForm.tsx` to `max-w-[34rem]` with `flex-wrap`, and updated each slot button to use bounded widths (`min-w-[7.75rem]`, `max-w-[10rem]`) so options wrap cleanly.
@@ -189,6 +209,12 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-03-25T23:28Z [TOOL] Idempotent replay for public booking needs a persisted claim before slot mutation; generating a client-side key without storing it server-side would still allow duplicate side effects on retried requests.
+- 2026-03-25T23:28Z [TOOL] `npm run test` now passes `24/24`, adding coverage for booking idempotency replay resolution, booking-form idempotency-key submission, and the `processing` booking-feedback state.
+- 2026-03-25T23:15Z [TOOL] `npm run test` now passes `18/18`, including new coverage for the `already-booked` booking-feedback state in `__tests__/app/home-page-helpers.test.ts`.
+- 2026-03-25T23:15Z [TOOL] `npm run build` still requires network-enabled execution in this environment because `next/font/google` fetches `Instrument Serif` and `Roboto`; the escalated rerun completed successfully.
+- 2026-03-25T23:03Z [TOOL] Some deployed Supabase environments surface the missing `guest_count` column as raw Postgres `42703` during `select`, not just PostgREST schema-cache `PGRST204`; both codes must be treated as the same compatibility case.
+- 2026-03-25T22:39Z [TOOL] The linked remote Supabase project still exposes a schema cache without `bookings.guest_count`; booking inserts fail with `PGRST204` until the migration is applied remotely, so the public booking flow now retries without that column and drives the modal from redirect params as a temporary compatibility path.
 - 2026-03-25T21:42Z [TOOL] Supabase CLI remote push is UNAVAILABLE in this workspace without `SUPABASE_ACCESS_TOKEN`; direct service-role API calls remain viable for controlled data seeding.
 - 2026-03-25T21:36Z [TOOL] Local seed execution is UNCONFIRMED: `npx supabase db reset --local --yes` failed with `Cannot connect to the Docker daemon at unix:///Users/joshc/.docker/run/docker.sock`.
 - 2026-03-21T16:15Z [TOOL] Lint remains non-blocking but still reports one warning in `components/admin/AdminShell.tsx` (`Link` imported but unused).
@@ -244,6 +270,14 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-03-25T23:28Z [CODE] Public booking now submits a client-generated idempotency key, claims it in `booking_requests` before slot mutation, replays completed requests to the existing booking, and returns a `processing` state when the same request key is still in flight.
+- 2026-03-25T23:28Z [CODE] Added `supabase/migrations/20260325234500_add_booking_requests.sql`, updated `app/types/database.ts`, and documented the new idempotent booking flow in `docs/SYSTEM_ARCHITECTURE.md`; remote runtime support remains UNCONFIRMED until that migration is applied.
+- 2026-03-25T23:28Z [TOOL] Validation for booking idempotency passed: `npm run lint` (1 pre-existing `components/admin/AdminShell.tsx` unused `Link` warning), `npm run test` (`24/24`), and `npm run build` (successful after escalated network access for Google Fonts).
+- 2026-03-25T23:15Z [CODE] Public booking now rejects duplicate submissions for the same member email and slot before reducing slot capacity, surfaces an `already-booked` feedback state on `/home#booking`, and documents the rule in `docs/SYSTEM_ARCHITECTURE.md`.
+- 2026-03-25T23:15Z [TOOL] Validation for the duplicate-booking guard passed: `npm run lint` (1 pre-existing `components/admin/AdminShell.tsx` unused `Link` warning), `npm run test` (`18/18`), and `npm run build` (successful after escalated network access for Google Fonts).
+- 2026-03-25T23:07Z [CODE] The booking confirmation modal now uses a shared pure mapper for row creation and param parsing, and the exact field-to-row transformation is protected by dedicated unit tests.
+- 2026-03-25T23:03Z [CODE] The booking confirmation modal no longer logs a false booking-lookup error when the remote schema is still missing `guest_count`; it now degrades quietly to the redirect-param confirmation path until the migration is applied.
+- 2026-03-25T22:39Z [CODE] Successful bookings now show a confirmation modal with location/date/time/member details, centered on desktop and bottom-anchored on mobile with a full-width mobile close button; the codebase is ready for full canonical hydration once the remote `guest_count` migration is applied.
 - 2026-03-25T22:01Z [CODE] Booking slot buttons now read as input-sized controls and collapse to a single-column stack on mobile while preserving equal-width wrapped chips on larger screens.
 - 2026-03-25T21:50Z [CODE] Booking slot options now have a capped row width and wrap across lines instead of forcing a horizontal scrolling strip.
 - 2026-03-25T21:42Z [TOOL] Remote `slots` seeding completed: 392 hourly rows (`08:00`-`22:00`) were upserted for `2026-03-26` through `2026-04-08` across locations `baa77240-6032-4ebd-9215-e42a25f6fe9d` (Accra Community Center) and `0241ae10-ae67-46d5-8ae0-20390ce11d9f` (Kumasi Senior Hub); verification count for that window is 392.

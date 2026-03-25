@@ -99,10 +99,12 @@ Core tables:
 - `members`
 - `locations`
 - `slots`
+- `booking_requests`
 - `bookings`
 
-Planned booking schema addition:
-- `bookings.guest_count` to persist the guest count already used when decrementing slot capacity
+Booking schema addition:
+- `bookings.guest_count` persists the guest count already used when decrementing slot capacity
+- `booking_requests` persists public booking idempotency keys so retried submissions do not repeat slot-capacity or email side effects
 
 Planned reference persistence addition:
 - `payment_references` table to store issued references (`membership` and `booking`) separately from `members` and `bookings`
@@ -117,6 +119,8 @@ Type source of truth:
 - Standard slot hours are `08:00` through `22:00`.
 - Default slot capacity is `10`.
 - Slot capacity cannot go below zero.
+- A member email can only hold one booking per slot.
+- Public booking submissions carry a per-request idempotency key and server-side replays must not create duplicate side effects.
 - Admin-only operations must require authenticated admin identity.
 - Admin-only operations must also require an allowlisted admin email.
 - Admin login uses email/password with password reset support.
@@ -188,9 +192,13 @@ Type source of truth:
 2. User chooses a location, then an available date, then an hourly slot.
 3. User submits booking form.
 4. Server checks member by normalized email.
-5. If active, reserve slot and insert booking.
-6. Send confirmation (member) and notification (organizer).
-7. If not active, route user to `/home#register` (which links to `/register`).
+5. If active, server claims the booking idempotency key before changing slot capacity.
+6. If the key is already in progress, server returns a processing state; if it already completed, server replays the saved booking result.
+7. Server rejects the request when that member already has a booking for the selected slot.
+8. Otherwise, reserve slot and insert booking.
+9. Send confirmation (member) and notification (organizer).
+10. Redirect back to `/home#booking` with a success state; the client opens a booking-confirmation modal with the saved visit details.
+11. If not active, route user to `/home#register` (which links to `/register`).
 
 ### Legacy `/events` Route
 1. User opens `/events`.
@@ -204,6 +212,7 @@ Type source of truth:
 ## Concurrency and Integrity
 - Protect slot booking with database-level transaction or RPC (`SELECT ... FOR UPDATE`).
 - Insert booking only after capacity decrement succeeds.
+- Claim and persist booking idempotency keys before mutating slot capacity so retried form submissions do not duplicate side effects.
 - Persist booking guest count so future booking edits or cancellations can restore slot capacity correctly.
 - Handle admin booking reassignments with a transactional RPC or equivalent database-level lock strategy.
 - Keep booking creation idempotency strategy in scope for retries.
@@ -257,7 +266,9 @@ Implemented now:
 - Hero utility component:
   - `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
 - `/register` posts to a server action that creates/updates pending members, generates transfer references, and sends membership instruction emails
-- `/home` Booking accordion posts to a server action that enforces active membership, creates location-based bookings with slot decrement, and sends booking emails
+- `/home` Booking accordion posts to a server action that enforces active membership, claims booking idempotency keys, creates location-based bookings with slot decrement, and sends booking emails
+- `/home` booking rejects duplicate submissions when the same normalized email already has a booking for the selected slot
+- Successful public bookings now reopen the `/home` Booking accordion with a bottom-sheet-on-mobile / centered-on-desktop confirmation modal populated from the saved booking, member, location, and slot records
 - `lib/supabase.ts`
 - `lib/membership.ts`
 - `lib/membership-form.ts`

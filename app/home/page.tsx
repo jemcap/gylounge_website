@@ -1,4 +1,5 @@
 import { createBookingAction } from "@/app/home/actions"
+import { getBookingConfirmationFromParams } from "@/lib/booking-confirmation"
 import { BookingAccordionContent } from "./components/BookingAccordionContent"
 import { HomeSideNavLayout } from "./components/HomeAccordionSection"
 import { HomeContactContent } from "./components/HomeContactContent"
@@ -6,6 +7,7 @@ import { HomeFaqsContent } from "./components/HomeFaqContent"
 import { HomeHeader } from "./components/HomeHeader"
 import { HomeMobileMenuProvider } from "./components/HomeMobileMenuContext"
 import {
+  getBookingConfirmation,
   getBookingFormOptions,
   getSingleParam,
   resolveBookingFeedback,
@@ -21,14 +23,23 @@ export const dynamic = "force-dynamic"
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {}
   const bookingStatus = getSingleParam(resolvedSearchParams.booking)
+  const bookingId = getSingleParam(resolvedSearchParams.bookingId)
 
-  const bookingFeedback = resolveBookingFeedback(bookingStatus)
+  const bookingConfirmation =
+    bookingStatus === "success"
+      ? (await getBookingConfirmation(bookingId)) ??
+        getBookingConfirmationFromParams(resolvedSearchParams)
+      : null
+  const bookingFeedback =
+    bookingStatus === "success" && bookingConfirmation
+      ? undefined
+      : resolveBookingFeedback(bookingStatus)
   const { locations, slots } = await getBookingFormOptions()
   const bookingContext = slots.length
     ? "Choose a location to unlock its available dates and hourly booking slots."
     : undefined
 
-  const initialActiveId = bookingFeedback ? "booking" : null
+  const initialActiveId = bookingFeedback || bookingConfirmation ? "booking" : null
 
   const entries = [
     {
@@ -46,6 +57,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       content: (
         <BookingAccordionContent
           action={createBookingAction}
+          bookingConfirmation={bookingConfirmation}
           locations={locations}
           slots={slots}
           bookingFeedback={bookingFeedback}

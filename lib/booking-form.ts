@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { BOOKING_IDEMPOTENCY_KEY_FIELD } from "@/lib/booking-idempotency"
 
 export const bookingFormSchema = z.object({
   locationId: z.string().trim().min(1, "Select a location."),
@@ -28,7 +29,10 @@ export const defaultBookingFormValues = (
   numberOfGuests: defaults?.numberOfGuests ?? 1,
 })
 
-export const createBookingSubmission = (values: BookingFormValues) => {
+export const createBookingSubmission = (
+  values: BookingFormValues,
+  bookingIdempotencyKey?: string,
+) => {
   const parsed = bookingFormSchema.parse(values)
   const formData = new FormData()
   const fullName = `${parsed.firstName} ${parsed.lastName}`.trim()
@@ -41,6 +45,10 @@ export const createBookingSubmission = (values: BookingFormValues) => {
   formData.set("email", parsed.email)
   formData.set("phone", parsed.phone)
   formData.set("numberOfGuests", String(parsed.numberOfGuests))
+
+  if (bookingIdempotencyKey) {
+    formData.set(BOOKING_IDEMPOTENCY_KEY_FIELD, bookingIdempotencyKey)
+  }
 
   return formData
 }

@@ -3,11 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { createBookingIdempotencyKey } from "@/lib/booking-idempotency";
+import type { BookingConfirmation } from "@/lib/booking-confirmation";
 import type {
   AvailableSlot,
   BookableLocation,
 } from "@/app/home/home-page-helpers";
 import { formatAccraDate, formatAccraTime } from "@/app/home/home-page-helpers";
+import { BookingConfirmationModal } from "@/app/home/components/BookingConfirmationModal";
 import {
   bookingFormSchema,
   createBookingSubmission,
@@ -31,6 +34,7 @@ type LocationDateOption = {
 };
 
 export type BookingFormProps = {
+  bookingConfirmation?: BookingConfirmation | null;
   locations: BookableLocation[];
   slots: AvailableSlot[];
   action?: FormAction;
@@ -139,6 +143,7 @@ const buildCalendarCells = (
 };
 
 export function BookingForm({
+  bookingConfirmation,
   locations,
   slots,
   action = "#",
@@ -181,6 +186,7 @@ export function BookingForm({
   const [clientFeedback, setClientFeedback] = useState<BookingFeedback | null>(
     null,
   );
+  const [bookingIdempotencyKey] = useState(createBookingIdempotencyKey);
   const [selectedDate, setSelectedDate] = useState(initialSelection.date);
   const [visibleMonth, setVisibleMonth] = useState(
     initialSelection.date
@@ -303,11 +309,14 @@ export function BookingForm({
       return;
     }
 
-    await action(createBookingSubmission(values));
+    await action(createBookingSubmission(values, bookingIdempotencyKey));
   });
 
   return (
     <Card className="bg-[#DBD1B9]">
+      {bookingConfirmation ? (
+        <BookingConfirmationModal confirmation={bookingConfirmation} />
+      ) : null}
       {activeFeedback ? (
         <p
           className={`mb-4 rounded-xl border px-4 py-3 text-sm ${feedbackClassMap[activeFeedback.tone]}`}

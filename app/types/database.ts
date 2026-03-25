@@ -39,9 +39,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_requests: {
+        Row: {
+          booking_id: string | null
+          created_at: string | null
+          idempotency_key: string
+          location_id: string
+          member_id: string
+          slot_id: string
+          status: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string | null
+          idempotency_key: string
+          location_id: string
+          member_id: string
+          slot_id: string
+          status?: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string | null
+          idempotency_key?: string
+          location_id?: string
+          member_id?: string
+          slot_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_requests_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_requests_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_requests_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "slots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           created_at: string | null
+          guest_count: number
           id: string
           location_id: string
           member_id: string | null
@@ -50,6 +110,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          guest_count?: number
           id?: string
           location_id: string
           member_id?: string | null
@@ -58,6 +119,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          guest_count?: number
           id?: string
           location_id?: string
           member_id?: string | null

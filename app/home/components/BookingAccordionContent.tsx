@@ -1,5 +1,6 @@
 import { BookingForm } from "@/components/forms/BookingForm";
 import { Card } from "@/components/ui/card";
+import type { BookingConfirmation } from "@/lib/booking-confirmation";
 import type {
   BookableLocation,
   AvailableSlot,
@@ -10,26 +11,21 @@ type FormAction = string | ((formData: FormData) => void | Promise<void>);
 
 type BookingAccordionContentProps = {
   action: FormAction;
+  bookingConfirmation?: BookingConfirmation | null;
   locations: BookableLocation[];
   slots: AvailableSlot[];
   bookingFeedback?: Feedback;
   bookingContext?: string;
 };
 
-const feedbackClassMap: Record<Feedback["tone"], string> = {
-  success: "border-[#98c79f] bg-[#eef8f0] text-[#1f5a2b]",
-  error: "border-[#e3aaa8] bg-[#fff1f0] text-[#8b2e2a]",
-  info: "border-[#d3c39f] bg-[#faf5e9] text-[#5d4a2e]",
-};
-
 export function BookingAccordionContent({
   action,
+  bookingConfirmation,
   locations,
   slots,
   bookingFeedback,
   bookingContext,
 }: BookingAccordionContentProps) {
-  console.log(locations, slots);
   if (locations.length === 0 || slots.length === 0) {
     return (
       <Card
@@ -41,14 +37,6 @@ export function BookingAccordionContent({
 
   return (
     <>
-      {bookingFeedback ? (
-        <p
-          className={`mb-4 rounded-xl border px-4 py-2 text-sm ${feedbackClassMap[bookingFeedback.tone]}`}
-        >
-          {bookingFeedback.message}
-        </p>
-      ) : null}
-      {/* Title and description for the booking form */}
       <h2 className="text-lg italic font-serif text-[86px] text-[#DBD1B9]">
         Make a Booking
       </h2>
@@ -69,8 +57,8 @@ export function BookingAccordionContent({
           Please note our opening hours are Monday to Friday, 8:00am to 10:00pm.
         </p>
       </div>
-      {/* Booking form component with necessary props */}
       <BookingForm
+        bookingConfirmation={bookingConfirmation}
         locations={locations}
         slots={slots}
         action={action}
