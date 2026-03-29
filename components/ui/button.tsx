@@ -19,7 +19,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classNames = [
-    "inline-flex items-center justify-center rounded-full px-4 transition",
+    "inline-flex items-center justify-center rounded-full transition",
     variant ? variantClassMap[variant] : "",
     className,
   ]

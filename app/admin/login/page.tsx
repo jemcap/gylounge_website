@@ -22,12 +22,11 @@ export default async function AdminLoginPage({
   return (
     <>
       <LoginHeader />
-      <main className="min-h-screen bg-[#f5f1ea] px-6 py-12 text-[#1c1b18] md:px-12 lg:px-20">
-        <div className="mx-auto w-full max-w-md">
-          <Card
-            title="Admin login"
-            description="Phase 1 uses Supabase Auth email/password sign-in with allowlist protection for the admin portal."
-          >
+      <main className="min-h-screen bg-[#f5f1ea] px-6 py-12 text-[#1c1b18] md:px-12 lg:px-20 flex justify-center items-center">
+        <div className="mx-auto w-full max-w-md ">
+          <Card>
+            <h2 className="text-2xl flex justify-center font-bold text-[#1c1b18]">Log in</h2>
+
             {errorMessage ? (
               <div className="mb-4 rounded-2xl border border-[#c97e6a] bg-[#fff0ec] px-4 py-3 text-sm text-[#7a2d1e]">
                 {errorMessage}
@@ -44,9 +43,9 @@ export default async function AdminLoginPage({
               <div>
                 <label
                   htmlFor="admin-email"
-                  className="mb-1 block text-sm font-medium text-[#1c1b18]"
+                  className="mb-1 block text-sm font-bold text-[#1c1b18]"
                 >
-                  Admin email
+                  Email *
                 </label>
                 <Input
                   id="admin-email"
@@ -59,9 +58,9 @@ export default async function AdminLoginPage({
               <div>
                 <label
                   htmlFor="admin-password"
-                  className="mb-1 block text-sm font-medium text-[#1c1b18]"
+                  className="mb-1 block text-sm font-bold text-[#1c1b18]"
                 >
-                  Password
+                  Password *
                 </label>
                 <Input
                   id="admin-password"
@@ -71,18 +70,24 @@ export default async function AdminLoginPage({
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Sign in
-              </Button>
+              {/* Forgot password */}
+              <div className="flex items-center justify-start text-sm text-[#1c1b18]">
+                <span>Forgotten password?</span>
+                <Button
+                  type="submit"
+                  className="py-1 px-1 text-sm font-bold underline"
+                  formAction={adminRequestPasswordResetAction}
+                  formNoValidate
+                >
+                  Click here
+                </Button>
+              </div>
 
               <Button
                 type="submit"
-                variant="secondary"
-                className="w-full"
-                formAction={adminRequestPasswordResetAction}
-                formNoValidate
+                className="w-full font-bold text-2xl py-2 border-3 border-[#3F2D17] bg-[#3F2D17] text-[#F1D39B] cursor-pointer"
               >
-                Send password reset email
+                Login
               </Button>
             </form>
           </Card>
