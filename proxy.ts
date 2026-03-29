@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isAdminEmailAllowlisted } from "@/lib/admin-allowlist.server";
 import { createProxySupabaseClient } from "@/lib/supabase-server";
 
-const publicAdminPaths = new Set(["/admin/login", "/admin/reset-password"]);
+const publicAdminPaths = new Set(["/admin/login", "/admin/reset-password", "/admin/forgot-password"]);
 
 const copyCookies = (from: NextResponse, to: NextResponse) => {
   from.cookies.getAll().forEach((cookie) => {
@@ -47,9 +47,16 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!isPublicAdminPath && (error || !user?.email)) {
-    return redirectTo(request, response, "/admin/login", {
-      error: "session-expired",
-    });
+    const hadSession = request.cookies
+      .getAll()
+      .some((c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token"));
+
+    return redirectTo(
+      request,
+      response,
+      "/admin/login",
+      hadSession ? { error: "session-expired" } : undefined,
+    );
   }
 
   if (isPublicAdminPath && user?.email && request.method === "GET") {

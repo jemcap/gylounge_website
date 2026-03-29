@@ -26,6 +26,13 @@ const redirectToAdminReset = (
   redirect(`/admin/reset-password${query ? `?${query}` : ""}`);
 };
 
+const redirectToForgotPassword = (
+  params: Record<string, string>,
+): never => {
+  const query = new URLSearchParams(params).toString();
+  redirect(`/admin/forgot-password${query ? `?${query}` : ""}`);
+};
+
 export async function adminSignInAction(formData: FormData) {
   const parsed = adminLoginSchema.safeParse({
     email: formData.get("email"),
@@ -74,11 +81,11 @@ export async function adminRequestPasswordResetAction(formData: FormData) {
 
   const resetRequest = parsed.success
     ? parsed.data
-    : redirectToAdminLogin({ error: "invalid-email" });
+    : redirectToForgotPassword({ error: "invalid-email" });
   const normalizedEmail = normalizeEmail(resetRequest.email);
 
   if (!isAdminEmailAllowlisted(normalizedEmail)) {
-    redirectToAdminLogin({ error: "access-denied" });
+    redirectToForgotPassword({ error: "access-denied" });
   }
 
   try {
@@ -91,14 +98,14 @@ export async function adminRequestPasswordResetAction(formData: FormData) {
 
     if (error) {
       console.error("adminRequestPasswordResetAction reset failed", error);
-      redirectToAdminLogin({ error: "reset-email-failed" });
+      redirectToForgotPassword({ error: "reset-email-failed" });
     }
 
-    redirectToAdminLogin({ message: "password-reset-email-sent" });
+    redirectToForgotPassword({ message: "password-reset-email-sent" });
   } catch (error) {
     unstable_rethrow(error);
     console.error("adminRequestPasswordResetAction unexpected failure", error);
-    redirectToAdminLogin({ error: "reset-email-failed" });
+    redirectToForgotPassword({ error: "reset-email-failed" });
   }
 }
 
