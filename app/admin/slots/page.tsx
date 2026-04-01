@@ -8,15 +8,19 @@ export default async function AdminSlotsPage() {
   return (
     <AdminShell
       currentPath="/admin/slots"
-      description="Availability management remains a later slice, but the route is now inside the protected admin boundary."
+      description="Availability management remains a later slice, but this route now uses the shared Phase 2 admin shell and navigation."
       email={adminUser.email}
-      title="Admin availability"
+      title="Availability"
     >
       <Card
         title="Availability placeholder"
-        description="Slot CRUD and capacity management are not part of phase 1."
+        description="Slot CRUD and capacity management are not part of the current admin slice."
+        className="bg-white/80"
       >
-        <p className="text-sm text-[#3b3127]">Only authenticated allowlisted admins can now reach this route.</p>
+        <p className="text-sm text-[#3b3127]">
+          Only authenticated allowlisted admins can reach this route, and the
+          layout is ready for the later availability management slice.
+        </p>
       </Card>
     </AdminShell>
   );

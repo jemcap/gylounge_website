@@ -1,32 +1,45 @@
-
 import type { ReactNode } from "react";
-import { adminSignOutAction } from "@/app/admin/actions";
-import { Button } from "@/components/ui/button";
+import { LoginHeader } from "@/app/admin/login/components/LoginHeader";
+import { AdminSidebar } from "./AdminHamburgerMenu";
+import { AdminMenuToggle } from "./AdminMenuToggle";
+import { AdminNavigationProvider } from "./AdminNavigationContext";
+import { adminNavigationItems } from "./admin-navigation";
 
 type AdminShellProps = {
   children: ReactNode;
   currentPath: string;
-  description: string;
+  description?: string;
   email: string;
   title: string;
 };
 
-export function AdminShell({ children }: AdminShellProps) {
+export function AdminShell({
+  children,
+  currentPath,
+  description,
+  email,
+  title,
+}: AdminShellProps) {
   return (
-    <main className="min-h-screen bg-[#f5f1ea] px-6 py-12 text-[#1c1b18] md:px-12 lg:px-20">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <section className="rounded-3xl border border-[#dcccb8] bg-white/80 p-6 shadow-sm">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <form action={adminSignOutAction}>
-              <Button type="submit" variant="secondary">
-                Sign out
-              </Button>
-            </form>
-          </div>
-        </section>
+    <AdminNavigationProvider>
+      <LoginHeader leftContent={<AdminMenuToggle />} />
 
-        {children}
+      <div className="flex flex-1 flex-row pt-16">
+        <AdminSidebar currentPath={currentPath} items={adminNavigationItems} />
+
+        <main className="flex flex-1 flex-col bg-[#f5f1ea] px-6 pb-0 pt-8 text-[#1c1b18] md:px-12 lg:px-20">
+          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6">
+            {children}
+          </div>
+
+          <footer className="mt-auto w-full py-4 text-sm font-bold text-[#3b3127]">
+            <div className="mx-auto flex w-full items-center justify-between">
+              <span>&copy; {new Date().getFullYear()} Gold Years Lounge</span>
+              <span>Powered by European New Wave</span>
+            </div>
+          </footer>
+        </main>
       </div>
-    </main>
+    </AdminNavigationProvider>
   );
 }

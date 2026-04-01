@@ -1,6 +1,9 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-03-29T14:12Z [USER] Fix the `Cannot create components during render` runtime error in `components/admin/AdminHamburgerMenu.tsx` triggered by the new Phase 2 drawer implementation.
+- 2026-03-29T14:08Z [USER] Keep `LoginHeader` and replace the earlier Phase 2 admin nav with a left-side absolute hamburger drawer (`z-index: 100`) containing `Dashboard`, `Memberships`, `Bookings`, and a bottom logout action.
+- 2026-03-29T13:59Z [USER] Proceed with Phase 2 of `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md`: implement the shared admin layout and dashboard, and make the topbar hamburger menu explicitly Phase-2-and-later only.
 - 2026-03-25T23:28Z [USER] Add booking idempotency keys so retried submissions do not repeat slot-capacity or email side effects.
 - 2026-03-25T23:15Z [USER] Prevent the same email from booking the same slot more than once by checking existing bookings before proceeding.
 - 2026-03-25T23:07Z [USER] Add unit tests that validate the booking confirmation field-to-row mapping logic.
@@ -47,6 +50,10 @@
 - 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-03-29T14:08Z [CODE] Reuse `LoginHeader` on protected admin pages and move Phase 2 navigation into a left overlay drawer instead of the earlier desktop-pill/mobile-only nav treatment.
+- 2026-03-29T14:08Z [CODE] Limit the drawer menu to three entries (`Dashboard`, `Memberships`, `Bookings`) and keep logout as the bottom-pinned action inside the drawer.
+- 2026-03-29T13:59Z [CODE] Ship Phase 2 as a shared `AdminShell` plus dedicated admin navigation helpers, keeping the dashboard read-only with server-side member/booking counts and deferring member/booking mutations to later phases.
+- 2026-03-29T13:59Z [CODE] Treat the responsive admin topbar and mobile hamburger navigation as Phase 2+ behavior only; Phase 1 remains scoped to auth, recovery, and route protection in the plan/docs.
 - 2026-03-25T23:28Z [CODE] Implement booking idempotency with a new persisted `booking_requests` table keyed by a client-generated request UUID, because a hidden form field alone would not stop duplicate server-side side effects.
 - 2026-03-25T23:15Z [CODE] Enforce the duplicate public-booking guard in `createBookingAction` by resolving the normalized email to an active member first, then querying `bookings` by `member_id + slot_id` before any slot-capacity decrement.
 - 2026-03-25T23:07Z [CODE] Extract the booking confirmation field/query-param transformation into a pure helper module (`lib/booking-confirmation.ts`) so the modal row-generation logic can be unit tested directly without importing Next/Supabase runtime code.
@@ -115,6 +122,13 @@
 - 2026-03-19T00:00Z [USER] Member status vocabulary remains strictly `pending` and `active`.
 
 [PROGRESS]
+- 2026-03-29T14:12Z [CODE] Removed the render-time `MobileCloseButton` component factory from `components/admin/AdminHamburgerMenu.tsx` and replaced it with an inline close button so the drawer no longer creates a new component during render.
+- 2026-03-29T14:08Z [CODE] Extended `LoginHeader` with an optional left content slot, deleted the earlier `AdminMobileNavigation`, and added `components/admin/AdminHamburgerMenu.tsx` as the new left-side drawer menu with overlay/backdrop behavior and a bottom logout button.
+- 2026-03-29T14:08Z [CODE] Updated `components/admin/AdminShell.tsx` to render `LoginHeader` above all protected admin pages and switched the shared nav labels to `Dashboard`, `Memberships`, and `Bookings`.
+- 2026-03-29T14:08Z [CODE] Updated `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md` and `docs/SYSTEM_ARCHITECTURE.md` so Phase 2 now documents the `LoginHeader` + left drawer implementation rather than the superseded desktop-nav/mobile-nav split.
+- 2026-03-29T13:59Z [CODE] Replaced the old sign-out-only admin wrapper with a shared shell across `/admin/*`: branded topbar, desktop pill navigation, mobile hamburger menu, page-heading card, logout action, and consistent admin card treatment.
+- 2026-03-29T13:59Z [CODE] Updated `/admin` to query `members` and `bookings` server-side for total members, pending members, and total bookings; added CTA links into `/admin/members` and `/admin/bookings`, with a fallback warning when a metric query fails.
+- 2026-03-29T13:59Z [CODE] Updated `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md` and `docs/SYSTEM_ARCHITECTURE.md` so the repository documents the implemented Phase 2 shell/dashboard and the Phase-2-only hamburger timing.
 - 2026-03-25T23:07Z [CODE] Added `lib/booking-confirmation.ts` with `createBookingConfirmationRows()` and `getBookingConfirmationFromParams()`, updated the booking modal and `/home` success flow to consume that helper, and added `__tests__/lib/booking-confirmation.test.ts` to cover row ordering/labels plus query-param parsing.
 - 2026-03-25T23:07Z [TOOL] Validation for the booking-confirmation helper extraction: `npm run lint` passed with one pre-existing warning in `components/admin/AdminShell.tsx` (`Link` unused); `npm run test` passed (`16/16`); `npm run build` passed after rerun with network access for Google Fonts fetch.
 - 2026-03-25T23:03Z [CODE] Updated `app/home/home-page-helpers.ts` so `getBookingConfirmation()` detects missing-`guest_count` remote schemas and returns `null` without console noise, allowing `/home` to use the existing redirect-param confirmation fallback cleanly.
@@ -209,6 +223,9 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-03-29T14:12Z [TOOL] React/Next flags `useCallback(() => <... />)` rendered as `<MobileCloseButton />` as a component created during render; the close control must be inline JSX or a top-level component declaration instead.
+- 2026-03-29T13:59Z [TOOL] `npm run lint` now passes cleanly; the earlier `components/admin/AdminShell.tsx` unused `Link` warning is resolved by the Phase 2 shell implementation.
+- 2026-03-29T13:59Z [TOOL] `npm run build` still fails in sandbox until network access is allowed for `next/font/google` to fetch `Instrument Serif` and `Roboto`; the escalated rerun completed successfully.
 - 2026-03-25T23:28Z [TOOL] Idempotent replay for public booking needs a persisted claim before slot mutation; generating a client-side key without storing it server-side would still allow duplicate side effects on retried requests.
 - 2026-03-25T23:28Z [TOOL] `npm run test` now passes `24/24`, adding coverage for booking idempotency replay resolution, booking-form idempotency-key submission, and the `processing` booking-feedback state.
 - 2026-03-25T23:15Z [TOOL] `npm run test` now passes `18/18`, including new coverage for the `already-booked` booking-feedback state in `__tests__/app/home-page-helpers.test.ts`.
@@ -270,6 +287,11 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-03-29T14:12Z [CODE] The Phase 2 admin drawer no longer throws the render-time component creation error; the close button now renders directly inside `components/admin/AdminHamburgerMenu.tsx` while preserving the existing drawer behavior.
+- 2026-03-29T14:12Z [TOOL] Post-fix validation passed: `npm run lint`, `npm run test` (`24/24`), and `npm run build` (successful after rerunning with network access for Google Fonts).
+- 2026-03-29T14:08Z [CODE] The protected Phase 2 admin pages now keep `LoginHeader` and use a left-side overlay hamburger drawer with `Dashboard`, `Memberships`, `Bookings`, and a bottom logout button, while the read-only dashboard metrics remain intact.
+- 2026-03-29T13:59Z [CODE] Phase 2 admin layout/dashboard is now implemented: shared responsive admin shell, mobile hamburger navigation, read-only dashboard summary cards, refreshed placeholder copy on the remaining admin routes, and updated Phase 2 plan/architecture docs.
+- 2026-03-29T13:59Z [TOOL] Validation for the Phase 2 admin slice passed: `npm run lint`, `npm run test` (`24/24`), and `npm run build` (successful after allowing network access for Google Fonts).
 - 2026-03-25T23:28Z [CODE] Public booking now submits a client-generated idempotency key, claims it in `booking_requests` before slot mutation, replays completed requests to the existing booking, and returns a `processing` state when the same request key is still in flight.
 - 2026-03-25T23:28Z [CODE] Added `supabase/migrations/20260325234500_add_booking_requests.sql`, updated `app/types/database.ts`, and documented the new idempotent booking flow in `docs/SYSTEM_ARCHITECTURE.md`; remote runtime support remains UNCONFIRMED until that migration is applied.
 - 2026-03-25T23:28Z [TOOL] Validation for booking idempotency passed: `npm run lint` (1 pre-existing `components/admin/AdminShell.tsx` unused `Link` warning), `npm run test` (`24/24`), and `npm run build` (successful after escalated network access for Google Fonts).

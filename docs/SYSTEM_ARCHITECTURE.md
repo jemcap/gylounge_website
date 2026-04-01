@@ -263,12 +263,12 @@ Implemented now:
   - `components/ui/*`
   - `components/forms/*`
   - `components/events/*`
-- Hero utility component:
-  - `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
+- Hero utility component: `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
 - `/register` posts to a server action that creates/updates pending members, generates transfer references, and sends membership instruction emails
 - `/home` Booking accordion posts to a server action that enforces active membership, claims booking idempotency keys, creates location-based bookings with slot decrement, and sends booking emails
 - `/home` booking rejects duplicate submissions when the same normalized email already has a booking for the selected slot
 - Successful public bookings now reopen the `/home` Booking accordion with a bottom-sheet-on-mobile / centered-on-desktop confirmation modal populated from the saved booking, member, location, and slot records
+- `components/admin/AdminShell.tsx` now reuses `LoginHeader` for protected admin pages and injects a left-side hamburger drawer with `Dashboard`, `Memberships`, `Bookings`, a bottom logout action, and per-page heading treatment
 - `lib/supabase.ts`
 - `lib/membership.ts`
 - `lib/membership-form.ts`
@@ -282,12 +282,12 @@ Implemented now:
 - `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md` documenting the target admin auth, dashboard, members, and bookings implementation slice
 - `/admin/login` uses server-action-based email/password auth and reset-email requests
 - `/admin/reset-password` completes Supabase recovery with a client-side password update form
-- `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots` are now authenticated admin routes with logout access
+- `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots` are now authenticated admin routes inside the shared admin shell
+- `/admin` now loads read-only dashboard summary cards for total members, pending sign-ups, and total bookings
 
 Planned next:
 - Replace scaffold placeholders with:
   - Dedicated booking confirmation and my-bookings lookup wiring
-  - Dashboard summary cards for members and bookings
   - Member management with search, edit, status changes, and guarded delete
   - Booking calendar and date-detail management flows
   - `bookings.guest_count` persistence to support correct capacity restoration during admin booking edits

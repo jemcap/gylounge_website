@@ -17,13 +17,14 @@ export default async function AdminBookingDateDetailPage({
   return (
     <AdminShell
       currentPath="/admin/bookings"
-      description="Phase 1 adds auth and route protection. Booking date detail management lands in the next admin slices."
+      description="The shared Phase 2 admin shell now wraps this route, while booking date detail management still lands in later booking phases."
       email={adminUser.email}
       title={`Bookings for ${date}`}
     >
       <Card
         title="Booking detail placeholder"
-        description="This route now exists so the protected booking detail flow can be wired in phase 1."
+        description="This protected route now shares the admin shell, but slot grouping and booking amendment tools are still pending."
+        className="bg-white/80"
       >
         <p className="text-sm text-[#3b3127]">
           Booking groups, slot detail, and amendment actions will be added in later admin phases.

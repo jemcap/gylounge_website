@@ -8,16 +8,9 @@ export default async function AdminMembersPage() {
   return (
     <AdminShell
       currentPath="/admin/members"
-      description="This route is now protected behind Supabase Auth and the admin allowlist. Member search and mutations come next."
+      description="Phase 2 adds the shared admin shell. Member search, editing, status changes, and guarded delete land in phase 3."
       email={adminUser.email}
-      title="Admin members"
-    >
-      <Card
-        title="Member management placeholder"
-        description="Pending-to-active activation, search, edit, and delete flows are the next slice after auth."
-      >
-        <p className="text-sm text-[#3b3127]">Phase 1 intentionally stops at session handling and route protection.</p>
-      </Card>
-    </AdminShell>
+      title="Members"
+    ></AdminShell>
   );
 }

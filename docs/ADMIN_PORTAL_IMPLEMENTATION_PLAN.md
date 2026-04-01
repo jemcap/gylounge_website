@@ -48,6 +48,8 @@ The plan assumes:
 
 ## Current Repository State
 - `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, and `/admin/slots` exist as placeholder pages.
+- The protected Phase 2 admin routes now reuse `LoginHeader` and add a left-side hamburger drawer (`z-index: 100`) that overlays the page with `Dashboard`, `Memberships`, `Bookings`, and a bottom logout action.
+- `/admin` now shows read-only summary metrics for total members, pending members, and total bookings.
 - Public membership sign-up is already wired through `/register`.
 - Public booking creation is already wired through `/home`.
 - Supabase admin writes already exist via `supabaseAdminClient()`.
@@ -97,15 +99,21 @@ The plan assumes:
 - Unauthenticated access to protected admin routes redirects to `/admin/login`.
 - Non-allowlisted authenticated users are signed out and shown an access-denied message.
 - Login page supports inline feedback for bad credentials and reset-email success/failure.
+- Phase 1 stops at auth, recovery, and route protection; the shared admin header and hamburger drawer begin in Phase 2.
 
 ### Phase 2: Admin Layout and Dashboard
 
 #### Admin shell
 - Replace the placeholder admin pages with a shared admin layout.
 - Include:
+  - the existing `LoginHeader` as the fixed topbar
+  - left-side absolute hamburger trigger with overlay treatment
   - page heading area
-  - navigation links
-  - logout action
+  - hamburger drawer items for:
+    - Dashboard
+    - Memberships
+    - Bookings
+  - logout action pinned at the bottom of the drawer
   - consistent card/list/form treatment
 
 #### Dashboard requirements
