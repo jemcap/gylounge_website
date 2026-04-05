@@ -1,9 +1,9 @@
+import { AdminActionLink } from "@/components/admin/AdminActionLink";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { Card } from "@/components/ui/card";
 import { getAdminSuccessMessage } from "@/lib/admin-auth";
 import { requireAdminUser } from "@/lib/admin-session";
 import { supabaseAdminClient } from "@/lib/supabase";
-import Link from "next/link";
 
 type AdminDashboardPageProps = {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -39,16 +39,13 @@ export default async function AdminDashboardPage({
   }
 
   const totalMembers = totalMembersCount ?? 0;
-  const pendingMembers = pendingMembersCount ?? 0;
   const totalBookings = totalBookingsCount ?? 0;
   const dashboardMetricsUnavailable = Boolean(
     totalMembersError || pendingMembersError || totalBookingsError,
   );
-  const ctaClassName =
-    "inline-flex min-h-11 items-center justify-center rounded-full bg-[#14110b] px-4 py-2 text-sm font-semibold text-[#f5f1ea] transition hover:opacity-90 w-full";
 
   return (
-    <AdminShell currentPath="/admin" email={adminUser.email}>
+    <AdminShell currentPath="/admin">
       {successMessage ? (
         <div className="rounded-2xl border border-[#8b6b3f] bg-[#f7ead2] px-4 py-3 text-sm text-[#3b3127]">
           {successMessage}
@@ -74,9 +71,9 @@ export default async function AdminDashboardPage({
               </p>
             </div>
 
-            <Link href="/admin/members" className={ctaClassName}>
+            <AdminActionLink href="/admin/members" className="bg-[#F1EDE5]">
               View memberships
-            </Link>
+            </AdminActionLink>
           </div>
         </Card>
 
@@ -91,9 +88,9 @@ export default async function AdminDashboardPage({
               </p>
             </div>
 
-            <Link href="/admin/bookings" className={ctaClassName}>
+            <AdminActionLink href="/admin/bookings" className="bg-[#F1EDE5] ">
               View bookings
-            </Link>
+            </AdminActionLink>
           </div>
         </Card>
       </div>

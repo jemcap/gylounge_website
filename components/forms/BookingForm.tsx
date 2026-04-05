@@ -459,7 +459,7 @@ export function BookingForm({
                         type="button"
                         onClick={() => selectSlot(slot)}
                         className={[
-                          "flex min-h-[50px] w-full shrink-0 items-center justify-between rounded-full border px-4 py-3 text-sm transition sm:w-[10rem] sm:flex-col sm:justify-center sm:gap-1",
+                          "flex min-h-12.5 w-full shrink-0 items-center justify-between rounded-full border px-4 py-3 text-sm transition sm:w-[10rem] sm:flex-col sm:justify-center sm:gap-1",
                           isSelected
                             ? "border-[#3F2D17] bg-[#3F2D17] text-[#F1D39B]"
                             : "border-[#3F2D17] border-3 text-[#261B07] hover:border-[#8b6b3f]",
@@ -586,7 +586,8 @@ export function BookingForm({
 
             <Button
               type="submit"
-              className="font-bold text-2xl text-[#3F2D17] w-full py-2 border-3 border-[#3F2D17] bg-[#EBBF6C] hover:bg-[#3F2D17] hover:text-[#F1D39B] cursor-pointer"
+              variant="action"
+              className="w-full cursor-pointer py-2 text-2xl"
               disabled={isSubmitting || !canSubmit}
             >
               {isSubmitting ? "Submitting..." : "Continue to confirmation"}
