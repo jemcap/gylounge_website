@@ -1,7 +1,12 @@
 "use client";
 
 import { Pencil, Trash2, X } from "lucide-react";
-import { useDeferredValue, useEffect, useState, type FormEvent } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useState,
+  type FormEvent,
+} from "react";
 import {
   Dialog,
   DialogDescription,
@@ -17,12 +22,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
 import {
   adminMemberStatusOptions,
   filterAdminMembers,
   formatAdminMemberDateAdded,
   getAdminMemberFullName,
+  getTotalPages,
   normalizeAdminMemberForForm,
+  paginateItems,
   type AdminMember,
   type AdminMemberFormValues,
 } from "@/lib/admin-member";
@@ -117,9 +125,13 @@ export function AdminMembersManager({ members }: AdminMembersManagerProps) {
   const [feedback, setFeedback] = useState<MemberActionFeedback | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const filteredMembers = filterAdminMembers(memberList, deferredSearchQuery);
+  const totalPages = getTotalPages(filteredMembers.length);
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedMembers = paginateItems(filteredMembers, safePage);
   const editingMember =
     memberList.find((member) => member.id === editingMemberId) || null;
   const editingMemberValues = editingMember
@@ -137,6 +149,11 @@ export function AdminMembersManager({ members }: AdminMembersManagerProps) {
 
     return () => window.clearTimeout(timeoutId);
   }, [editingMemberId, isEditDrawerOpen]);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [deferredSearchQuery]);
 
   const handleDialogOpenChange = (open: boolean) => {
     if (!open && !isSaving) {
@@ -292,8 +309,8 @@ export function AdminMembersManager({ members }: AdminMembersManagerProps) {
                 </tr>
               </thead>
               <tbody className="block divide-y divide-[#e9dccb] lg:table-row-group">
-                {filteredMembers.length ? (
-                  filteredMembers.map((member) => {
+                {paginatedMembers.length ? (
+                  paginatedMembers.map((member) => {
                     const normalizedStatus =
                       member.status === "active" ? "active" : "pending";
                     const isDeleting = deletingMemberId === member.id;
@@ -394,6 +411,12 @@ export function AdminMembersManager({ members }: AdminMembersManagerProps) {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            currentPage={safePage}
+            onPageChange={setCurrentPage}
+            totalPages={totalPages}
+          />
         </div>
       </Card>
 

@@ -160,3 +160,56 @@ export const normalizeAdminMemberForForm = (
   emergency_contact_phone: member.emergency_contact_phone,
   status: member.status === "active" ? "active" : "pending",
 });
+
+export const ADMIN_MEMBERS_PAGE_SIZE = 10;
+
+export const paginateItems = <T>(
+  items: T[],
+  page: number,
+  pageSize: number = ADMIN_MEMBERS_PAGE_SIZE,
+): T[] => {
+  const start = (page - 1) * pageSize;
+  return items.slice(start, start + pageSize);
+};
+
+export const getTotalPages = (
+  totalItems: number,
+  pageSize: number = ADMIN_MEMBERS_PAGE_SIZE,
+): number => Math.max(1, Math.ceil(totalItems / pageSize));
+
+/**
+ * Build a compact page-number range with ellipsis placeholders (null).
+ * Always shows first page, last page, and up to `siblings` pages on each
+ * side of `currentPage`. Returns `null` entries where gaps should render "…".
+ */
+export const getPaginationRange = (
+  currentPage: number,
+  totalPages: number,
+  siblings: number = 1,
+): (number | null)[] => {
+  if (totalPages <= 1) {
+    return [1];
+  }
+
+  const range: (number | null)[] = [];
+  const rangeStart = Math.max(2, currentPage - siblings);
+  const rangeEnd = Math.min(totalPages - 1, currentPage + siblings);
+
+  range.push(1);
+
+  if (rangeStart > 2) {
+    range.push(null);
+  }
+
+  for (let page = rangeStart; page <= rangeEnd; page++) {
+    range.push(page);
+  }
+
+  if (rangeEnd < totalPages - 1) {
+    range.push(null);
+  }
+
+  range.push(totalPages);
+
+  return range;
+};

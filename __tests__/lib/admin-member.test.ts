@@ -4,7 +4,10 @@ import {
   filterAdminMembers,
   formatAdminMemberDateAdded,
   getAdminMemberFullName,
+  getPaginationRange,
+  getTotalPages,
   normalizeAdminMemberForForm,
+  paginateItems,
   type AdminMember,
 } from "@/lib/admin-member";
 
@@ -72,5 +75,75 @@ describe("admin member helpers", () => {
       "Apr 5, 2026",
     );
     expect(formatAdminMemberDateAdded(null)).toBe("Unknown");
+  });
+});
+
+describe("paginateItems", () => {
+  const items = Array.from({ length: 25 }, (_, i) => i + 1);
+
+  it("returns the first page of items", () => {
+    expect(paginateItems(items, 1, 10)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
+
+  it("returns the second page of items", () => {
+    expect(paginateItems(items, 2, 10)).toEqual([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+  });
+
+  it("returns a partial last page", () => {
+    expect(paginateItems(items, 3, 10)).toEqual([21, 22, 23, 24, 25]);
+  });
+
+  it("returns an empty array for a page beyond the total", () => {
+    expect(paginateItems(items, 4, 10)).toEqual([]);
+  });
+
+  it("handles an empty list", () => {
+    expect(paginateItems([], 1, 10)).toEqual([]);
+  });
+});
+
+describe("getTotalPages", () => {
+  it("returns 1 for zero items", () => {
+    expect(getTotalPages(0, 10)).toBe(1);
+  });
+
+  it("returns 1 when items fit in one page", () => {
+    expect(getTotalPages(10, 10)).toBe(1);
+  });
+
+  it("rounds up for partial pages", () => {
+    expect(getTotalPages(11, 10)).toBe(2);
+    expect(getTotalPages(25, 10)).toBe(3);
+  });
+});
+
+describe("getPaginationRange", () => {
+  it("returns [1] for a single page", () => {
+    expect(getPaginationRange(1, 1)).toEqual([1]);
+  });
+
+  it("returns all pages when total is small", () => {
+    expect(getPaginationRange(1, 3)).toEqual([1, 2, 3]);
+    expect(getPaginationRange(2, 4)).toEqual([1, 2, 3, 4]);
+  });
+
+  it("shows left ellipsis when current page is near the end", () => {
+    const range = getPaginationRange(7, 8);
+    expect(range).toEqual([1, null, 6, 7, 8]);
+  });
+
+  it("shows right ellipsis when current page is near the start", () => {
+    const range = getPaginationRange(2, 8);
+    expect(range).toEqual([1, 2, 3, null, 8]);
+  });
+
+  it("shows both ellipses when current page is in the middle", () => {
+    const range = getPaginationRange(5, 10);
+    expect(range).toEqual([1, null, 4, 5, 6, null, 10]);
+  });
+
+  it("does not duplicate first or last page in siblings", () => {
+    const range = getPaginationRange(2, 5);
+    expect(range).toEqual([1, 2, 3, null, 5]);
   });
 });
