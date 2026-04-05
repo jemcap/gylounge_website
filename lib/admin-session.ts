@@ -7,7 +7,19 @@ export type AdminUser = User & {
   email: string;
 };
 
-export const getAdminUser = async () => {
+export type AdminAccessErrorCode = "session-expired" | "access-denied";
+
+type AdminAccessResult =
+  | {
+      error: null;
+      user: AdminUser;
+    }
+  | {
+      error: AdminAccessErrorCode;
+      user: null;
+    };
+
+const resolveAdminUser = async (): Promise<AdminAccessResult> => {
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -15,30 +27,38 @@ export const getAdminUser = async () => {
   } = await supabase.auth.getUser();
 
   if (error || !user?.email) {
-    return null;
+    return {
+      error: "session-expired",
+      user: null,
+    };
   }
 
   if (!isAdminEmailAllowlisted(user.email)) {
-    return null;
+    return {
+      error: "access-denied",
+      user: null,
+    };
   }
 
-  return user as AdminUser;
+  return {
+    error: null,
+    user: user as AdminUser,
+  };
+};
+
+export const getAdminUser = async () => {
+  const adminAccess = await resolveAdminUser();
+  return adminAccess.user;
 };
 
 export const requireAdminUser = async () => {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const adminAccess = await resolveAdminUser();
 
-  if (error || !user?.email) {
-    redirect("/admin/login?error=session-expired");
+  if (!adminAccess.user) {
+    redirect(`/admin/login?error=${adminAccess.error}`);
   }
 
-  if (!isAdminEmailAllowlisted(user.email)) {
-    redirect("/admin/login?error=access-denied");
-  }
-
-  return user as AdminUser;
+  return adminAccess.user;
 };
+
+export const requireAdminApiUser = resolveAdminUser;

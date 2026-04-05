@@ -89,26 +89,29 @@ Acceptance criteria:
 
 ## Milestone 5: Admin Console
 Scope:
-- Phase 1 implemented:
+- Implemented now:
   - `@supabase/ssr` admin auth helpers for browser, server, server-action, and proxy contexts
   - `/admin/login` email/password sign-in and password-reset request flow
   - `/admin/reset-password` recovery completion page
   - root `proxy.ts` protection for `/admin/*`
-  - protected placeholders for `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots`
+  - shared admin shell with dashboard summary cards for total members, pending sign-ups, and total bookings
+  - `/admin/members` server-loaded members table with client-side search, edit, status change, and guarded delete
+  - `PUT /api/admin/members/[id]` and `DELETE /api/admin/members/[id]` protected by admin session + allowlist checks
+  - protected admin routes for `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots`
 - Remaining admin console work:
-  - dashboard summary cards
-  - member activation and member management operations
   - booking calendar and booking detail management
   - later location and slot management operations
 
 Key outputs:
 - Protected admin auth boundary with login, logout, allowlist checks, and password recovery.
-- Protected admin workspace ready for the later member and booking management slices.
+- Live admin workspace with dashboard metrics and member-management tools inside the shared shell.
 
 Acceptance criteria:
 - Non-admin is blocked from `/admin/*`.
 - Allowlisted admins can sign in, request a reset email, complete password recovery, and sign out.
-- Later milestone slices will add member and booking management behavior inside the protected shell.
+- Dashboard shows working member and booking summary cards.
+- Members page supports search, edit, status changes, and guarded delete.
+- Later milestone slices will add booking management behavior inside the protected shell.
 
 ## Milestone 6: Hardening and Release
 Scope:

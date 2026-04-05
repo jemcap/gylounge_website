@@ -42,6 +42,25 @@ export const DialogContent = forwardRef<
   );
 });
 
+export const DialogSideContent = forwardRef<
+  ElementRef<typeof DialogPrimitive.Content>,
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+>(function DialogSideContent({ className, ...props }, ref) {
+  const classes = [
+    "fixed right-0 top-0 z-100 text-[#261B07] flex h-screen w-full max-w-[38rem] flex-col overflow-hidden bg-white px-5 pb-6 pt-24 text-[#f5f1ea] shadow-2xl outline-none data-[state=open]:animate-[adminDrawerIn_300ms_ease-in-out] data-[state=closed]:animate-[adminDrawerOut_300ms_ease-in-out]",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <DialogPortal>
+      <DialogOverlay className="z-99 bg-[#14110b]/30 backdrop-blur-none data-[state=open]:animate-[adminOverlayIn_300ms_ease-in-out] data-[state=closed]:animate-[adminOverlayOut_300ms_ease-in-out]" />
+      <DialogPrimitive.Content ref={ref} className={classes} {...props} />
+    </DialogPortal>
+  );
+});
+
 export const DialogHeader = ({
   className,
   ...props

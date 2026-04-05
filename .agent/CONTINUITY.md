@@ -1,6 +1,13 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-04-05T13:02Z [USER] Amend `/admin/members` so it displays all rows returned from the `members` table query instead of only active members.
+- 2026-04-05T12:36Z [USER] Make the member-edit drawer content a single vertical column so all inputs and actions stack on top of each other.
+- 2026-04-05T12:12Z [USER] Fix the sidebar mobile expand bug so admin navigation items are visible, and make the sidebar theme consistent across devices.
+- 2026-04-05T12:09Z [USER] Make `components/admin/AdminMembersManager.tsx` responsive for mobile and tablet while keeping the existing styling and desktop layout intact.
+- 2026-04-05T12:05Z [USER] Replace the `/admin/members` edit modal with a right-side panel that opens like the admin navigation drawer and matches its animation/layout.
+- 2026-04-05T12:58Z [USER] Simplify `/admin/members`: remove the pending-members UI and render the active-members area as a full-width table with `Name`, `Date Added`, `Status`, and `Actions` columns.
+- 2026-04-01T21:38Z [USER] Proceed to the next admin portal phase after Phase 2; implement Phase 3 member management with minimal, maintainable changes.
 - 2026-03-29T14:12Z [USER] Fix the `Cannot create components during render` runtime error in `components/admin/AdminHamburgerMenu.tsx` triggered by the new Phase 2 drawer implementation.
 - 2026-03-29T14:08Z [USER] Keep `LoginHeader` and replace the earlier Phase 2 admin nav with a left-side absolute hamburger drawer (`z-index: 100`) containing `Dashboard`, `Memberships`, `Bookings`, and a bottom logout action.
 - 2026-03-29T13:59Z [USER] Proceed with Phase 2 of `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md`: implement the shared admin layout and dashboard, and make the topbar hamburger menu explicitly Phase-2-and-later only.
@@ -50,6 +57,14 @@
 - 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-04-05T13:02Z [CODE] Keep the existing server-side `members` query as `select("*")` and remove the client-side active-only filter inside `AdminMembersManager`, so the table/search operate on the full `members` result set rather than just `status='active'`.
+- 2026-04-05T12:36Z [CODE] Keep the current member-edit drawer shell and styling, but remove the multi-column field grids and horizontal action layout so the entire edit form reads as one stacked column from top to bottom.
+- 2026-04-05T12:12Z [CODE] Fix the admin sidebar bug by unifying the desktop and mobile drawer surfaces to the same light theme (`#F8F6F2` with dark text) instead of keeping a dark mobile drawer that hid the existing dark nav-link text; add a shared active-item treatment so navigation reads consistently across breakpoints.
+- 2026-04-05T12:09Z [CODE] Keep the current desktop table/drawer presentation for `/admin/members`, but switch smaller breakpoints to a stacked row layout with inline cell labels, full-width action buttons, and later two-column form grids so the component stays readable on mobile/tablet without changing its visual language.
+- 2026-04-05T12:05Z [CODE] Supersedes the earlier member-edit-modal choice for `/admin/members`: keep the existing edit API/form logic, but render it inside a right-side Radix drawer that uses the admin menu’s slide-in/out pattern and keeps the selected member mounted briefly during close so the exit animation completes.
+- 2026-04-05T12:58Z [CODE] Keep the existing `/api/admin/members/[id]` edit/delete flow and modal intact, but simplify `/admin/members` to one full-width `Active Members` table; search now filters active rows only, and records changed away from `active` drop out of the visible table after save.
+- 2026-04-01T21:38Z [CODE] Implement Phase 3 as a server-loaded `/admin/members` directory with client-side search/edit/delete UI and protected `PUT`/`DELETE /api/admin/members/[id]` handlers; defer booking calendar/detail work to the later phases already documented.
+- 2026-04-01T21:38Z [CODE] Keep `AdminShell` as the shared heading/context wrapper across `/admin/*` and make `children` optional because placeholder routes still use the shell without inner content.
 - 2026-03-29T14:08Z [CODE] Reuse `LoginHeader` on protected admin pages and move Phase 2 navigation into a left overlay drawer instead of the earlier desktop-pill/mobile-only nav treatment.
 - 2026-03-29T14:08Z [CODE] Limit the drawer menu to three entries (`Dashboard`, `Memberships`, `Bookings`) and keep logout as the bottom-pinned action inside the drawer.
 - 2026-03-29T13:59Z [CODE] Ship Phase 2 as a shared `AdminShell` plus dedicated admin navigation helpers, keeping the dashboard read-only with server-side member/booking counts and deferring member/booking mutations to later phases.
@@ -122,6 +137,8 @@
 - 2026-03-19T00:00Z [USER] Member status vocabulary remains strictly `pending` and `active`.
 
 [PROGRESS]
+- 2026-04-01T21:38Z [CODE] Added `lib/admin-member.ts`, `components/admin/AdminMembersManager.tsx`, `app/api/admin/members/[id]/route.ts`, and `__tests__/lib/admin-member.test.ts`; `/admin/members` now loads members server-side and supports in-place search, edit, status changes, and guarded delete.
+- 2026-04-01T21:38Z [CODE] Corrected the dashboard metric wiring in `app/admin/page.tsx` so pending-member counts no longer overwrite the bookings metric, and removed the stale unused import from `app/admin/bookings/page.tsx` so lint returns clean.
 - 2026-03-29T14:12Z [CODE] Removed the render-time `MobileCloseButton` component factory from `components/admin/AdminHamburgerMenu.tsx` and replaced it with an inline close button so the drawer no longer creates a new component during render.
 - 2026-03-29T14:08Z [CODE] Extended `LoginHeader` with an optional left content slot, deleted the earlier `AdminMobileNavigation`, and added `components/admin/AdminHamburgerMenu.tsx` as the new left-side drawer menu with overlay/backdrop behavior and a bottom logout button.
 - 2026-03-29T14:08Z [CODE] Updated `components/admin/AdminShell.tsx` to render `LoginHeader` above all protected admin pages and switched the shared nav labels to `Dashboard`, `Memberships`, and `Bookings`.
@@ -223,6 +240,8 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-04-01T21:38Z [TOOL] The production build still requires network-enabled execution in this workspace because `next/font/google` must fetch `Instrument Serif` and `Roboto`; the escalated rerun was required again for final verification.
+- 2026-04-01T21:38Z [TOOL] The first network-enabled Phase 3 build exposed two latent type issues rather than runtime failures: `AdminShell` needed optional `children` for self-closing placeholder routes, and the edit dialog render needed an explicit `editingMember` null guard before referencing `editingMember.id`.
 - 2026-03-29T14:12Z [TOOL] React/Next flags `useCallback(() => <... />)` rendered as `<MobileCloseButton />` as a component created during render; the close control must be inline JSX or a top-level component declaration instead.
 - 2026-03-29T13:59Z [TOOL] `npm run lint` now passes cleanly; the earlier `components/admin/AdminShell.tsx` unused `Link` warning is resolved by the Phase 2 shell implementation.
 - 2026-03-29T13:59Z [TOOL] `npm run build` still fails in sandbox until network access is allowed for `next/font/google` to fetch `Instrument Serif` and `Roboto`; the escalated rerun completed successfully.
@@ -287,6 +306,24 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-04-05T13:02Z [CODE] `components/admin/AdminMembersManager.tsx` now renders and searches all members returned by the page query instead of narrowing the table to active members first; empty-state copy and the admin architecture/roadmap docs were updated to match.
+- 2026-04-05T13:02Z [TOOL] Verification passed for the all-members update: `npm run lint` pass, `npm run test` pass (`28/28`), and `npm run build` pass after rerunning with network access for Next.js Google Font fetches.
+- 2026-04-05T12:36Z [CODE] `components/admin/AdminMembersManager.tsx` now renders the edit drawer form as a single stacked column: all field groups stay one-up, and the cancel/save actions are full-width stacked buttons instead of switching to a horizontal footer.
+- 2026-04-05T12:36Z [TOOL] Verification passed for the member-drawer column layout update: `npm run lint` pass, `npm run test` pass (`28/28`), and `npm run build` pass after rerunning with network access for Next.js Google Font fetches.
+- 2026-04-05T12:12Z [CODE] `components/admin/AdminHamburgerMenu.tsx` now renders visible mobile nav items because both sidebar variants use the same light surface and dark text, the close button matches that theme, and navigation links now include explicit active/inactive styles instead of relying on inherited text colors.
+- 2026-04-05T12:12Z [DISCOVERY] [CODE] The mobile sidebar items were effectively invisible because the drawer background was dark (`#261B07`) while the shared nav-link text class was also dark (`#261B07`); desktop was unaffected because its drawer surface was already light.
+- 2026-04-05T12:12Z [TOOL] Verification passed for the sidebar bug fix: `npm run lint` pass, `npm run test` pass (`28/28`), and `npm run build` pass after rerunning with network access for Next.js Google Font fetches.
+- 2026-04-05T12:09Z [CODE] `components/admin/AdminMembersManager.tsx` now responds to smaller screens by stacking table rows into labeled mobile/tablet blocks, making row actions full width before `sm`, delaying the desktop table header/layout until `lg`, and keeping the edit drawer form mostly single-column until `lg`.
+- 2026-04-05T12:09Z [TOOL] Verification passed for the responsive admin-members update: `npm run lint` pass, `npm run test` pass (`28/28`), and `npm run build` pass after rerunning with network access for Next.js Google Font fetches.
+- 2026-04-05T12:05Z [CODE] `components/admin/AdminMembersManager.tsx` now opens `Edit Member` in a right-side drawer instead of a centered modal; the drawer uses shared Radix dialog plumbing with admin-style overlay/slide animation, a fixed close button, a scrollable form body, and a sticky action footer.
+- 2026-04-05T12:05Z [CODE] Added drawer animation keyframes in `app/globals.css`, exported `DialogSideContent` from `components/ui/dialog.tsx`, and updated the admin architecture/plan docs so the member edit flow now references a right-side drawer.
+- 2026-04-05T12:05Z [TOOL] Verification passed for the member-drawer change: `npm run lint` pass, `npm run test` pass (`28/28`), and `npm run build` pass after rerunning with network access for Next.js Google Font fetches.
+- 2026-04-05T12:58Z [CODE] `/admin/members` now renders a single full-width `Active Members` table with `Name`, `Date Added`, `Status`, and `Actions` columns; the pending-members card is removed, the table reuses edit/delete actions, and `lib/admin-member.ts` now formats `created_at` safely for display.
+- 2026-04-05T12:58Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md`, `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md`, and `docs/IMPLEMENTATION_ROADMAP.md` so the documentation reflects the active-members table layout and search behavior.
+- 2026-04-05T12:58Z [TOOL] Verification passed for this UI change: `npm run lint` pass, `npm run test` pass (`28/28`), and `npm run build` pass after rerunning with network access for Next.js Google Font fetches.
+- 2026-04-01T21:38Z [CODE] Phase 3 member management is now implemented: `/admin/members` renders a searchable pending/active directory, admins can edit member fields and status in-place, and deletes are blocked when related bookings exist.
+- 2026-04-01T21:38Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md`, `docs/IMPLEMENTATION_ROADMAP.md`, and `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md` so the repo documents the shipped dashboard/member-management scope and the remaining booking-focused admin phases.
+- 2026-04-01T21:38Z [TOOL] Verification passed for this slice: `npm run lint`, `npm run test` (`27/27`), and `npm run build` (successful after rerunning with network access for Google Fonts).
 - 2026-03-29T14:12Z [CODE] The Phase 2 admin drawer no longer throws the render-time component creation error; the close button now renders directly inside `components/admin/AdminHamburgerMenu.tsx` while preserving the existing drawer behavior.
 - 2026-03-29T14:12Z [TOOL] Post-fix validation passed: `npm run lint`, `npm run test` (`24/24`), and `npm run build` (successful after rerunning with network access for Google Fonts).
 - 2026-03-29T14:08Z [CODE] The protected Phase 2 admin pages now keep `LoginHeader` and use a left-side overlay hamburger drawer with `Dashboard`, `Memberships`, `Bookings`, and a bottom logout button, while the read-only dashboard metrics remain intact.

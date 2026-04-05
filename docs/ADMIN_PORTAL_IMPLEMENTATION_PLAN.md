@@ -47,9 +47,10 @@ The plan assumes:
 - Membership and booking references should be persisted in a dedicated reference table instead of storing references on `members` or `bookings` directly.
 
 ## Current Repository State
-- `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, and `/admin/slots` exist as placeholder pages.
-- The protected Phase 2 admin routes now reuse `LoginHeader` and add a left-side hamburger drawer (`z-index: 100`) that overlays the page with `Dashboard`, `Memberships`, `Bookings`, and a bottom logout action.
+- `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, and `/admin/slots` all exist; `/admin` and `/admin/members` now have live Phase 2-3 implementations, while the later booking/location/availability routes still carry placeholder content.
+- The protected admin routes now reuse `LoginHeader`, add a left-side hamburger drawer (`z-index: 100`), and render a shared page-heading area with the signed-in admin email.
 - `/admin` now shows read-only summary metrics for total members, pending members, and total bookings.
+- `/admin/members` now loads members server-side, filters the list in the client, and writes through protected `PUT`/`DELETE /api/admin/members/[id]` handlers with validation and booking-aware delete guards.
 - Public membership sign-up is already wired through `/register`.
 - Public booking creation is already wired through `/home`.
 - Supabase admin writes already exist via `supabaseAdminClient()`.
@@ -138,24 +139,23 @@ The plan assumes:
 
 #### Page behaviour
 - `/admin/members` loads all member records server-side.
-- Provide a search bar that filters by:
+- Provide a search bar that filters all loaded member rows by:
   - first name
   - last name
   - email
 
 #### List layout
-- Show two sections:
-  - Pending members
-  - Active members
-- Each member item shows:
-  - full name
-  - email
-  - phone
-  - status
-  - edit action
-  - delete action
+- Show one full-width members table.
+- Columns:
+  - Name
+  - Date Added
+  - Status
+  - Actions
+- The name cell can include supporting identity text such as the member email.
+- The table should include every member row returned from the `members` query, regardless of status.
 
 #### Edit flow
+- Clicking `Edit` opens a right-side member drawer rather than a centered modal.
 - Admin can edit all existing member fields:
   - `first_name`
   - `last_name`

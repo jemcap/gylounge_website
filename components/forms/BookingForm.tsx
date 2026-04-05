@@ -441,7 +441,7 @@ export function BookingForm({
                 ) : null}
               </div>
 
-              <div className="rounded-[1.75rem]  p-4">
+              <div className="rounded-4xl  p-4">
                 <div className="mb-4">
                   <p className="text-2xl text-[#261B07]">
                     {selectedDateEntry

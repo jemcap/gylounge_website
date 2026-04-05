@@ -87,12 +87,13 @@ Current modules:
 - `lib/supabase-server.ts`: server, server-action, and proxy Supabase auth clients
 - `lib/admin-auth.ts`: admin allowlist, auth validation schemas, and auth feedback helpers
 - `lib/admin-session.ts`: `requireAdminUser()` server guard for protected admin pages
+- `lib/admin-member.ts`: admin member validation, search filtering, and edit-form normalization helpers
 - `lib/membership.ts`: email normalization, bank details, reference generation
 - `lib/membership-form.ts`: shared membership form schema, defaults, and normalized `FormData` builder
 - `lib/resend.ts`: booking/membership/admin email helpers
 
 Still planned for later admin slices:
-- Admin-specific validation schemas for member and booking updates
+- Admin-specific validation schemas and server helpers for booking updates
 
 ### 4. Data Layer (Supabase Postgres)
 Core tables:
@@ -172,11 +173,11 @@ Type source of truth:
 
 ### Admin Member Management Flow
 1. Admin opens `/admin/members`.
-2. Server loads members and groups them by `pending` and `active`.
-3. Admin filters the list by name or email.
-4. Admin edits member details or switches status between `pending` and `active`.
-5. Server validates the payload and updates the `members` row.
-6. Admin may delete a member only when no related bookings exist.
+2. Server loads all rows from `members` and the UI renders them in a single full-width table.
+3. Client-side search filters the visible member rows by name or email.
+4. Admin opens a right-side edit drawer and updates member details or switches status between `pending` and `active`.
+5. Protected `PUT /api/admin/members/[id]` validates the payload and updates the `members` row.
+6. Protected `DELETE /api/admin/members/[id]` rejects deletion when related bookings exist.
 
 ### Admin Booking Management Flow
 1. Admin opens `/admin/bookings`.
@@ -248,7 +249,7 @@ Implemented now:
 - `/home` default register promo now renders as a two-column layout on `md+` with membership card on the left and hero image on the right
 - `app/events/page.tsx`
 - `components/forms/MembershipForm.tsx` now uses React Hook Form + Zod and submits a normalized payload that preserves the existing `registerMemberAction` contract
-- Route skeletons for:
+- Dedicated routes now present for:
   - `/booking/confirm`
   - `/membership`
   - `/membership/pending`
@@ -257,6 +258,7 @@ Implemented now:
   - `/admin`
   - `/admin/members`
   - `/admin/bookings`
+  - `/admin/bookings/[date]`
   - `/admin/events`
   - `/admin/slots`
 - Component boilerplates for:
@@ -284,11 +286,12 @@ Implemented now:
 - `/admin/reset-password` completes Supabase recovery with a client-side password update form
 - `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots` are now authenticated admin routes inside the shared admin shell
 - `/admin` now loads read-only dashboard summary cards for total members, pending sign-ups, and total bookings
+- `/admin/members` now loads all member rows server-side, renders them in a simple table (`Name`, `Date Added`, `Status`, `Actions`), filters rows client-side by name/email, and updates or deletes records through the protected `/api/admin/members/[id]` route handlers
+- `__tests__/lib/admin-member.test.ts` covers admin member payload normalization, future-birthday rejection, and search filtering
 
 Planned next:
 - Replace scaffold placeholders with:
   - Dedicated booking confirmation and my-bookings lookup wiring
-  - Member management with search, edit, status changes, and guarded delete
   - Booking calendar and date-detail management flows
   - `bookings.guest_count` persistence to support correct capacity restoration during admin booking edits
   - Admin operations for locations and pre-seeded hourly slot availability in a later slice

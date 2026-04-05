@@ -1,5 +1,4 @@
 import { AdminShell } from "@/components/admin/AdminShell";
-import { Card } from "@/components/ui/card";
 import { requireAdminUser } from "@/lib/admin-session";
 
 export default async function AdminBookingsPage() {
