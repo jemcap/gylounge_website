@@ -37,7 +37,7 @@ The target route map mirrors `docs/PROJECT_OVERVIEW.md`:
 - `/admin/reset-password` admin password recovery completion
 - `/admin` dashboard
 - `/admin/members` membership activation and member ops
-- `/admin/bookings` bookings operations
+- `/admin/bookings` booking calendar with location filter and date counts
 - `/admin/bookings/[date]` bookings detail for a selected calendar date
 - `/admin/events` location operations (legacy route name)
 - `/admin/slots` slot availability operations
@@ -184,9 +184,11 @@ Type source of truth:
 2. Server loads all locations and booking counts grouped by date.
 3. Admin optionally filters the calendar by location.
 4. Admin selects a date and navigates to `/admin/bookings/[date]`.
-5. Server loads bookings for the selected date and groups them by time slot.
-6. Admin amends booking details, including moving the booking to another slot if required.
-7. Server updates the booking and slot capacity transactionally.
+5. Server loads locations, same-date slots, bookings, and linked member basics for the selected date.
+6. The UI groups booked members under each location and slot time, supports client-side location filtering, and searches by member name or email.
+7. Clicking a booking opens a right-side booking-detail drawer first, showing booking id, slot start time, member name/email/phone, guest count, and booked location.
+8. Admin can move from that detail view into an edit form that updates member basics plus `guest_count`, `location_id`, and `slot_id` through protected `PATCH /api/admin/bookings/[id]`.
+9. Booking moves are constrained to slots on the same date, and slot-capacity adjustments are handled server-side before the page refreshes.
 
 ### Booking Flow
 1. User opens `/home` and expands the `Booking` accordion.
@@ -287,13 +289,15 @@ Implemented now:
 - `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots` are now authenticated admin routes inside the shared admin shell
 - `/admin` now loads read-only dashboard summary cards for total members, pending sign-ups, and total bookings
 - `/admin/members` now loads all member rows server-side, renders them in a simple table (`Name`, `Date Added`, `Status`, `Actions`), filters rows client-side by name/email, and updates or deletes records through the protected `/api/admin/members/[id]` route handlers
+- `/admin/bookings` now loads locations plus booking counts derived from `bookings` + `slots`, exposes an `All locations` or per-location dropdown, and renders a monthly calendar with per-day booking totals that link into `/admin/bookings/[date]`
+- `/admin/bookings/[date]` now loads the selected date's slots/bookings/members server-side, groups booked members under each location + time slot, shows guest-count chips when `guest_count > 1`, supports client-side search by member name/email plus location filtering, and lets admins click a booking card to open a booking-detail drawer before editing booking/member basics
+- `PATCH /api/admin/bookings/[id]` now validates booking-detail edits, updates member basics plus booking guest-count/location/slot fields, and adjusts slot availability when a booking changes guest count or moves to another same-date slot
 - `__tests__/lib/admin-member.test.ts` covers admin member payload normalization, future-birthday rejection, and search filtering
+- `__tests__/lib/admin-bookings.test.ts` covers booking-count aggregation, per-location date lookups, month selection, date validation, and date-detail grouping/search helpers
 
 Planned next:
 - Replace scaffold placeholders with:
   - Dedicated booking confirmation and my-bookings lookup wiring
-  - Booking calendar and date-detail management flows
-  - `bookings.guest_count` persistence to support correct capacity restoration during admin booking edits
   - Admin operations for locations and pre-seeded hourly slot availability in a later slice
 
 ## Documentation Contract

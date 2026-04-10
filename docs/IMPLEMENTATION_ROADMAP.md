@@ -96,21 +96,25 @@ Scope:
   - root `proxy.ts` protection for `/admin/*`
   - shared admin shell with dashboard summary cards for total members, pending sign-ups, and total bookings
   - `/admin/members` server-loaded members table with client-side search, edit, status change, and guarded delete
+  - `/admin/bookings` server-loaded booking calendar with location filtering, month navigation, and per-date booking counts
+  - `/admin/bookings/[date]` server-loaded booking timetable with location filtering, member search, grouped slot display, a booking-detail drawer, and same-date booking amendment flow
   - `PUT /api/admin/members/[id]` and `DELETE /api/admin/members/[id]` protected by admin session + allowlist checks
+  - `PATCH /api/admin/bookings/[id]` protected by admin session + allowlist checks for booking/member basic updates plus slot-capacity adjustments
   - protected admin routes for `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots`
 - Remaining admin console work:
-  - booking calendar and booking detail management
   - later location and slot management operations
 
 Key outputs:
 - Protected admin auth boundary with login, logout, allowlist checks, and password recovery.
-- Live admin workspace with dashboard metrics and member-management tools inside the shared shell.
+- Live admin workspace with dashboard metrics, member-management tools, a bookings calendar, and date-detail timetable views inside the shared shell.
 
 Acceptance criteria:
 - Non-admin is blocked from `/admin/*`.
 - Allowlisted admins can sign in, request a reset email, complete password recovery, and sign out.
 - Dashboard shows working member and booking summary cards.
 - Members page supports search, edit, status changes, and guarded delete.
+- Bookings page supports location filtering and monthly date-count calendar navigation.
+- Booking date detail page groups booked members under location/time slots, supports location filtering plus member search, opens a detail drawer before editing, and can update member basics plus same-date booking slot/guest-count changes.
 - Later milestone slices will add booking management behavior inside the protected shell.
 
 ## Milestone 6: Hardening and Release

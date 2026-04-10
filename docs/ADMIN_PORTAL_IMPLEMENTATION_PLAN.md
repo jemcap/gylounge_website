@@ -47,15 +47,16 @@ The plan assumes:
 - Membership and booking references should be persisted in a dedicated reference table instead of storing references on `members` or `bookings` directly.
 
 ## Current Repository State
-- `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/events`, and `/admin/slots` all exist; `/admin` and `/admin/members` now have live Phase 2-3 implementations, while the later booking/location/availability routes still carry placeholder content.
+- `/admin/login`, `/admin`, `/admin/members`, `/admin/bookings`, `/admin/bookings/[date]`, `/admin/events`, and `/admin/slots` all exist; `/admin`, `/admin/members`, `/admin/bookings`, and `/admin/bookings/[date]` now have live implementations, while the later location/availability routes still carry placeholder content.
 - The protected admin routes now reuse `LoginHeader`, add a left-side hamburger drawer (`z-index: 100`), and render a shared page-heading area with the signed-in admin email.
 - `/admin` now shows read-only summary metrics for total members, pending members, and total bookings.
 - `/admin/members` now loads members server-side, filters the list in the client, and writes through protected `PUT`/`DELETE /api/admin/members/[id]` handlers with validation and booking-aware delete guards.
+- `/admin/bookings/[date]` now lets admins click a booking card to open a booking-detail drawer, then move into a booking edit form backed by protected `PATCH /api/admin/bookings/[id]`.
 - Public membership sign-up is already wired through `/register`.
 - Public booking creation is already wired through `/home`.
 - Supabase admin writes already exist via `supabaseAdminClient()`.
 - The database currently contains `members`, `locations`, `slots`, and `bookings`.
-- The `bookings` table currently does not persist guest count, even though the public booking flow decrements slot capacity using submitted guest count.
+- The `bookings` table now persists `guest_count`, which keeps the public booking flow aligned with future admin-side capacity restoration needs.
 
 ## Implementation Overview
 
@@ -258,6 +259,7 @@ The public booking flow already reduces slot capacity by submitted guest count, 
   - location filter
   - search/filter bar
   - grouped time-slot display
+  - clickable booking cards that open a booking-detail drawer before editing
 
 #### Slot grouping
 - Group bookings by slot.
@@ -274,14 +276,18 @@ The public booking flow already reduces slot capacity by submitted guest count, 
 
 #### Booking amendment flow
 - Admin can amend:
-  - member
+  - member first name
+  - member last name
+  - member email
+  - member phone number
   - location
-  - slot/date
-  - booking status
+  - slot on the same date
+  - number of guests
+- Booking id is displayed in the detail drawer but remains immutable.
 
 #### Mutation path
 - Use:
-  - `PUT /api/admin/bookings/[id]`
+  - `PATCH /api/admin/bookings/[id]`
 - Validate payload with Zod.
 
 #### Capacity handling rule
@@ -293,17 +299,16 @@ The public booking flow already reduces slot capacity by submitted guest count, 
   - update the booking only if the new slot has enough remaining capacity
 
 #### Safety requirement
-- Capacity updates and booking reassignment must be handled transactionally.
-- Preferred approach:
-  - add a Postgres function or RPC dedicated to admin booking updates
-  - call that RPC from the route handler after admin authorisation succeeds
+- Capacity-sensitive booking edits must be enforced server-side.
+- Current implementation uses guarded slot-availability updates inside `PATCH /api/admin/bookings/[id]` for same-date slot moves and guest-count changes.
+- A dedicated Postgres RPC remains a later hardening option if admin booking edits expand beyond the current scope.
 
 ### Phase 7: Validation and Server Interfaces
 
 #### Internal admin routes to add
 - `PUT /api/admin/members/[id]`
 - `DELETE /api/admin/members/[id]`
-- `PUT /api/admin/bookings/[id]`
+- `PATCH /api/admin/bookings/[id]`
 
 #### Validation modules
 - Add dedicated admin schemas for:
@@ -337,7 +342,7 @@ The public booking flow already reduces slot capacity by submitted guest count, 
 - Add:
   - `PUT /api/admin/members/[id]`
   - `DELETE /api/admin/members/[id]`
-  - `PUT /api/admin/bookings/[id]`
+  - `PATCH /api/admin/bookings/[id]`
 
 ## Testing Plan
 
