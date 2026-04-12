@@ -226,7 +226,7 @@ Create `supabase/seed.sql` and insert the minimum development data your app need
 This repository now includes a committed `supabase/seed.sql` that seeds:
 - 2 demo locations with fixed UUIDs
 - rolling hourly slots (`08:00` through `22:00`) for those locations
-- a 14-day future window based on `current_date` so booking availability remains visible over time
+- a rolling window from `current_date` through 14 days ahead so booking availability remains visible over time
 
 The seed file is intentionally rerunnable:
 - it upserts the same demo rows on every reset

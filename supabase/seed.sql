@@ -51,7 +51,7 @@ with seeded_locations as (
 ),
 seed_dates as (
   select (current_date + day_offset)::date as slot_date
-  from generate_series(1, 14) as day_offset
+  from generate_series(0, 14) as day_offset
 ),
 seed_hours as (
   select make_time(hour_of_day, 0, 0) as slot_start

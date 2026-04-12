@@ -78,7 +78,7 @@ export function PublicLandingSection() {
           id="sports-carousel"
           className="relative w-full overflow-hidden bg-[#DBD1B9]"
         >
-          <div className="flex h-[163px] items-center">
+          <div className="flex h-40.75 items-center">
             <div
               className="flex min-w-max items-center whitespace-nowrap will-change-transform"
               style={{

@@ -13,7 +13,7 @@ export function LandingPageCtas() {
       <button
         type="button"
         onClick={() => scrollToSection("home-root")}
-        className="inline-flex h-14 w-[341px] items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#f5f1ea] text-sm font-semibold uppercase tracking-wide text-[#14110b] cursor-pointer"
+        className="inline-flex h-14 w-85.25 items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#f5f1ea] text-sm font-semibold uppercase tracking-wide text-[#14110b] cursor-pointer"
       >
         <span>Discover The Lounge</span>
         <ChevronDown
@@ -25,7 +25,7 @@ export function LandingPageCtas() {
       <button
         type="button"
         onClick={() => scrollToSection("register")}
-        className="inline-flex h-14 w-[341px] items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#EBBF6C] text-sm font-semibold uppercase tracking-wide text-[#3F2D17] cursor-pointer"
+        className="inline-flex h-14 w-85.25 items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#EBBF6C] text-sm font-semibold uppercase tracking-wide text-[#3F2D17] cursor-pointer"
       >
         <span>Become A Member</span>
         <ChevronDown

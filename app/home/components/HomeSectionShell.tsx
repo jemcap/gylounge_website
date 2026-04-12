@@ -28,7 +28,7 @@ export function HomeSectionShell({
         return;
       }
 
-      setIsDesktopNavVisible(section.getBoundingClientRect().top <= 0);
+      setIsDesktopNavVisible(section.getBoundingClientRect().top <= 15);
     };
 
     updateDesktopNavVisibility();
