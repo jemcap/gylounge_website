@@ -2,10 +2,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { registerMemberAction } from "@/app/home/actions";
 import RegisterHeader from "./components/RegisterHeader";
-import {
-  getSingleParam,
-  resolveRegisterFeedback,
-} from "@/app/home/home-page-helpers";
+import { getSingleParam } from "@/lib/query-params";
+import { resolveRegisterFeedback } from "@/app/home/home-page-helpers";
 import { MembershipForm } from "@/components/forms/MembershipForm";
 
 type RegisterPageProps = {

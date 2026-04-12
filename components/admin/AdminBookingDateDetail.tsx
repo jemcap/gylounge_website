@@ -51,10 +51,7 @@ type SelectedBookingDetail = {
   slot: AdminBookingLocationGroup["slots"][number];
 };
 
-const feedbackClassMap: Record<BookingActionFeedback["tone"], string> = {
-  success: "border-[#98c79f] bg-[#eef8f0] text-[#1f5a2b]",
-  error: "border-[#e3aaa8] bg-[#fff1f0] text-[#8b2e2a]",
-};
+import { feedbackClassMap } from "@/lib/feedback-styles";
 
 const editDrawerAnimationDurationMs = 300;
 

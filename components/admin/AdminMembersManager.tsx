@@ -45,10 +45,7 @@ type MemberActionFeedback = {
   tone: "success" | "error";
 };
 
-const feedbackClassMap: Record<MemberActionFeedback["tone"], string> = {
-  success: "border-[#98c79f] bg-[#eef8f0] text-[#1f5a2b]",
-  error: "border-[#e3aaa8] bg-[#fff1f0] text-[#8b2e2a]",
-};
+import { feedbackClassMap } from "@/lib/feedback-styles";
 
 const statusDotClassMap = {
   active: "bg-[#22c55e]",

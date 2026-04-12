@@ -42,11 +42,7 @@ export type BookingFormProps = {
   context?: string;
 };
 
-const feedbackClassMap: Record<BookingFeedback["tone"], string> = {
-  success: "border-[#98c79f] bg-[#eef8f0] text-[#1f5a2b]",
-  error: "border-[#e3aaa8] bg-[#fff1f0] text-[#8b2e2a]",
-  info: "border-[#d3c39f] bg-[#faf5e9] text-[#5d4a2e]",
-};
+import { feedbackClassMap } from "@/lib/feedback-styles";
 
 const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const sectionHeadingClass = "text-[48px] font-serif italic text-[#261B07]";

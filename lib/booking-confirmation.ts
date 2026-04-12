@@ -23,12 +23,7 @@ export const BOOKING_CONFIRMATION_QUERY_KEYS = [
   "bookingTime",
 ] as const;
 
-export const getSingleParam = (value: string | string[] | undefined) => {
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-  return value;
-};
+import { getSingleParam } from "@/lib/query-params";
 
 export const getBookingConfirmationFromParams = (params: {
   [key: string]: string | string[] | undefined;

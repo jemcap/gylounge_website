@@ -1,12 +1,11 @@
 import { z } from "zod";
 import type { Database } from "@/app/types/database";
 import { genderOptions } from "@/lib/membership-form";
+import { normalizeEmail } from "@/lib/membership";
 
 export type AdminMember = Database["public"]["Tables"]["members"]["Row"];
 
 export const adminMemberStatusOptions = ["pending", "active"] as const;
-
-const normalizeMemberEmail = (email: string) => email.trim().toLowerCase();
 const normalizeSearchValue = (value: string | null | undefined) =>
   (value || "").trim().toLowerCase();
 const adminMemberDateAddedFormatter = new Intl.DateTimeFormat("en-US", {
@@ -89,7 +88,7 @@ export const adminMemberUpdateSchema = z
   })
   .transform((value) => ({
     ...value,
-    email: normalizeMemberEmail(value.email),
+    email: normalizeEmail(value.email),
     phone: value.phone || null,
   }));
 

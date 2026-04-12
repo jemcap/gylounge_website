@@ -37,12 +37,7 @@ export type Feedback = {
   message: string
 }
 
-export const getSingleParam = (value: string | string[] | undefined) => {
-  if (Array.isArray(value)) {
-    return value[0]
-  }
-  return value
-}
+export { getSingleParam } from "@/lib/query-params"
 
 export const formatAccraDate = (raw: string) => {
   const parsed = new Date(raw)
