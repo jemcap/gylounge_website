@@ -1,11 +1,13 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-04-12T13:32Z [USER] Replace the `/home` FAQ section with 18 searchable shadcn-style accordions that match the existing page styling.
 - 2026-04-12T14:10Z [USER] Refactor skill created at `.github/skills/refactor/` with 6 phases. Phase 1 (Critical Duplication Removal) complete. Phases 2–6 remain.
 - 2026-04-12T12:25Z [USER] Combine the default `/` page and `/home` into one stacked experience where the landing content stays on top, the `/home` content follows below, the header/topbar only appears once the user scrolls into the home section, and the two landing CTAs jump directly to the relevant in-page home sections.
 - 2026-04-10T21:03Z [USER] Change `/admin/bookings/[date]` so clicking a booking opens a booking-information layer first, showing booking id, slot start time, first/last name, email, phone, guest count, and booked location; those displayed booking/member basics should then be editable, likely via a `PATCH` flow.
 
 [PROGRESS]
+- 2026-04-12T14:25Z [CODE] Moved the static `/home` FAQ item array out of `app/home/components/HomeFaqContent.tsx` into `app/home/content/home-faq-items.ts` so the component keeps only UI/filtering logic.
 - 2026-04-12T14:10Z [CODE] Refactor Phase 1 complete: deduplicated `normalizeEmail` (1 file), extracted `getSingleParam` to `lib/query-params.ts` (4 files updated), extracted `feedbackClassMap` to `lib/feedback-styles.ts` (4 files updated, including `AdminBookingDateDetail.tsx` which the audit missed). Build passes, 51/51 tests pass.
 - 2026-04-10T20:54Z [USER] In `/admin/bookings/[date]`, make booked member cards clickable so admins can open a member detail form and edit it similarly to `AdminMembersManager`.
 - 2026-04-08T20:34Z [USER] Continue admin booking work on `/admin/bookings/[date]`: show booked slots grouped under location, display location name, add a booking search bar, and show guest counts conditionally for multi-guest bookings.
@@ -258,6 +260,7 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-04-12T13:32Z [TOOL] The repo did not already include the shadcn/Radix accordion primitive; implementing the requested FAQ UI required installing `@radix-ui/react-accordion` and adding local accordion animation utilities to `app/globals.css`.
 - 2026-04-12T12:56Z [CODE] Making the header sticky in normal flow removes the need for the previous `pt-20` offset in `HomeAccordionSection`; keeping that offset would leave an extra gap between the CTA-adjacent header and the first home section.
 - 2026-04-12T12:51Z [TOOL] `npm run lint` for the combined public-page merge still reports two unrelated pre-existing warnings in `app/admin/page.tsx` (`adminUser`, `pendingMembersCount` unused); no new lint errors were introduced by this public-route change.
 - 2026-04-12T12:51Z [TOOL] `npm run build` completed successfully inside the default sandbox for this turn, so the combined-page refactor did not require the earlier network-escalated rerun for Google Fonts.
@@ -337,6 +340,10 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-04-12T13:32Z [CODE] Replaced `app/home/components/HomeFaqContent.tsx` with a client-side searchable FAQ experience: 18 mapped accordion items, a question search bar that filters by title, result-count/no-results states, and shadcn-style accordion cards aligned with the page’s existing warm neutral palette and rounded border treatment.
+- 2026-04-12T13:32Z [CODE] Added `components/ui/accordion.tsx`, installed `@radix-ui/react-accordion`, and introduced minimal `accordion-down` / `accordion-up` animation utilities in `app/globals.css` to support the new FAQ interaction pattern.
+- 2026-04-12T13:32Z [ASSUMPTION] Because the user supplied only FAQ titles and not finalized answers, the new accordion bodies use safe interim copy; replace those strings if product-approved wording is available later.
+- 2026-04-12T13:32Z [TOOL] Verification for the FAQ accordion/search update: `npm run test` pass (`51/51`), `npm run build` pass, and `npm run lint` pass with the same 2 pre-existing warnings in `app/admin/page.tsx`.
 - 2026-04-12T12:56Z [CODE] Adjusted the merged public-page header behavior: the home header now sits directly below the CTA section as part of normal document flow, becomes sticky on scroll instead of fading in, and the desktop side-nav remains the only scroll-gated chrome while section-label opacity behavior stays intact.
 - 2026-04-12T12:56Z [TOOL] Verification for the sticky-header amendment: `npm run test` pass (`51/51`), `npm run build` pass, and `npm run lint` pass with the same 2 pre-existing warnings in `app/admin/page.tsx`.
 - 2026-04-12T12:51Z [CODE] Implemented the approved public-route merge: `app/page.tsx` now renders the landing page plus the shared stacked home sections, the landing CTAs instantly scroll to `#home-root` and `#register`, the fixed home header/desktop nav only appear after the user reaches the stacked home section, and `/home` now reuses the same combined composition with an auto-scroll compatibility bridge.
