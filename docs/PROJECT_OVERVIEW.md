@@ -9,9 +9,9 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 - Use clear language, large touch targets, and simple navigation.
 
 ## Core Features
-- **Consolidated Home Experience**: `/home` provides one-page sections for Register, Booking, FAQs, and Contact Us
+- **Combined Public Experience**: `/` now stacks the landing page above the shared `Register`, `Booking`, `FAQs`, and `Contact Us` home sections, while `/home` remains a compatibility alias
 - **Dedicated Register Route**: `/register` hosts the full membership sign-up form with server-action feedback
-- **Server-Wired Public Forms**: `/register` and `/home` (Booking) submit to server actions and return status feedback
+- **Server-Wired Public Forms**: `/register` and the shared public `Booking` section submit to server actions and return status feedback
 - **Booking System**: Location-based booking with date-specific hourly time slots
 - **Membership**: One-time membership fee via bank transfer (no accounts required)
 - **Member Verification**: Email-based lookup - no passwords or logins
@@ -31,14 +31,14 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 ## Project Structure
 ```
 app/
-  page.tsx                # Default landing page
+  page.tsx                # Canonical combined public page (landing + stacked home sections)
   register/
     page.tsx              # Dedicated membership sign-up route
   home/
-    page.tsx              # Consolidated public home composition (Register link panel, Booking, FAQs, Contact Us)
+    page.tsx              # Compatibility alias that auto-scrolls into the shared public experience
     actions.ts            # Server actions for register + booking submissions
-    home-page-helpers.ts  # /home query parsing, feedback mapping, booking option lookup
-    components/           # Route-scoped /home UI modules (header, accordion pieces, section content)
+    home-page-helpers.ts  # Shared public booking query parsing, feedback mapping, booking option lookup
+    components/           # Shared public-site modules (landing sections, stacked home shell, header, section content)
   types/
     database.ts           # Supabase generated types
   admin/
@@ -49,7 +49,7 @@ app/
     events/page.tsx       # Manage locations (legacy route name)
     slots/page.tsx        # Manage location/date/time availability
   events/
-    page.tsx              # Redirects to the live booking section on /home
+    page.tsx              # Redirects to the live booking section on /
   booking/
     confirm/page.tsx      # Booking confirmation (dedicated route scaffold)
   membership/
@@ -84,12 +84,12 @@ const { data: member } = await supabase
 if (member?.status === 'active') {
   // Create booking
 } else {
-  // Redirect to /home#register, where Register links to /register
+  // Redirect to /#register, where Register links to /register
 }
 ```
 
 ### Membership Required (Server-Enforced)
-Membership is mandatory. The booking server action must check membership status and only proceed for `active` members. Non-members are redirected to the Register section on `/home`, which routes users to the dedicated `/register` sign-up form. Activation happens after payment is verified (manually). This is enforced server-side to prevent bypassing in the UI.
+Membership is mandatory. The booking server action must check membership status and only proceed for `active` members. Non-members are redirected to the Register section on `/`, which routes users to the dedicated `/register` sign-up form. Activation happens after payment is verified (manually). This is enforced server-side to prevent bypassing in the UI.
 
 ### Admin Portal (Supabase Auth Only)
 Public users never log in. Admins authenticate via Supabase Auth using email/password to access `/admin/*`.
@@ -152,7 +152,7 @@ Even at low volume, prevent double-booking by performing “check availability �
 3. User submits booking form (name, email, phone, slot)
 4. Server Action: query `members` table by email
 5. If active member → create booking → send confirmations
-6. If not member → redirect to `/home#register` → open dedicated `/register` form for bank transfer instructions
+6. If not member → redirect to `/#register` → open dedicated `/register` form for bank transfer instructions
 7. Admin verifies transfer in the admin console → mark member `active` → user can book
 
 ## Feasibility Notes (Roadmap Alignment)

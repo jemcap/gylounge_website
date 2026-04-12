@@ -7,10 +7,10 @@ This roadmap converts `docs/PROJECT_OVERVIEW.md` into a build sequence with mile
 - Ship vertical slices in the order users experience them.
 - Keep business rules server-enforced.
 - Reuse `lib/*` modules as the stable integration boundary.
-- Keep `/` as the default landing and route public operational workflows through `/home`.
+- Keep `/` as the default landing and canonical public workflow, with `/home` retained as a compatibility alias.
 
 Current implementation note:
-- `/register` now owns membership sign-up submissions; `/home` keeps booking server-action flow.
+- `/register` now owns membership sign-up submissions; the shared public `Booking` section on `/` keeps the booking server-action flow.
 
 ## Milestone 0: Foundation
 Scope:
@@ -30,15 +30,15 @@ Acceptance criteria:
 
 ## Milestone 1: Public Home Hub
 Scope:
-- Build `/home` with a simple top navbar (logo left, live time pill right).
+- Build the shared public home shell beneath `/` with a simple top navbar (logo left, live time pill right).
 - Build accordion sections for `Register`, `Booking`, `FAQs`, and `Contact Us`.
-- Keep Register as a gateway section on `/home` that links to dedicated `/register`.
+- Keep Register as a gateway section on the shared public page that links to dedicated `/register`.
 
 Key outputs:
 - Stable one-page public home experience with expandable sections.
 
 Acceptance criteria:
-- `/home` renders all four accordions with their section content.
+- `/` renders all four home sections with their content beneath the landing page.
 - Layout works on desktop and mobile, with Register navigating to `/register` for membership submission.
 
 ## Milestone 2: Membership Flow (Bank Transfer)
@@ -57,18 +57,18 @@ Acceptance criteria:
 
 ## Milestone 3: Booking Flow
 Scope:
-- Wire the `Booking` accordion on `/home` to booking server actions.
+- Wire the shared `Booking` section on `/` to booking server actions.
 - Enforce active membership check by normalized email.
 - Reserve slot atomically and insert booking.
 - Send booking confirmation and organizer notification emails.
 
 Key outputs:
 - `createBooking` flow with transactional guard.
-- `/home` booking UX backed by server logic.
+- Shared public booking UX backed by server logic.
 
 Acceptance criteria:
 - Active member can book successfully.
-- Pending/non-member is redirected to `/home#register`.
+- Pending/non-member is redirected to `/#register`.
 - Slot overbooking is prevented.
 - Booking confirmation and notification emails are attempted after booking persistence.
 

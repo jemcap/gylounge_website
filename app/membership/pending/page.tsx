@@ -13,7 +13,7 @@ export default function MembershipPendingPage() {
             Keep your bank transfer reference handy. Activation usually happens after transfer verification.
           </p>
           <div className="mt-4 flex flex-wrap gap-4">
-            <Link href="/home#booking" className="text-sm font-semibold text-[#1c1b18] hover:underline">
+            <Link href="/#booking" className="text-sm font-semibold text-[#1c1b18] hover:underline">
               Back to booking
             </Link>
             <Link href="/my-bookings" className="text-sm font-semibold text-[#1c1b18] hover:underline">

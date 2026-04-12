@@ -16,7 +16,7 @@ type HomeHeaderProps = {
 
 export function HomeHeader({ entries }: HomeHeaderProps) {
   return (
-    <header className="fixed z-30 w-full border-b border-[#3F2D17] bg-[#F1EDE5] backdrop-blur-sm">
+    <header className="sticky top-0 z-30 w-full border-b border-[#3F2D17] bg-[#F1EDE5] backdrop-blur-sm">
       <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
           href="/"

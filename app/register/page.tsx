@@ -26,7 +26,7 @@ export default async function RegisterPage({
       <RegisterHeader />
       <div className="pt-24 ">
         <Link
-          href="/home"
+          href="/#register"
           className="underline flex items-center gap-2 rounded-full px-4 text-3xl font-semibold text-[#261B07]"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />

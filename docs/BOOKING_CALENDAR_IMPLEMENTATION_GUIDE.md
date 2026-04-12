@@ -1,6 +1,8 @@
 # Booking Event & Slot Selection Implementation Guide
 
 > Status: superseded on 2026-03-12. The live app now uses a location-first booking model with `location -> date -> hourly slot`, no `events` table in the active flow, hourly availability from `08:00` to `22:00`, and default slot capacity `10`. Do not use this guide for new implementation work without rewriting it first.
+>
+> Historical routing note: the live public booking UI now lives on `/#booking` inside the shared public page composition. `/home#booking` remains compatibility-only, and older references below to `app/home/page.tsx` describe the pre-merge route shape.
 
 ## Purpose
 This guide walks you through enhancing the booking workflow on `/home` so users can:
@@ -31,7 +33,7 @@ If events later become recurring (e.g., "Yoga every Tuesday"), a calendar approa
 - Multiple members can book the same slot until `available_spots` reaches zero.
 - `available_spots` is initialized from `events.capacity` when admin creates slots.
 - Booking submission remains server-enforced (membership status, slot availability, booking insert).
-- Post-submit UX remains on `/home#booking` with inline status feedback.
+- Post-submit UX remains on `/#booking` with inline status feedback.
 
 ## Existing Baseline (Before You Start)
 - `app/home/page.tsx` — loads booking accordion and handles status query params.

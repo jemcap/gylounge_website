@@ -25,10 +25,10 @@ GYLounge is an elderly-friendly location-booking and membership platform for Gha
 
 ## Route Architecture (Target)
 The target route map mirrors `docs/PROJECT_OVERVIEW.md`:
-- `/` default landing and navigation entrypoint
-- `/home` consolidated public home with Register, Booking, FAQs, and Contact Us sections
+- `/` canonical public page: landing content stacked above the public home sections (`Register`, `Booking`, `FAQs`, `Contact Us`)
+- `/home` compatibility alias that auto-scrolls into the same combined public experience
 - `/register` dedicated membership sign-up form route
-- `/events` legacy redirect into the `/home#booking` flow
+- `/events` legacy redirect into the `/#booking` flow
 - `/booking/confirm` booking completion state (dedicated route scaffold)
 - `/membership` membership sign-up and bank instructions (dedicated route scaffold)
 - `/membership/pending` waiting state until activation (dedicated route scaffold)
@@ -126,7 +126,7 @@ Type source of truth:
 - Admin-only operations must also require an allowlisted admin email.
 - Admin login uses email/password with password reset support.
 - Member status vocabulary remains `pending` and `active`.
-- Public lookups (`/home` booking section, `/register` sign-up, and `/my-bookings` scaffold) should expose minimal fields.
+- Public lookups (`/#booking`, `/register`, and `/my-bookings`) should expose minimal fields.
 
 ## Security Model
 
@@ -153,7 +153,7 @@ Type source of truth:
 ## End-to-End Flows
 
 ### Membership Activation Flow
-1. User opens `/home` and selects `Register`, then navigates to `/register`.
+1. User opens `/` and jumps to the `Register` section, then navigates to `/register`.
 2. User submits membership form on `/register`.
 3. Server creates or updates a `members` record with the submitted profile fields and `status = 'pending'`.
 4. Server creates a membership reference record in `payment_references` and links it to the member.
@@ -191,7 +191,7 @@ Type source of truth:
 9. Booking moves are constrained to slots on the same date, and slot-capacity adjustments are handled server-side before the page refreshes.
 
 ### Booking Flow
-1. User opens `/home` and expands the `Booking` accordion.
+1. User opens `/` and jumps to the `Booking` section.
 2. User chooses a location, then an available date, then an hourly slot.
 3. User submits booking form.
 4. Server checks member by normalized email.
@@ -200,12 +200,12 @@ Type source of truth:
 7. Server rejects the request when that member already has a booking for the selected slot.
 8. Otherwise, reserve slot and insert booking.
 9. Send confirmation (member) and notification (organizer).
-10. Redirect back to `/home#booking` with a success state; the client opens a booking-confirmation modal with the saved visit details.
-11. If not active, route user to `/home#register` (which links to `/register`).
+10. Redirect back to `/#booking` with a success state; the client opens a booking-confirmation modal with the saved visit details.
+11. If not active, route user to `/#register` (which links to `/register`).
 
 ### Legacy `/events` Route
 1. User opens `/events`.
-2. App redirects to `/home#booking`.
+2. App redirects to `/#booking`.
 
 ### My Bookings Flow (Dedicated Flow)
 1. User submits email on `/my-bookings`.
@@ -232,8 +232,8 @@ Optional fallback:
 
 ## Build Sequence (Execution Order)
 1. Foundation: env contracts, Supabase wiring, typed schema, base route skeleton.
-2. Public home shell: `/home` navbar + sections (`Register`, `Booking`, `FAQs`, `Contact Us`) with Register linking to `/register`.
-3. Membership and booking logic: wire server-backed membership flow to `/register` and booking flow to `/home`.
+2. Public home shell: stack the public home sections beneath `/` landing content, with `/home` retained as a compatibility alias and Register linking to `/register`.
+3. Membership and booking logic: wire server-backed membership flow to `/register` and booking flow to `/#booking`.
 4. Dedicated flow enhancements: `/booking/confirm`, `/membership`, `/membership/pending`, `/my-bookings`.
 5. Admin console: email/password auth, allowlist route protection, password reset, member activation, bookings management, then later location/availability management.
 6. Hardening: tests, validations, observability, deployment readiness.
@@ -244,11 +244,13 @@ Implemented now:
 - `app/home/page.tsx`
 - `app/home/actions.ts`
 - `app/home/home-page-helpers.ts`
-- `app/home/components/*` (route-scoped accordion/header/section modules)
-- `/home` booking now loads bookable locations plus date-based hourly slots directly from Supabase, with active-membership enforcement on submit
-- `/home` now uses a hamburger menu in the fixed mobile header for section navigation, while desktop keeps the left-side sticky section nav
-- `/home` content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation
-- `/home` default register promo now renders as a two-column layout on `md+` with membership card on the left and hero image on the right
+- `app/home/components/*` (shared public-site modules for landing, stacked home shell, header, and section content)
+- `app/page.tsx` is now the canonical combined public experience, stacking the landing page above the shared home-section shell
+- `app/home/page.tsx` now acts as a compatibility alias that auto-scrolls into the same shared public experience
+- `/#booking` now loads bookable locations plus date-based hourly slots directly from Supabase, with active-membership enforcement on submit
+- The shared public home shell now reveals its fixed header/mobile menu and desktop side nav only after the user reaches the stacked home section
+- Shared home content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation
+- The shared register promo now renders as a two-column layout on `md+` with membership card on the left and hero image on the right
 - `app/events/page.tsx`
 - `components/forms/MembershipForm.tsx` now uses React Hook Form + Zod and submits a normalized payload that preserves the existing `registerMemberAction` contract
 - Dedicated routes now present for:
@@ -267,11 +269,11 @@ Implemented now:
   - `components/ui/*`
   - `components/forms/*`
   - `components/events/*`
-- Hero utility component: `components/hero/TimePill.tsx` for live Ghana time display on the landing and `/home` pages
+- Hero utility component: `components/hero/TimePill.tsx` for live Ghana time display on the landing and shared public-home experience
 - `/register` posts to a server action that creates/updates pending members, generates transfer references, and sends membership instruction emails
-- `/home` Booking accordion posts to a server action that enforces active membership, claims booking idempotency keys, creates location-based bookings with slot decrement, and sends booking emails
-- `/home` booking rejects duplicate submissions when the same normalized email already has a booking for the selected slot
-- Successful public bookings now reopen the `/home` Booking accordion with a bottom-sheet-on-mobile / centered-on-desktop confirmation modal populated from the saved booking, member, location, and slot records
+- The shared `Booking` section posts to a server action that enforces active membership, claims booking idempotency keys, creates location-based bookings with slot decrement, and sends booking emails
+- The shared booking flow rejects duplicate submissions when the same normalized email already has a booking for the selected slot
+- Successful public bookings now reopen the shared `Booking` section with a bottom-sheet-on-mobile / centered-on-desktop confirmation modal populated from the saved booking, member, location, and slot records
 - `components/admin/AdminShell.tsx` now reuses `LoginHeader` for protected admin pages and injects a left-side hamburger drawer with `Dashboard`, `Memberships`, `Bookings`, a bottom logout action, and per-page heading treatment
 - `lib/supabase.ts`
 - `lib/membership.ts`

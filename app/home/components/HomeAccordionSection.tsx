@@ -19,6 +19,7 @@ export type NavEntry = {
 type HomeSideNavLayoutProps = {
   entries: NavEntry[];
   initialActiveId?: string | null;
+  navVisible?: boolean;
 };
 
 /* ── Constants ────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ const BASE_TEXT = "#1A120A";
 export function HomeSideNavLayout({
   entries,
   initialActiveId = null,
+  navVisible = true,
 }: HomeSideNavLayoutProps) {
   const [activeId, setActiveId] = useState<string | null>(initialActiveId);
   const panelElements = useRef(new Map<string, HTMLDivElement>());
@@ -122,7 +124,7 @@ export function HomeSideNavLayout({
 
   return (
     <div
-      className="relative flex-1 overflow-x-hidden pt-20"
+      className="relative flex-1 overflow-x-hidden"
       style={{ backgroundColor: BASE_BG, color: BASE_TEXT }}
     >
       {/* ── Fixed sidebar nav (desktop) ───────────────────────────
@@ -131,7 +133,11 @@ export function HomeSideNavLayout({
            section's content panel top touches the nav button's
            bottom edge. Strips stack as the user scrolls down
            and un-stack when scrolling back up.                    */}
-      <nav className="hidden md:fixed md:left-0 md:top-20 md:z-20 md:flex md:h-screen md:w-1/3 md:flex-col md:overflow-x-visible lg:w-1/4">
+      <nav
+        className={`hidden md:fixed md:left-0 md:top-20 md:z-20 md:h-screen md:w-1/3 md:flex-col md:overflow-x-visible lg:w-1/4 ${
+          navVisible ? "md:flex" : "md:hidden"
+        }`}
+      >
         {entries.map((entry) => {
           const isCurrent = activeId === entry.id;
 

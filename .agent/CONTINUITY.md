@@ -1,7 +1,12 @@
 # CONTINUITY
 
 [PLANS]
+- 2026-04-12T14:10Z [USER] Refactor skill created at `.github/skills/refactor/` with 6 phases. Phase 1 (Critical Duplication Removal) complete. Phases 2–6 remain.
+- 2026-04-12T12:25Z [USER] Combine the default `/` page and `/home` into one stacked experience where the landing content stays on top, the `/home` content follows below, the header/topbar only appears once the user scrolls into the home section, and the two landing CTAs jump directly to the relevant in-page home sections.
 - 2026-04-10T21:03Z [USER] Change `/admin/bookings/[date]` so clicking a booking opens a booking-information layer first, showing booking id, slot start time, first/last name, email, phone, guest count, and booked location; those displayed booking/member basics should then be editable, likely via a `PATCH` flow.
+
+[PROGRESS]
+- 2026-04-12T14:10Z [CODE] Refactor Phase 1 complete: deduplicated `normalizeEmail` (1 file), extracted `getSingleParam` to `lib/query-params.ts` (4 files updated), extracted `feedbackClassMap` to `lib/feedback-styles.ts` (4 files updated, including `AdminBookingDateDetail.tsx` which the audit missed). Build passes, 51/51 tests pass.
 - 2026-04-10T20:54Z [USER] In `/admin/bookings/[date]`, make booked member cards clickable so admins can open a member detail form and edit it similarly to `AdminMembersManager`.
 - 2026-04-08T20:34Z [USER] Continue admin booking work on `/admin/bookings/[date]`: show booked slots grouped under location, display location name, add a booking search bar, and show guest counts conditionally for multi-guest bookings.
 - 2026-04-07T21:15Z [USER] Continue the admin portal booking work by making `/admin/bookings` follow the `AdminMembers` layout/theme, with a locations dropdown and a month-switching calendar that shows booking totals per date.
@@ -61,6 +66,8 @@
 - 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-04-12T12:56Z [USER] Amend the merged public-page behavior so the home header renders directly below the CTA section in normal flow, becomes sticky while scrolling, drops the header/topbar opacity transitions, and keeps opacity-based emphasis only for the navigation items.
+- 2026-04-12T12:51Z [CODE] Make `/` the canonical public route by stacking the landing content above the shared home-section shell, and keep `/home` as a compatibility alias that renders the same combined experience and auto-scrolls into the home area instead of removing the route outright.
 - 2026-04-10T21:08Z [CODE] Replace the direct member-edit drawer on `/admin/bookings/[date]` with a two-step booking drawer: booking cards now open a read-only booking summary first, and edits submit through a new protected `PATCH /api/admin/bookings/[id]` route that updates member basics (`first_name`, `last_name`, `email`, `phone`) plus booking fields (`guest_count`, `location_id`, `slot_id`) together.
 - 2026-04-10T21:08Z [ASSUMPTION] Treat `Booking ID` as immutable and restrict time/location edits to slots on the booking's current date, because this route is date-scoped and changing the primary booking id or moving across dates would require a broader data model/API contract than requested.
 - 2026-04-10T20:55Z [CODE] Reuse the existing protected `PUT /api/admin/members/[id]` flow for `/admin/bookings/[date]` instead of adding a booking-specific edit route; the page now loads full `members` rows for booked members and carries those records into each booking card so the drawer can prefill locally and refresh grouped booking data after save.
@@ -251,6 +258,10 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-04-12T12:56Z [CODE] Making the header sticky in normal flow removes the need for the previous `pt-20` offset in `HomeAccordionSection`; keeping that offset would leave an extra gap between the CTA-adjacent header and the first home section.
+- 2026-04-12T12:51Z [TOOL] `npm run lint` for the combined public-page merge still reports two unrelated pre-existing warnings in `app/admin/page.tsx` (`adminUser`, `pendingMembersCount` unused); no new lint errors were introduced by this public-route change.
+- 2026-04-12T12:51Z [TOOL] `npm run build` completed successfully inside the default sandbox for this turn, so the combined-page refactor did not require the earlier network-escalated rerun for Google Fonts.
+- 2026-04-12T12:25Z [CODE] The current public flow already depends on stable `/home` section anchors: redirects/links in `app/home/actions.ts`, `app/events/page.tsx`, `app/booking/confirm/page.tsx`, `app/membership/pending/page.tsx`, and `app/events/components/events/EventCard.tsx` all target `/home#booking` or `/home#register`, so a `/` + `/home` merge should preserve those ids or add compatibility redirects instead of only changing the page JSX.
 - 2026-04-10T21:15Z [TOOL] The booking PATCH route needed explicit non-null aliases for `existingBooking.member_id` and `existingBooking.slot_id` after the null guard; `next build` surfaced the remaining nullable rollback reference even though lint/test were already green.
 - 2026-04-10T21:15Z [CODE] Zod's UUID validator rejects placeholder strings like `11111111-1111-1111-1111-111111111111` because the version/variant nibbles must also be valid; test fixtures had to switch to version-4-shaped values (`...-4111-8111-...`) for booking update schema coverage.
 - 2026-04-10T20:56Z [TOOL] The new booking-detail edit flow required explicit `undefined -> null` normalization for the linked member record (`membersById.get(...) ?? null`) and for the save-response narrowing before `next build` TypeScript checks would pass; the first network-enabled build reruns surfaced both issues immediately.
@@ -326,6 +337,11 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-04-12T12:56Z [CODE] Adjusted the merged public-page header behavior: the home header now sits directly below the CTA section as part of normal document flow, becomes sticky on scroll instead of fading in, and the desktop side-nav remains the only scroll-gated chrome while section-label opacity behavior stays intact.
+- 2026-04-12T12:56Z [TOOL] Verification for the sticky-header amendment: `npm run test` pass (`51/51`), `npm run build` pass, and `npm run lint` pass with the same 2 pre-existing warnings in `app/admin/page.tsx`.
+- 2026-04-12T12:51Z [CODE] Implemented the approved public-route merge: `app/page.tsx` now renders the landing page plus the shared stacked home sections, the landing CTAs instantly scroll to `#home-root` and `#register`, the fixed home header/desktop nav only appear after the user reaches the stacked home section, and `/home` now reuses the same combined composition with an auto-scroll compatibility bridge.
+- 2026-04-12T12:51Z [CODE] Updated public redirects/links and docs to treat `/#booking` and `/#register` as the canonical booking/register anchors while preserving `/home` compatibility, including `app/home/actions.ts`, public redirect routes, and the architecture/overview/roadmap docs.
+- 2026-04-12T12:51Z [TOOL] Validation for the public-route merge: `npm run test` pass (`51/51`), `npm run build` pass, and `npm run lint` pass with 2 pre-existing unrelated warnings in `app/admin/page.tsx`.
 - 2026-04-10T21:16Z [CODE] `/admin/bookings/[date]` now opens a booking-detail drawer first instead of jumping straight into edit mode: the drawer shows booking id, slot start time, first/last name, email, phone, guest count, and location; admins can then enter an edit step that updates those member basics plus same-date location/time/guest-count changes through `PATCH /api/admin/bookings/[id]`, with server-side slot-capacity adjustment and route refresh after save.
 - 2026-04-10T21:16Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md`, `docs/ADMIN_PORTAL_IMPLEMENTATION_PLAN.md`, and `docs/IMPLEMENTATION_ROADMAP.md` so the repo docs reflect the view-first booking drawer, immutable booking id assumption, same-date slot-move rule, and the new booking PATCH endpoint.
 - 2026-04-10T21:16Z [TOOL] Verification passed for the booking-detail view/edit slice: `npm run test` passed (`51/51`), `npm run lint` passed with 2 pre-existing warnings in `app/admin/page.tsx` (`adminUser`, `pendingMembersCount` unused), and `npm run build` passed after rerunning with network access for Next.js Google Font fetches.

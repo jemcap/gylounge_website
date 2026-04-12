@@ -53,7 +53,7 @@ The plan assumes:
 - `/admin/members` now loads members server-side, filters the list in the client, and writes through protected `PUT`/`DELETE /api/admin/members/[id]` handlers with validation and booking-aware delete guards.
 - `/admin/bookings/[date]` now lets admins click a booking card to open a booking-detail drawer, then move into a booking edit form backed by protected `PATCH /api/admin/bookings/[id]`.
 - Public membership sign-up is already wired through `/register`.
-- Public booking creation is already wired through `/home`.
+- Public booking creation is already wired through the shared public booking section on `/` (`/home` remains a compatibility alias).
 - Supabase admin writes already exist via `supabaseAdminClient()`.
 - The database currently contains `members`, `locations`, `slots`, and `bookings`.
 - The `bookings` table now persists `guest_count`, which keeps the public booking flow aligned with future admin-side capacity restoration needs.

@@ -19,7 +19,7 @@ const redirectHome = (
   params: Record<string, string>,
 ): never => {
   const query = new URLSearchParams(params).toString();
-  redirect(`/home${query ? `?${query}` : ""}#${section}`);
+  redirect(`/${query ? `?${query}` : ""}#${section}`);
 };
 
 const resolveRegisterRedirectTarget = (formData: FormData) => {
@@ -37,7 +37,7 @@ const redirectRegister = (
     redirect(`/register${query ? `?${query}` : ""}`);
   }
 
-  redirect(`/home${query ? `?${query}` : ""}#register`);
+  redirect(`/${query ? `?${query}` : ""}#register`);
 };
 
 const readRequiredValue = (formData: FormData, field: string) => {

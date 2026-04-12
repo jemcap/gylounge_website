@@ -16,7 +16,7 @@ export type EventCardProps = {
 };
 
 export function EventCard({ event, href }: EventCardProps) {
-  const targetHref = href ?? "/home#booking";
+  const targetHref = href ?? "/#booking";
 
   return (
     <Card
