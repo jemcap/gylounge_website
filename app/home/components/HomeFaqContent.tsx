@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { homeFaqItems } from "@/app/home/content/home-faq-items";
 import { Input } from "@/components/ui/input";
 import {

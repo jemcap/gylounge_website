@@ -68,6 +68,8 @@
 - 2026-03-18T00:00Z [USER] Requested updates to the system architecture docs where possible so they reflect the new admin portal plan.
 
 [DECISIONS]
+- 2026-04-12T17:25Z [USER] Keep the existing scroll-triggered desktop nav reveal, but change the nav label coloring so the active item's text color cascades downward onto the remaining lower nav items.
+- 2026-04-12T15:50Z [USER] Revert the always-visible desktop navigation experiment and restore the prior behavior where the desktop nav appears only after the user scrolls into the stacked home section.
 - 2026-04-12T12:56Z [USER] Amend the merged public-page behavior so the home header renders directly below the CTA section in normal flow, becomes sticky while scrolling, drops the header/topbar opacity transitions, and keeps opacity-based emphasis only for the navigation items.
 - 2026-04-12T12:51Z [CODE] Make `/` the canonical public route by stacking the landing content above the shared home-section shell, and keep `/home` as a compatibility alias that renders the same combined experience and auto-scrolls into the home area instead of removing the route outright.
 - 2026-04-10T21:08Z [CODE] Replace the direct member-edit drawer on `/admin/bookings/[date]` with a two-step booking drawer: booking cards now open a read-only booking summary first, and edits submit through a new protected `PATCH /api/admin/bookings/[id]` route that updates member basics (`first_name`, `last_name`, `email`, `phone`) plus booking fields (`guest_count`, `location_id`, `slot_id`) together.
@@ -260,6 +262,7 @@
 - 2026-03-12T21:28Z [CODE] Patched the same migration so legacy slots outside the new hourly window are set to `available_spots = 0`, and the hourly-window check is added `NOT VALID` to avoid aborting on pre-existing off-policy rows.
 
 [DISCOVERIES]
+- 2026-04-12T17:25Z [CODE] The downward text-color flood could be added without changing the existing strip/background logic: the scroll handler already has both `activeId` and the ordered `entries`, so the active entry's `text` color can be applied to lower labels while their strip visibility and opacity rules stay separate.
 - 2026-04-12T13:32Z [TOOL] The repo did not already include the shadcn/Radix accordion primitive; implementing the requested FAQ UI required installing `@radix-ui/react-accordion` and adding local accordion animation utilities to `app/globals.css`.
 - 2026-04-12T12:56Z [CODE] Making the header sticky in normal flow removes the need for the previous `pt-20` offset in `HomeAccordionSection`; keeping that offset would leave an extra gap between the CTA-adjacent header and the first home section.
 - 2026-04-12T12:51Z [TOOL] `npm run lint` for the combined public-page merge still reports two unrelated pre-existing warnings in `app/admin/page.tsx` (`adminUser`, `pendingMembersCount` unused); no new lint errors were introduced by this public-route change.
@@ -340,6 +343,10 @@
 - 2026-03-15T09:20Z [TOOL] After fixing `members_birthday_check`, the next live blocker was `members_status_check`; the app writes `status = 'pending'`, so the live constraint also had to be updated to allow `pending` and `active`.
 
 [OUTCOMES]
+- 2026-04-12T17:25Z [CODE] Updated `HomeAccordionSection` so the active desktop nav item's text color now floods downward onto the remaining lower nav labels, while upper labels keep their prior behavior and the existing stacked strip/background logic stays unchanged.
+- 2026-04-12T17:25Z [TOOL] Verification for the nav text-color cascade update: `npm run test` pass (`51/51`), `npm run build` pass, and `npm run lint` pass with the same 2 pre-existing warnings in `app/admin/page.tsx`.
+- 2026-04-12T15:50Z [CODE] Reverted the later desktop-nav amendment in `HomeSectionShell` and `HomeAccordionSection`, restoring the previous scroll-triggered fixed side-nav reveal while leaving the sticky in-flow header and the FAQ implementation untouched.
+- 2026-04-12T15:50Z [TOOL] Verification for the desktop-nav revert: `npm run test` pass (`51/51`), `npm run build` pass, and `npm run lint` pass with the same 2 pre-existing warnings in `app/admin/page.tsx`.
 - 2026-04-12T13:32Z [CODE] Replaced `app/home/components/HomeFaqContent.tsx` with a client-side searchable FAQ experience: 18 mapped accordion items, a question search bar that filters by title, result-count/no-results states, and shadcn-style accordion cards aligned with the page’s existing warm neutral palette and rounded border treatment.
 - 2026-04-12T13:32Z [CODE] Added `components/ui/accordion.tsx`, installed `@radix-ui/react-accordion`, and introduced minimal `accordion-down` / `accordion-up` animation utilities in `app/globals.css` to support the new FAQ interaction pattern.
 - 2026-04-12T13:32Z [ASSUMPTION] Because the user supplied only FAQ titles and not finalized answers, the new accordion bodies use safe interim copy; replace those strings if product-approved wording is available later.
@@ -463,3 +470,5 @@
 - 2026-03-18T00:00Z [CODE] Updated `docs/SYSTEM_ARCHITECTURE.md` so the target architecture now reflects email/password admin auth with reset-password support, allowlist gating, `/admin/reset-password`, `/admin/bookings/[date]`, admin member/booking flows, and the planned `bookings.guest_count` integrity requirement.
 - 2026-03-19T00:00Z [TOOL] Completed a feasibility review of current documentation and identified concrete design/documentation gaps: admin auth-mode drift across docs/code, non-persisted transfer-reference traceability, status-vocabulary mismatch, and pending booking-integrity prerequisites (`guest_count` + transactional booking updates).
 - 2026-03-19T00:00Z [CODE] Updated architecture/plan docs and admin login placeholder copy to reflect user-confirmed decisions: dedicated reference table persistence, admin-only email/password auth scope, and `pending`/`active` status model.
+- 2026-04-12T19:03Z [CODE] Added `global.d.ts` with `declare module "*.css"` so stricter TypeScript/editor settings accept side-effect global CSS imports such as `app/layout.tsx` importing `./globals.css`.
+- 2026-04-12T19:03Z [TOOL] Validation for the CSS typing fix: `npm run test` passed (`51/51`), `npm run build` passed, and `npm run lint` passed with 2 pre-existing warnings in `app/admin/page.tsx`; `./node_modules/.bin/tsc --project tsconfig.json --noUncheckedSideEffectImports` no longer reports `app/layout.tsx` and now only fails on unrelated `__tests__/lib/admin-bookings.test.ts` `guest_count` type mismatches.
