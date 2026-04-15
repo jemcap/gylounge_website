@@ -1,26 +1,44 @@
+import Image from "next/image";
+import GYLLogo from "@/public/gyl_logo.svg";
+
 export function HomeContactContent() {
   return (
-    <div className="space-y-3 text-sm text-[#2a2216] md:text-base">
-      <p>
-        Email:{" "}
-        <a
-          href="mailto:hello@gylounge.com"
-          className="font-medium text-[#3f2d17] underline"
-        >
-          hello@gylounge.com
-        </a>
-      </p>
-      <p>
-        Phone:{" "}
-        <a
-          href="tel:+233200000000"
-          className="font-medium text-[#3f2d17] underline"
-        >
-          +233 20 000 0000
-        </a>
-      </p>
-      <p>Address: Accra, Ghana</p>
-      <p>Hours: Monday to Saturday, 9:00 AM to 6:00 PM GMT</p>
+    <div className="space-y-3 text-sm text-[#EBBF6C] md:text-base flex flex-col lg:flex-row gap-10 px-5 lg:px-0">
+      <div className="flex basis-1/4 flex-col justify-end gap-10">
+        <div>
+          <h3 className="font-serif italic text-5xl wrap-break-word">
+            Get In Touch
+          </h3>
+          <p>
+            Browse our FAQs for quick answers, or reach out to us anytime and a
+            member of our friendly team will get back to you as soon as
+            possible.
+          </p>
+        </div>
+        <div>
+          <h3 className="font-serif italic text-5xl wrap-break-word">
+            Contact Info
+          </h3>
+          <p>
+            Browse our FAQs for quick answers, or reach out to us anytime and a
+            member of our friendly team will get back to you as soon as
+            possible.
+          </p>
+        </div>
+      </div>
+      <div className="grid flex-1 grid-cols-1 place-items-center gap-0 md:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, idx) => (
+          <div key={idx} className={idx === 0 ? "" : "hidden md:block"}>
+            <Image
+              src={GYLLogo}
+              alt={`Contact icon ${idx + 1}`}
+              width={250}
+              height={250}
+              className="block h-auto w-full"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
