@@ -98,13 +98,13 @@ export function AdminBookingsCalendar({
   return (
     <Card>
       <div className="space-y-4">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <label className="block max-w-sm">
+        <div className="w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <label className="block w-full">
             <span className={labelClass}>Location</span>
             <select
               value={selectedLocationId}
               onChange={(event) => setSelectedLocationId(event.target.value)}
-              className={`${selectClass} bg-white`}
+              className={`${selectClass} w-full`}
             >
               <option value="">All locations</option>
               {locations.map((location) => (
@@ -114,11 +114,6 @@ export function AdminBookingsCalendar({
               ))}
             </select>
           </label>
-
-          <p className="rounded-2xl bg-[#f1ede5] px-4 py-3 text-sm text-[#5c5348]">
-            {formatAdminBookingCountLabel(totalBookings)} across {datesWithBookings}{" "}
-            {datesWithBookings === 1 ? "date" : "dates"}
-          </p>
         </div>
 
         <div className="overflow-hidden rounded-4xl border-3 border-[#8F887D] bg-[#fdfaf4]">

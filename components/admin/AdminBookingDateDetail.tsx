@@ -312,7 +312,7 @@ export function AdminBookingDateDetail({
             </p>
           ) : null}
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,18rem)_auto] lg:items-end">
+          <div>
             <label className="block">
               <span className={labelClass}>Search bookings</span>
               <Input
@@ -322,27 +322,6 @@ export function AdminBookingDateDetail({
                 className="bg-white"
               />
             </label>
-
-            <label className="block">
-              <span className={labelClass}>Location</span>
-              <select
-                value={selectedLocationId}
-                onChange={(event) => setSelectedLocationId(event.target.value)}
-                className={`${selectClass} bg-white`}
-              >
-                <option value="">All locations</option>
-                {locations.map((location) => (
-                  <option key={location.id} value={location.id}>
-                    {location.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <p className="rounded-2xl bg-[#f1ede5] px-4 py-3 text-sm text-[#5c5348]">
-              {formatAdminBookingCountLabel(visibleBookingCount)} across{" "}
-              {visibleSlotCount} {visibleSlotCount === 1 ? "slot" : "slots"}
-            </p>
           </div>
 
           {filteredGroups.length ? (
@@ -357,10 +336,6 @@ export function AdminBookingDateDetail({
                       <h2 className="text-lg font-semibold text-[#261B07]">
                         {group.locationName}
                       </h2>
-                      <p className="text-sm text-[#5c5348]">
-                        {group.slots.length} booked{" "}
-                        {group.slots.length === 1 ? "slot" : "slots"}
-                      </p>
                     </div>
 
                     <p className="rounded-full bg-[#f7ead2] px-4 py-2 text-sm font-medium text-[#5d4a2e]">

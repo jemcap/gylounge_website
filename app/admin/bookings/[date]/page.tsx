@@ -132,8 +132,6 @@ export default async function AdminBookingDateDetailPage({
   return (
     <AdminShell
       currentPath="/admin/bookings"
-      description="Review booked slots for the selected date, filter by location, and search members by name or email."
-      email={adminUser.email}
       title={formattedDate}
     >
       {!isValidDate ? (
