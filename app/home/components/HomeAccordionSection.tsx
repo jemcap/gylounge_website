@@ -136,7 +136,7 @@ export function HomeSideNavLayout({
            bottom edge. Strips stack as the user scrolls down
            and un-stack when scrolling back up.                    */}
       <nav
-        className={`hidden md:fixed md:left-0 md:top-20 md:z-20 md:h-screen md:w-1/3 md:flex-col md:overflow-x-visible lg:w-1/4 ${
+        className={`hidden md:fixed md:left-0 md:top-20 md:z-20 md:h-screen md:w-1/3 md:flex-col md:overflow-x-visible md:pointer-events-none lg:w-1/4 ${
           navVisible ? "md:flex" : "md:hidden"
         }`}
       >
@@ -153,7 +153,7 @@ export function HomeSideNavLayout({
               onClick={() => scrollTo(entry.id)}
               className={`
                 group relative shrink-0 cursor-pointer overflow-visible px-5 py-4
-                text-left text-lg
+                text-left text-lg pointer-events-auto
                 md:w-full md:px-8 md:py-5 md:text-2xl lg:text-3xl
                 ${isCurrent ? "font-bold" : "font-medium"}
               `}

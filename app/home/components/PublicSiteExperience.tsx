@@ -1,5 +1,6 @@
 import { HomeRouteAutoScroll } from "./HomeRouteAutoScroll";
 import { PublicHomeExperience } from "./PublicHomeExperience";
+import { PublicSiteFooter } from "./PublicSiteFooter";
 import { PublicLandingSection } from "./PublicLandingSection";
 
 type PublicSiteExperienceProps = {
@@ -16,6 +17,7 @@ export function PublicSiteExperience({
       {autoScrollToHome ? <HomeRouteAutoScroll /> : null}
       <PublicLandingSection />
       <PublicHomeExperience searchParams={searchParams} />
+      <PublicSiteFooter />
     </main>
   );
 }

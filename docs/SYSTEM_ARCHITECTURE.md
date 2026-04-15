@@ -27,6 +27,7 @@ GYLounge is an elderly-friendly location-booking and membership platform for Gha
 The target route map mirrors `docs/PROJECT_OVERVIEW.md`:
 - `/` canonical public page: landing content stacked above the public home sections (`Register`, `Booking`, `FAQs`, `Contact Us`)
 - `/home` compatibility alias that auto-scrolls into the same combined public experience
+- `/privacy-policy` public privacy policy page linked from the shared site footer
 - `/register` dedicated membership sign-up form route
 - `/events` legacy redirect into the `/#booking` flow
 - `/booking/confirm` booking completion state (dedicated route scaffold)
@@ -247,6 +248,7 @@ Implemented now:
 - `app/home/components/*` (shared public-site modules for landing, stacked home shell, header, and section content)
 - `app/page.tsx` is now the canonical combined public experience, stacking the landing page above the shared home-section shell
 - `app/home/page.tsx` now acts as a compatibility alias that auto-scrolls into the same shared public experience
+- The combined public experience now ends with a shared footer styled to match the `Contact Us` section and linking to `/privacy-policy` plus `/admin`
 - `/#booking` now loads bookable locations plus date-based hourly slots directly from Supabase, with active-membership enforcement on submit
 - The shared public home shell now reveals its fixed header/mobile menu and desktop side nav only after the user reaches the stacked home section
 - Shared home content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation; sections can also opt into a full-width content wrapper that drops the desktop nav gutter and the mobile content inset when needed
