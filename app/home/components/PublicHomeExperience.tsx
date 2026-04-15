@@ -76,6 +76,8 @@ export async function PublicHomeExperience({
       title: "Contact Us",
       bg: "#0E0B0A",
       text: "#EBBF6C",
+      fullWidth: true,
+      alignBottom: true,
       content: <HomeContactContent />,
     },
   ];

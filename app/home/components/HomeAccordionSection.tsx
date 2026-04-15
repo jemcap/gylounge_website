@@ -14,6 +14,8 @@ export type NavEntry = {
   content: ReactNode;
   bg?: string;
   text?: string;
+  fullWidth?: boolean;
+  alignBottom?: boolean;
 };
 
 type HomeSideNavLayoutProps = {
@@ -189,10 +191,20 @@ export function HomeSideNavLayout({
             if (el) panelElements.current.set(entry.id, el);
           }}
           data-section={entry.id}
-          className="flex min-h-screen scroll-mt-24 items-center overflow-x-hidden py-32"
+          className={`flex min-h-screen scroll-mt-24 overflow-x-hidden py-32 ${
+            entry.alignBottom ? "items-end" : "items-center"
+          }`}
           style={{ backgroundColor: entry.bg, color: entry.text }}
         >
-          <div className="w-full min-w-0 px-5 md:pl-[33.333%] md:pr-8 lg:pl-[20%]">
+          <div
+            className={`w-full min-w-0 px-5 md:pr-8 ${
+              entry.alignBottom
+                ? "self-stretch flex flex-col justify-between md:self-auto md:block"
+                : ""
+            } ${
+              entry.fullWidth ? "md:pl-8" : "md:pl-[33.333%] lg:pl-[20%]"
+            }`}
+          >
             <div className="md:hidden">
               {entry.title && (
                 <h2 className="font-roboto font-bold underline text-xl wrap-break-word">
@@ -200,7 +212,13 @@ export function HomeSideNavLayout({
                 </h2>
               )}
             </div>
-            <div className="w-full min-w-0 max-w-384 overflow-x-hidden">
+            <div
+              className={`min-w-0 overflow-x-hidden ${
+                entry.fullWidth
+                  ? "-mx-5 w-auto max-w-none md:mx-0 md:w-full"
+                  : "w-full max-w-384"
+              }`}
+            >
               {entry.content}
             </div>
           </div>

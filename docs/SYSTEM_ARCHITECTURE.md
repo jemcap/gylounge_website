@@ -249,7 +249,7 @@ Implemented now:
 - `app/home/page.tsx` now acts as a compatibility alias that auto-scrolls into the same shared public experience
 - `/#booking` now loads bookable locations plus date-based hourly slots directly from Supabase, with active-membership enforcement on submit
 - The shared public home shell now reveals its fixed header/mobile menu and desktop side nav only after the user reaches the stacked home section
-- Shared home content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation
+- Shared home content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation; sections can also opt into a full-width content wrapper that drops the desktop nav gutter and the mobile content inset when needed
 - The shared register promo now renders as a two-column layout on `md+` with membership card on the left and hero image on the right
 - `app/events/page.tsx`
 - `components/forms/MembershipForm.tsx` now uses React Hook Form + Zod and submits a normalized payload that preserves the existing `registerMemberAction` contract
