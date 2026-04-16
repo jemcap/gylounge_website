@@ -11,6 +11,7 @@ For the full system design and architecture, see `docs/SYSTEM_ARCHITECTURE.md`.
 ## Core Features
 - **Combined Public Experience**: `/` now stacks the landing page above the shared `Register`, `Booking`, `FAQs`, and `Contact Us` home sections, while `/home` remains a compatibility alias
 - **Public Footer**: `/` and `/home` end with a shared footer linking to `/privacy-policy` and `/admin`
+- **Structured Privacy Policy**: `/privacy-policy` renders long-form legal content from typed section data as a simple single-column list, reusing the Home header layout with a neutral color variant
 - **Dedicated Register Route**: `/register` hosts the full membership sign-up form with server-action feedback
 - **Server-Wired Public Forms**: `/register` and the shared public `Booking` section submit to server actions and return status feedback
 - **Booking System**: Location-based booking with date-specific hourly time slots
@@ -36,7 +37,9 @@ app/
   register/
     page.tsx              # Dedicated membership sign-up route
   privacy-policy/
-    page.tsx              # Public privacy policy route linked from the shared footer
+    page.tsx              # Route entry for the public privacy policy page
+    policy-content.ts     # Structured privacy-policy copy and section metadata
+    components/           # PrivacyPolicyPage, PolicyHeader, PolicySection, PolicyList
   home/
     page.tsx              # Compatibility alias that auto-scrolls into the shared public experience
     actions.ts            # Server actions for register + booking submissions

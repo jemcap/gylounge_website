@@ -14,9 +14,17 @@ type HomeMobileMenuEntry = {
 
 type HomeMobileMenuProps = {
   entries: HomeMobileMenuEntry[];
+  buttonBackgroundColor?: string;
+  buttonTextColor?: string;
+  overlayBackgroundColor?: string;
 };
 
-export function HomeMobileMenu({ entries }: HomeMobileMenuProps) {
+export function HomeMobileMenu({
+  entries,
+  buttonBackgroundColor = "#F1EDE5",
+  buttonTextColor = "#261B07",
+  overlayBackgroundColor = "#DBD1B9",
+}: HomeMobileMenuProps) {
   const { closeMenu, isOpen, toggleMenu } = useHomeMobileMenu();
   const contactEntry = entries.find((entry) => entry.id === "contact-us");
   const primaryEntries = entries.filter((entry) => entry.id !== "contact-us");
@@ -57,7 +65,11 @@ export function HomeMobileMenu({ entries }: HomeMobileMenuProps) {
         aria-expanded={isOpen}
         aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
         onClick={toggleMenu}
-        className="inline-flex h-11 w-11 items-center justify-center bg-[#F1EDE5] text-[#261B07]"
+        className="inline-flex h-11 w-11 items-center justify-center"
+        style={{
+          backgroundColor: buttonBackgroundColor,
+          color: buttonTextColor,
+        }}
       >
         {isOpen ? (
           <X aria-hidden="true" className="h-5 w-5" />
@@ -68,7 +80,8 @@ export function HomeMobileMenu({ entries }: HomeMobileMenuProps) {
 
       {isOpen ? (
         <div
-          className="fixed inset-x-0 bottom-0 top-17.5 z-20 bg-[#DBD1B9]"
+          className="fixed inset-x-0 bottom-0 top-17.5 z-20"
+          style={{ backgroundColor: overlayBackgroundColor }}
           onClick={closeMenu}
         >
           <nav

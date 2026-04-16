@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { GhanaTimePill } from "@/components/hero/TimePill";
 import { HomeMobileMenu } from "./HomeMobileMenu";
-import GhanaFlag from '@/app/assets/ghana_flag.svg';
 
 type HomeHeaderEntry = {
   id: string;
@@ -13,11 +12,24 @@ type HomeHeaderEntry = {
 
 type HomeHeaderProps = {
   entries: HomeHeaderEntry[];
+  backgroundColor?: string;
+  mobileMenuButtonBackgroundColor?: string;
+  mobileMenuButtonTextColor?: string;
+  mobileMenuOverlayBackgroundColor?: string;
 };
 
-export function HomeHeader({ entries }: HomeHeaderProps) {
+export function HomeHeader({
+  entries,
+  backgroundColor = "#F1EDE5",
+  mobileMenuButtonBackgroundColor = backgroundColor,
+  mobileMenuButtonTextColor = "#261B07",
+  mobileMenuOverlayBackgroundColor = "#DBD1B9",
+}: HomeHeaderProps) {
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#F1EDE5] backdrop-blur-sm">
+    <header
+      className="sticky top-0 z-30 w-full backdrop-blur-sm"
+      style={{ backgroundColor }}
+    >
       <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
           href="/"
@@ -33,7 +45,12 @@ export function HomeHeader({ entries }: HomeHeaderProps) {
           />
         </Link>
         <GhanaTimePill isHeader={true} className="hidden h-10 w-auto px-4 py-2 text-sm md:inline-flex" />
-        <HomeMobileMenu entries={entries} />
+        <HomeMobileMenu
+          entries={entries}
+          buttonBackgroundColor={mobileMenuButtonBackgroundColor}
+          buttonTextColor={mobileMenuButtonTextColor}
+          overlayBackgroundColor={mobileMenuOverlayBackgroundColor}
+        />
       </div>
     </header>
   );

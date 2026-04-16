@@ -50,6 +50,7 @@ Responsibilities:
 - Collect user input and render state.
 - Keep UI logic thin.
 - Call Server Actions or Route Handlers for mutations.
+- Keep long-form legal/static content in typed data modules and map it into reusable presentational components instead of duplicating section markup inline.
 
 Guideline:
 - Client components only for interactivity.
@@ -249,6 +250,7 @@ Implemented now:
 - `app/page.tsx` is now the canonical combined public experience, stacking the landing page above the shared home-section shell
 - `app/home/page.tsx` now acts as a compatibility alias that auto-scrolls into the same shared public experience
 - The combined public experience now ends with a shared footer styled to match the `Contact Us` section and linking to `/privacy-policy` plus `/admin`
+- `app/privacy-policy/page.tsx` now delegates to reusable privacy-policy components backed by `app/privacy-policy/policy-content.ts`, reuses the Home header layout with a neutral color variant, and renders the legal content as a simple single-column section list with serif italic headings
 - `/#booking` now loads bookable locations plus date-based hourly slots directly from Supabase, with active-membership enforcement on submit
 - The shared public home shell now reveals its fixed header/mobile menu and desktop side nav only after the user reaches the stacked home section
 - Shared home content wrappers use `min-w-0` + `overflow-x-hidden` guards, a widened content cap (`max-w-[96rem]`), and a content-first desktop split (`md: 2/3`, `lg: 3/4`) so sections remain contained while giving content more space than navigation; sections can also opt into a full-width content wrapper that drops the desktop nav gutter and the mobile content inset when needed
