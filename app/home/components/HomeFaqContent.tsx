@@ -23,7 +23,7 @@ export function HomeFaqsContent() {
   return (
     <div className="w-full space-y-6 text-[#261B07]">
       <div className="space-y-3">
-        <h2 className="font-serif text-[86px] italic sm:text-6xl">
+        <h2 className="font-serif text-5xl italic lg:text-6xl">
           Frequently Asked Questions
         </h2>
         <p className="max-w-3xl text-sm font-bold md:text-base">

@@ -191,8 +191,8 @@ export function HomeSideNavLayout({
             if (el) panelElements.current.set(entry.id, el);
           }}
           data-section={entry.id}
-          className={`flex min-h-screen scroll-mt-24 overflow-x-hidden py-32 ${
-            entry.alignBottom ? "items-end" : "items-center"
+          className={`flex min-h-screen scroll-mt-24 overflow-x-hidden pt-8 pb-32 md:py-32 ${
+            entry.alignBottom ? "items-end" : "items-start md:items-center"
           }`}
           style={{ backgroundColor: entry.bg, color: entry.text }}
         >

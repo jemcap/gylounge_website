@@ -48,13 +48,13 @@ export function PublicLandingSection() {
         <div className="mx-auto flex w-full flex-col">
           <div className="w-full flex justify-center flex-col items-center text-justify bg-[#EBBF6C] text-[#261B07] pb-10">
             <h2
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
+              className="text-center text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Enjoy Your Golden Years
             </h2>
             <p
-              className="max-w-md md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
+              className="max-w-xs md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               Golden Years Lounge is a social space created to bring older
@@ -70,7 +70,7 @@ export function PublicLandingSection() {
               Play, Relax & Connect
             </h2>
             <p
-              className="max-w-md md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
+              className="max-w-xs md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               With classic games and group activities available daily, unwind,
