@@ -4,7 +4,7 @@ export function PublicSiteFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-[#EBBF6C]/20 bg-[#0E0B0A] text-[#EBBF6C]">
+    <footer className=" bg-[#0E0B0A] text-[#EBBF6C]">
       <div className="mx-auto flex w-full gap-4 px-5 py-6 text-sm flex-row items-center justify-between md:px-8 md:text-base">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <Link

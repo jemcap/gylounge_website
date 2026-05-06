@@ -36,6 +36,11 @@ export function PublicLandingSection() {
           <div className="flex w-full justify-center">
             <GhanaTimePill />
           </div>
+          <div className="mt-6 flex w-full justify-center">
+            <span className="rounded-full border-2 border-[#EBBF6C] px-8 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#EBBF6C] drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+              Coming Soon
+            </span>
+          </div>
         </div>
       </section>
 
@@ -43,13 +48,13 @@ export function PublicLandingSection() {
         <div className="mx-auto flex w-full flex-col">
           <div className="w-full flex justify-center flex-col items-center text-justify bg-[#EBBF6C] text-[#261B07] pb-10">
             <h2
-              className="text-[86px] font-light italic"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Enjoy Your Golden Years
             </h2>
             <p
-              className="max-w-2xl text-3xl"
+              className="max-w-md md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               Golden Years Lounge is a social space created to bring older
@@ -59,13 +64,13 @@ export function PublicLandingSection() {
           </div>
           <div className="w-full flex justify-center flex-col items-center text-center bg-[#3F2D17] text-[#DBD1B9] pb-10">
             <h2
-              className="text-[86px] font-light italic"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Play, Relax & Connect
             </h2>
             <p
-              className="max-w-2xl text-3xl"
+              className="max-w-md md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               With classic games and group activities available daily, unwind,
@@ -97,7 +102,7 @@ export function PublicLandingSection() {
                       className="flex h-full shrink-0 items-center px-4 md:px-5 lg:px-6"
                     >
                       <h1
-                        className="text-center text-2xl leading-none font-light md:text-3xl lg:text-7xl italic"
+                        className="text-center text-5xl leading-none font-light md:text-3xl lg:text-7xl italic"
                         style={{ fontFamily: "'Instrument Serif', serif" }}
                       >
                         {sport}
