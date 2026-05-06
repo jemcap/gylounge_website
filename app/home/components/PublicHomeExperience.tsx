@@ -38,32 +38,39 @@ export async function PublicHomeExperience({
     ? "Choose a location to unlock its available dates and hourly booking slots."
     : undefined;
 
-  const initialActiveId = bookingFeedback || bookingConfirmation ? "booking" : null;
+  const isDev = process.env.NODE_ENV === "development";
+
+  const initialActiveId =
+    isDev && (bookingFeedback || bookingConfirmation) ? "booking" : null;
 
   const entries = [
-    {
-      id: "register",
-      title: "Register",
-      bg: "#DBD1B9",
-      text: "#261B07",
-      content: <HomeDefaultContent />,
-    },
-    {
-      id: "booking",
-      title: "Booking",
-      bg: "#3F2D17",
-      text: "#DBD1B9",
-      content: (
-        <BookingAccordionContent
-          action={createBookingAction}
-          bookingConfirmation={bookingConfirmation}
-          locations={locations}
-          slots={slots}
-          bookingFeedback={bookingFeedback}
-          bookingContext={bookingContext}
-        />
-      ),
-    },
+    ...(isDev
+      ? [
+          {
+            id: "register",
+            title: "Register",
+            bg: "#DBD1B9",
+            text: "#261B07",
+            content: <HomeDefaultContent />,
+          },
+          {
+            id: "booking",
+            title: "Booking",
+            bg: "#3F2D17",
+            text: "#DBD1B9",
+            content: (
+              <BookingAccordionContent
+                action={createBookingAction}
+                bookingConfirmation={bookingConfirmation}
+                locations={locations}
+                slots={slots}
+                bookingFeedback={bookingFeedback}
+                bookingContext={bookingContext}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       id: "faqs",
       title: "FAQs",

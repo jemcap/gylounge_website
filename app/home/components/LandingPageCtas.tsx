@@ -22,18 +22,20 @@ export function LandingPageCtas() {
           strokeWidth={2.25}
         />
       </button>
-      <button
-        type="button"
-        onClick={() => scrollToSection("register")}
-        className="inline-flex h-14 w-85.25 items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#EBBF6C] text-sm font-semibold uppercase tracking-wide text-[#3F2D17] cursor-pointer"
-      >
-        <span>Become A Member</span>
-        <ChevronDown
-          aria-hidden="true"
-          className="h-4 w-4 shrink-0"
-          strokeWidth={2.25}
-        />
-      </button>
+      {process.env.NODE_ENV === "development" && (
+        <button
+          type="button"
+          onClick={() => scrollToSection("register")}
+          className="inline-flex h-14 w-85.25 items-center justify-center gap-2 rounded-full border-2 border-[#3F2D17] bg-[#EBBF6C] text-sm font-semibold uppercase tracking-wide text-[#3F2D17] cursor-pointer"
+        >
+          <span>Become A Member</span>
+          <ChevronDown
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0"
+            strokeWidth={2.25}
+          />
+        </button>
+      )}
     </div>
   );
 }
