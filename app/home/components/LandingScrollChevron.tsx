@@ -6,9 +6,12 @@ import { ChevronDown } from "lucide-react";
 export function LandingScrollChevron() {
   const targetRef = useRef<HTMLElement | null>(null);
 
+  const targetId =
+    process.env.NODE_ENV === "development" ? "register" : "faqs";
+
   const handleClick = () => {
     if (!targetRef.current) {
-      targetRef.current = document.getElementById("register");
+      targetRef.current = document.getElementById(targetId);
     }
     targetRef.current?.scrollIntoView({ behavior: "smooth" });
   };
