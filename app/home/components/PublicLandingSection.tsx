@@ -46,31 +46,31 @@ export function PublicLandingSection() {
 
       <section className="w-full bg-[#efe7dc]">
         <div className=" flex w-full flex-col">
-          <div className="flex justify-center flex-col items-center text-justify bg-[#EBBF6C] text-[#261B07] pb-10">
+          <div className="w-full flex flex-col justify-center text-justify bg-[#EBBF6C] text-[#261B07] px-6 py-8 md:px-12 lg:px-40">
             <h2
-              className="text-6xl text-center max-w-sm sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
+              className="text-6xl text-start w-full md:text-7xl lg:text-[86px] font-light italic mb-2 lg:mb-8"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Enjoy Your Golden Years
             </h2>
             <p
-              className="max-w-85 text-justify md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
+              className="w-full max-w-3xl text-start text-2xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
-              Golden Years Lounge is a social space created to bring older
+              <strong>Golden Years Lounge</strong> is a social space created to bring older
               adults from Ghana and the diaspora together in a friendly and
               welcoming environment.
             </p>
           </div>
-          <div className="w-full flex justify-center flex-col items-center text-center bg-[#3F2D17] text-[#DBD1B9] pb-10">
+          <div className="w-full flex flex-col justify-center text-center bg-[#3F2D17] text-[#DBD1B9] px-6 py-16 md:px-12 lg:px-40">
             <h2
-              className="text-6xl text-center max-w-sm sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
+              className="text-6xl text-start w-full md:text-7xl lg:text-[86px] font-light italic mb-2 lg:mb-8"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Play, Relax & Connect
             </h2>
             <p
-              className="max-w-85 text-justify md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
+              className="w-full max-w-3xl text-start text-2xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               With classic games and group activities available daily, unwind,
