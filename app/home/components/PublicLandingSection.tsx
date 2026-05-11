@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { GhanaTimePill } from "@/components/hero/TimePill";
 import { LandingPageCtas } from "./LandingPageCtas";
+import { LandingScrollChevron } from "./LandingScrollChevron";
 
 export function PublicLandingSection() {
   const sports = [
@@ -42,6 +43,7 @@ export function PublicLandingSection() {
             </span>
           </div>
         </div>
+        <LandingScrollChevron />
       </section>
 
       <section className="w-full bg-[#efe7dc]">
