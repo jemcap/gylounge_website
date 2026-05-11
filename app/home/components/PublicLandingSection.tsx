@@ -33,7 +33,7 @@ export function PublicLandingSection() {
             height={1000}
             className="drop-shadow-[0_20px_30px_rgba(0,0,0,1)]"
           />
-          <div className="flex w-full justify-center">
+          <div className="mt-4 flex w-full justify-center">
             <GhanaTimePill />
           </div>
           <div className="mt-6 flex w-full justify-center">
@@ -45,16 +45,16 @@ export function PublicLandingSection() {
       </section>
 
       <section className="w-full bg-[#efe7dc]">
-        <div className="mx-auto flex w-full flex-col">
-          <div className="w-full flex justify-center flex-col items-center text-justify bg-[#EBBF6C] text-[#261B07] pb-10">
+        <div className=" flex w-full flex-col">
+          <div className="flex justify-center flex-col items-center text-justify bg-[#EBBF6C] text-[#261B07] pb-10">
             <h2
-              className="text-center text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
+              className="text-6xl text-center max-w-sm sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Enjoy Your Golden Years
             </h2>
             <p
-              className="max-w-xs md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
+              className="max-w-85 text-justify md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               Golden Years Lounge is a social space created to bring older
@@ -64,13 +64,13 @@ export function PublicLandingSection() {
           </div>
           <div className="w-full flex justify-center flex-col items-center text-center bg-[#3F2D17] text-[#DBD1B9] pb-10">
             <h2
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
+              className="text-6xl text-center max-w-sm sm:text-6xl md:text-7xl lg:text-[86px] font-light italic my-10"
               style={{ fontFamily: "'Instrument Serif', serif" }}
             >
               Play, Relax & Connect
             </h2>
             <p
-              className="max-w-xs md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
+              className="max-w-85 text-justify md:max-w-2xl text-xl sm:text-2xl md:text-3xl"
               style={{ fontFamily: "'Roboto', sans-serif" }}
             >
               With classic games and group activities available daily, unwind,
