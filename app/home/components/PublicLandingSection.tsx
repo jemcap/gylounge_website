@@ -37,7 +37,7 @@ export function PublicLandingSection() {
             <GhanaTimePill />
           </div>
           <div className="mt-6 flex w-full justify-center">
-            <span className="rounded-full border-2 border-[#EBBF6C] px-8 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-[#EBBF6C] drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            <span className="rounded-full border-2 border-white px-8 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
               Coming Soon
             </span>
           </div>

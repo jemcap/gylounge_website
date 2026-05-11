@@ -1,5 +1,6 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { GhanaTimePill } from "@/components/hero/TimePill";
 import { HomeMobileMenu } from "./HomeMobileMenu";
 
@@ -31,10 +32,11 @@ export function HomeHeader({
       style={{ backgroundColor }}
     >
       <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link
-          href="/"
+        <button
+          type="button"
           aria-label="Go to landing page"
-          className="inline-flex items-center"
+          className="inline-flex cursor-pointer items-center"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <Image
             src="/gylounge_logo.svg"
@@ -43,7 +45,7 @@ export function HomeHeader({
             height={50}
             priority
           />
-        </Link>
+        </button>
         <GhanaTimePill isHeader={true} className="hidden h-10 w-auto px-4 py-2 text-sm md:inline-flex" />
         <HomeMobileMenu
           entries={entries}
