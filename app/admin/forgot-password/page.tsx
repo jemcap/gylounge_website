@@ -58,7 +58,7 @@ export default async function ForgotPasswordPage({
                   id="reset-email"
                   type="email"
                   name="email"
-                  placeholder="admin@gylounge.com"
+                  placeholder="admin@goldenyearslounge.com"
                   required
                 />
               </div>

@@ -49,7 +49,7 @@ export default async function AdminLoginPage({
                   id="admin-email"
                   type="email"
                   name="email"
-                  placeholder="admin@gylounge.com"
+                  placeholder="admin@goldenyearslounge.com"
                   required
                 />
               </div>

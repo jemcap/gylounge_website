@@ -7,19 +7,19 @@ import { adminPasswordUpdateSchema } from "@/lib/admin-auth";
 
 describe("admin auth helpers", () => {
   it("normalizes and parses the admin allowlist", () => {
-    const allowlist = parseAdminEmailAllowlist("Admin@GYLounge.com, ops@gylounge.com\nteam@gylounge.com");
+    const allowlist = parseAdminEmailAllowlist("admin@goldenyearslounge.com, ops@gylounge.com\nteam@gylounge.com");
 
     expect(Array.from(allowlist)).toEqual([
-      "admin@gylounge.com",
+      "admin@goldenyearslounge.com",
       "ops@gylounge.com",
       "team@gylounge.com",
     ]);
   });
 
   it("checks allowlisted emails case-insensitively", () => {
-    process.env.ADMIN_EMAIL_ALLOWLIST = "admin@gylounge.com";
+    process.env.ADMIN_EMAIL_ALLOWLIST = "admin@goldenyearslounge.com";
 
-    expect(isAdminEmailAllowlisted("ADMIN@GYLOUNGE.COM")).toBe(true);
+    expect(isAdminEmailAllowlisted("admin@goldenyearslounge.com")).toBe(true);
     expect(isAdminEmailAllowlisted("guest@gylounge.com")).toBe(false);
   });
 

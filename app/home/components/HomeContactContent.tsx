@@ -53,11 +53,11 @@ export function HomeContactContent() {
               <span>0244 123 456</span>
             </a>
             <a
-              href="mailto:admin@babyt.co.uk"
+              href="mailto:hello@goldenyearslounge.com"
               className="flex items-center gap-2 hover:underline"
             >
               <Mail className="h-4 w-4 shrink-0" />
-              <span>admin@babyt.co.uk</span>
+              <span>hello@goldenyearslounge.com</span>
             </a>
             <a
               href="https://facebook.com"

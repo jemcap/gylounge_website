@@ -55,14 +55,22 @@ export function PublicLandingSection() {
             >
               Enjoy Your Golden Years
             </h2>
-            <p
-              className="w-full max-w-3xl text-start text-2xl sm:text-2xl md:text-3xl"
-              style={{ fontFamily: "'Roboto', sans-serif" }}
-            >
-              <strong>Golden Years Lounge</strong> is a social space created to bring older
-              adults from Ghana and the diaspora together in a friendly and
-              welcoming environment.
-            </p>
+            <div className="w-full max-w-3xl text-start text-2xl sm:text-2xl md:text-3xl space-y-5">
+              <p style={{ fontFamily: "'Roboto', sans-serif" }}>
+                <strong>Golden Years Lounge</strong> is a
+                privately owned social space created to bring older adults from
+                the diaspora as well as in Ghana, together in a friendly and a
+                welcoming environment.
+              </p>
+              <p>
+                Our goal is to improve quality of life and wellbeing by offering
+                opportunities to connect, socialise, and stay active. Founded by
+                a recently retired diasporan who recognised the lack of
+                enriching recreational spaces for retirees, Golden Years Lounge
+                was established to fill that gap — providing meaningful
+                engagement and mental stimulation in a community setting.
+              </p>
+            </div>
           </div>
           <div className="w-full flex flex-col justify-center text-center bg-[#3F2D17] text-[#DBD1B9] px-6 py-16 md:px-12 lg:px-40">
             <h2
