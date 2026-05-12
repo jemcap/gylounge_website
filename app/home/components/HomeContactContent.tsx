@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Mail, Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 
 function FacebookIcon({ className }: { className?: string }) {
   return (
@@ -45,13 +45,13 @@ export function HomeContactContent() {
             Contact Info
           </h3>
           <div className="flex flex-wrap gap-x-6 gap-y-3 mt-3">
-            <a
+            {/* <a
               href="tel:0244123456"
               className="flex items-center gap-2 hover:underline"
             >
               <Phone className="h-4 w-4 shrink-0" />
               <span>0244 123 456</span>
-            </a>
+            </a> */}
             <a
               href="mailto:hello@goldenyearslounge.com"
               className="flex items-center gap-2 hover:underline"
